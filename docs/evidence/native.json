@@ -1,0 +1,156 @@
+{
+  "recorded_utc": "2026-11-03T01:54:50.312193+00:00",
+  "classification": "Executed post-opening native CLI and external certificate inspection",
+  "source_hashes": {
+    "fe.toml": "4af73c0e31e93f41f4d81a7a4b020cbb58ddf4f1422ce425f1bbdc24a53ed8c8",
+    "ingots/api_tests/fe.toml": "40e12525f19bf2503b2f04f1f9065b7a93d185079440c2db8669d83bbcc0c0d1",
+    "ingots/assignment/fe.toml": "a4d4dfb2a56d8611eb8c534adaa0a1f2cc6162014b077eb8c040292c9cabd3a2",
+    "ingots/assignment/src/lib.fe": "19235c78e12d400b6f2443ae2cba98a85a09596ee66d549efa05ac101364660a",
+    "ingots/cli/fe.toml": "d7b3d8f4dd6472a3e7ef4f33d52ee295a1c30fc0ec297f66db2f31cb07dd7105",
+    "ingots/cli/src/lib.fe": "a98b97177dc624f74b1ee0e79396fa679b8f538975abbf5940efd0775728ccf6",
+    "native/io.c": "3e8512f7161c654efc37a0bfe89431aebf572d9a6554b0ccd9e7c9d84c07cdde",
+    "toolchain.json": "a16e6905a077c683a39dc94341ab5df69b3a1f9faae39a3972a7ee01fd45692e",
+    "tools/build-native.py": "9e2837faf9e4d3d8b5c35fce0361e799a1afbf911bf17e523d6d2e61e4d9430b",
+    "tools/check-native.py": "8f83bb200cfd9064bc4d1e72462fd228a34c7e510af660a3cdbb84c8455ff3aa",
+    "tools/check-native-io.py": "494740259259c9fc76440f8fc3b84c338240bd8dca1f0f9dd3dd0bf57b597d58",
+    "tests/native/interrupt.c": "d46c80a39f0fe7df802c0844db606448de63ef363e169bf5396d9f4787a54a7c"
+  },
+  "source_hashes_match_executed_evidence": true,
+  "compiler": "Fe 26.5.1 (149c758503563ebd6ad7237b85e28a94dca6e22a)",
+  "compiler_asset_sha256": "2d48fd56e45f56a775bea73a3180ffcab73ad440887d0a985be2050fb5993916",
+  "system_cc": "cc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0",
+  "binary_sha256": "4dcacdb89e98caa9a636ccaccf4850ae40c407a717fc9a1a39ff6f65598a3bb7",
+  "binary_bytes": 591144,
+  "native_build": {
+    "path": "logs/feassign-fa06-attempt05-pinned-native/build.json",
+    "exit_code": 0,
+    "started_utc": "2026-11-03T01:51:35.392039+00:00",
+    "ended_utc": "2026-11-03T01:51:37.314735+00:00"
+  },
+  "certificate_inspection": {
+    "path": "logs/feassign-fa04-exported-certificates02/results.json",
+    "counts": {
+      "certificates": 2906,
+      "roundtrips": 2906,
+      "finite_space": 2252,
+      "all_shapes": 528,
+      "seeded": 96,
+      "metamorphic": 20,
+      "directed": 10,
+      "negative": 39,
+      "io": 3
+    },
+    "unique_logical_matrices": 2899,
+    "entries": 2906,
+    "all_shape_examples": 528,
+    "corpus_sha256": "6b5ca69119ba25a0b7c228011b1d288c44654dc573597b65f6b2c1c3305a86f6",
+    "started_utc": "2026-11-03T01:51:48.168601+00:00",
+    "ended_utc": "2026-11-03T01:52:21.198720+00:00"
+  },
+  "descriptor_io": {
+    "path": "logs/feassign-fa06-descriptor-io02/results.json",
+    "checks": 8,
+    "records": [
+      {
+        "name": "byte-at-a-time-input",
+        "actual": 0,
+        "bytes": 16,
+        "waiting": "anon_pipe_read"
+      },
+      {
+        "name": "valid-prefix-then-extra-token",
+        "actual": 2,
+        "waiting": "anon_pipe_read"
+      },
+      {
+        "name": "empty-nonblocking",
+        "actual": 5,
+        "prefix_hex": "",
+        "writer_open": true
+      },
+      {
+        "name": "prefix-nonblocking",
+        "actual": 5,
+        "prefix_hex": "312031203020",
+        "writer_open": true
+      },
+      {
+        "name": "handled-eintr-empty",
+        "actual": 5,
+        "signal": "SIGUSR1",
+        "waiting": "anon_pipe_read",
+        "sa_restart": false,
+        "writer_open_until_child_exit": true
+      },
+      {
+        "name": "handled-eintr-after-prefix",
+        "actual": 5,
+        "signal": "SIGUSR1",
+        "waiting": "anon_pipe_read",
+        "sa_restart": false,
+        "writer_open_until_child_exit": true
+      },
+      {
+        "name": "large-output-dev-full",
+        "actual": 5,
+        "bytes_if_success": "over libc buffer"
+      },
+      {
+        "name": "stderr-flush-failure",
+        "actual": 5
+      }
+    ],
+    "started_utc": "2026-11-03T01:52:07.281375+00:00",
+    "ended_utc": "2026-11-03T01:52:07.525988+00:00"
+  },
+  "common_backend_reports": [
+    {
+      "path": "logs/feassign-fa05-cli-workspace-native/result.json",
+      "backend": "native",
+      "optimize": "1",
+      "passed": 44,
+      "failed": 0,
+      "started_utc": "2026-11-03T01:52:07.209040+00:00",
+      "ended_utc": "2026-11-03T01:52:09.457001+00:00"
+    },
+    {
+      "path": "logs/feassign-fa05-cli-workspace-evm/result.json",
+      "backend": "sonatina",
+      "optimize": "1",
+      "passed": 44,
+      "failed": 0,
+      "started_utc": "2026-11-03T01:51:48.154127+00:00",
+      "ended_utc": "2026-11-03T01:52:02.843140+00:00"
+    }
+  ],
+  "fa04": "Acceptance met: actual Fe outputs independently inspected, exact finite spaces and guarded metamorphic cases",
+  "fa05": "Acceptance met for current kernel: common verifier/cost cases native/EVM with independent evidence",
+  "fa06": "Native Linux x86-64 acceptance met for current versioned solve/verify interface and documented I/O policy",
+  "preserved_build_failures": [
+    {
+      "path": "logs/feassign-fa06-attempt01-native",
+      "issue": "Long literal DynString/AsBytes and extern labels"
+    },
+    {
+      "path": "logs/feassign-fa06-attempt02-native",
+      "issue": "ModelError Result.unwrap ABI requirement"
+    },
+    {
+      "path": "logs/feassign-fa06-attempt03-native",
+      "issue": "Generic result borrowed instead of owned"
+    }
+  ],
+  "same_executable_bytes_as_prior_success": true,
+  "no_runtime_solver_mismatch_observed": true,
+  "new_host_optimizer": false,
+  "reused_preopening_route": "Scoped child PATH cc link route; no product C/parser/test code copied from preparation",
+  "limits": [
+    "Corpus has overlaps; not exhaustive full-i64/full32 correctness",
+    "No EVM board, semantic ABI/digest, deployed receipt/state/gas acceptance yet",
+    "Not a fresh-source complete-project rehearsal, audit, human review, final freeze or contest submission",
+    "No whole-process allocation/leak, abrupt-kill cleanup, I/O deadline or durability proof"
+  ],
+  "goal_complete": false,
+  "human_feedback_received": false,
+  "public_submission": false
+}

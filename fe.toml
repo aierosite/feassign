@@ -4,4 +4,5 @@ version = "0.1.0"
 members = [
   { path = "ingots/assignment", name = "assignment" },
   { path = "ingots/api_tests", name = "api_tests" },
+  { path = "ingots/cli", name = "cli" },
 ]

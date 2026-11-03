@@ -96,10 +96,11 @@ definition in [oracle-cases.json](evidence/oracle-cases.json).
 
 ## Remaining acceptance
 
-FA04 is still partial: Python has checked expected global costs, but independent
-inspection of actual Fe-produced selected indices/u/v outside the Fe verifier
-is pending an output/CLI adapter. Broader seeded/metamorphic and adversarial
-work also remains. These cost tests are not a formal proof or universal profile
-guarantee. Internal EVM tests are not actual board deployment/code/init/gas or
-receipt/state evidence. CLI, board, full reproducibility/demo and human review
-remain part of the persistent build goal.
+At this solver checkpoint FA04 was partial: independent inspection of actual
+selected/u/v still awaited an export adapter. The subsequent
+[native checkpoint](NATIVE-CHECKPOINT.md) now records that inspection, guarded
+seeded/metamorphic cases and implemented CLI/I/O acceptance. The earlier JSON
+remains historical evidence. Broader adversarial stabilization, board,
+full32 deployment/code/init/gas/receipt/state, complete demo/reproducibility,
+actual human review and freeze remain. These tests are not a formal proof or
+universal profile guarantee; the persistent build goal remains active.

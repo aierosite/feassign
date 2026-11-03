@@ -55,5 +55,21 @@ independent Python finite-space expected-cost generator. The corpus contains
 2,252 small-space entries and 528 closed-form shape examples, all authored and
 executed after opening. It preserves overlap counts and distinguishes expected-
 cost comparison from independent inspection of actual certificate fields, which
-still awaits an export adapter. Current scope is in SOLVER.md; Python is not a
-product optimization engine.
+at that checkpoint still awaited an export adapter. Historical scope is in
+SOLVER.md; Python is not a product optimization engine.
+
+The subsequent post-opening native checkpoint adds a Fe streaming parser,
+formatter and solve/verify entry, with a newly authored scalar C stdio/status
+bridge. Its child-only PATH link wrapper derives from the disclosed pre-window
+upstream-link experiment. Official std::native::Args and core::AsBytes APIs are
+used as toolchain dependencies; no std source is vendored as original product
+code. The source/ABI/stream research and model design remain pre-window work.
+The product bridge, parser, versioned envelope, inspector and tests were authored
+and executed after opening. Full evidence/limits are in NATIVE-CHECKPOINT.md.
+
+Python independently checks actual exported p/u/v with arbitrary integers,
+enumerates small injections and checks justified larger-case transformations.
+It does not supply assignments to the product solver. The test-only C preload
+handler installs a handled SIGUSR1 without SA_RESTART to interrupt real reads;
+it does not replace libc I/O, Fe code or the product bridge. No copied assignment
+algorithm, third-party service, paid API or new research agent is used.

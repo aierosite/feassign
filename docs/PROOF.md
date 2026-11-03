@@ -49,20 +49,42 @@ beyond the matrix. These are algorithmic bounds, not measured speed or gas ratio
 All finite complete instances in the supported shape have an assignment.
 There is no NoAssignment escape or forbidden-edge sentinel.
 
-Costs are full i64. The sum of at most32 such values fits i128. Both mathematical
-verification and optimization widen combined arithmetic to i256 first, including
-hostile full-i128 u/v additions. The solver's generated real potentials have a
-tighter bound: each u[i] stays between that row's minimum and maximum cost.
-It starts at the minimum and only increases. Before every augmentation, even
-the last, a free real column k exists and retains v[k]=0; full-matrix dual
-feasibility therefore gives u[i]<=C[i,k]<=row_max. Augmentation changes owners,
-not potentials. For global cost extremes L and H, tight matched edges then give
-L-H<=v[j]<=0; unused v is zero. Thus generated u fits i64 and generated v is at
-least -(2^64-1), so exported i128 suffices. This excludes the private dummy slot
-and does not restrict external certificates: valid full-i128 gauge shifts remain
-accepted. Narrowing and progress failures are implementation invariant failures,
-not extra unsupported valid inputs. The objective is recomputed;
--dummyPotential would omit the nonzero row-minimum initialization.
+Costs are full i64. The sum of at most32 such values fits i128. Arithmetic
+widens to i256 before combining values. For external certificates, two full-i128
+potentials can sum to [-2^128,2^128-2]; these are not solver-generated bounds.
+Valid full-i128 gauge shifts remain accepted.
+
+For the solver, let L and H be the global cost extremes and D=H-L<=2^64-1.
+Each real u[i] starts at its row minimum and only increases. Before an
+augmentation a free real column k exists with v[k]=0. For every reached row i,
+delta<=slack[k]<=C[i,k]-u[i], so the update keeps u[i]<=row_max.
+Unreached rows do not change; augmentation changes owners, not potentials.
+Thus real u stays in [L,H]. Tight matched edges give real v=C-u in [-D,0];
+free columns stay at zero because search stops before reaching them.
+
+Consequently C-u lies in [-D,D] and feasible reduced costs C-u-v in [0,2D].
+The first complete scan initializes every real slack; later it is the minimum
+reduced cost over reached rows. Subtracting delta<=slack keeps it nonnegative.
+The free column also gives slack[k]<=D, hence 0<=delta<=D.
+
+The private dummy v[0] is different. Let alpha be the sum of all r initial row
+minima and F=sum(real u)+sum(real v), excluding dummy slots. Initially F=alpha.
+Each complete dual update raises F by delta since |S|=|T|+1; augmentation leaves
+F unchanged. At every completed feasible update, weak duality gives
+F<=cost(any injection)<=rH, while alpha>=rL. Thus cumulative delta=F-alpha<=rD.
+Dummy v[0] starts at zero and subtracts every delta without resetting, so it
+stays in [-rD,0], above -2^69 for r<=32. No final successful output is needed
+for this prefix bound. At completion objective=alpha-v[0]; -v[0] alone omits
+the row-minimum initialization. The implementation recomputes the selected sum.
+
+Sequential scalar writes need not themselves preserve global feasibility halfway
+through an update. Even independent operand intervals bound u+delta by
+[L,H+D], real v-delta by [-2D,0], slack-delta by [-D,2D], and dummy v[0]-delta
+by [-(r+1)D,0]. These loose solver intermediate bounds have magnitude below
+2^70; completed states satisfy the tighter invariants above. Generated real u
+fits i64 and real v is at least -(2^64-1), so exported i128 suffices. Dummy slots
+are not exported. Narrowing and progress failures are implementation invariant
+failures, not extra unsupported valid inputs.
 
 Problem and certificate fields are private. A shape-valid Certificate is still
 an untrusted proof: indices and potentials can be mathematically invalid.

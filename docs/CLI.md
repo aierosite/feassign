@@ -58,9 +58,10 @@ buffer is retained. This is a size bound, not an input deadline.
 
 Exit statuses: 0 success, 2 syntax/type/dimension error, 3 input size limit,
 4 mathematically invalid certificate or inconsistent total, 5 I/O failure,
-6 internal invariant failure, 64 usage error. Failures use fixed stderr messages
+6 internal invariant failure, 64 usage error. Diagnostics use fixed stderr text
 without reproducing hostile input. A valid prefix followed by bad input produces
-no success output. A late write failure may leave a partial output and returns 5.
+no success output. A late write failure may leave partial output and no diagnostic;
+its exit status is 5. Treat the exit status as authoritative.
 
 All parsing, numeric formatting, solve and proof checks are Fe code. A streaming
 cursor uses one character of lookahead, checked magnitude accumulation and

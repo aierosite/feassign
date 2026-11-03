@@ -82,8 +82,9 @@ fe test . --ingot api_tests --backend native -O 1
 python tools/check-api-boundaries.py --fe fe
 ```
 
-Native commands require supported Linux and a system linker. The current counts
-and expected-cost scope are in [SOLVER.md](SOLVER.md). Some
+Native commands require supported Linux and a system linker.
+[REPRODUCE.md](REPRODUCE.md) lists current counts/commands;
+[SOLVER.md](SOLVER.md) preserves the earlier expected-cost checkpoint. Some
 known-value checks may be optimized/constant-evaluated; their results are
 language/API observations, not independent mathematical-oracle evidence.
 The initial full32 IR/runtime evidence and EVM O0 failure remain in
@@ -91,9 +92,9 @@ The initial full32 IR/runtime evidence and EVM O0 failure remain in
 must fail for their specified privacy/move diagnostics, not for an unrelated
 type or dependency error.
 
-The initial six-test model checkpoint is historical evidence in
-[model-api.json](evidence/model-api.json). Current packed-model/verifier evidence
-is in [verifier.json](evidence/verifier.json) as a dated verifier checkpoint;
-[solver.json](evidence/solver.json) records the earlier optimizer/cost campaign.
-[BOARD.md](BOARD.md) and [board.json](evidence/board.json) record the current
-sequential-construction, CLI regression and actual board transaction checkpoint.
+The dated [model](evidence/model-api.json), [verifier](evidence/verifier.json)
+and [optimizer](evidence/solver.json) records preserve their original source
+hashes and checkpoint scopes. [board.json](evidence/board.json) is the original
+sequential-builder/CLI/board checkpoint, before the later static-tail revision.
+[BOARD.md](BOARD.md) describes the revised board, its targeted validation and
+the candidate manifest that binds current source to evidence.

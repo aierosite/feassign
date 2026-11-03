@@ -92,7 +92,8 @@ failures and successful deployment receipts remain. The corrected driver checks
 real code size/prefix and getters, without changing the compiler's private tail
 layout. These are local technical tests with ephemeral test balances, not mainnet,
 public deployment, wallet authority, final submission or human acceptance.
-Current evidence and limitations are in BOARD.md and evidence/board.json.
+evidence/board.json retains that original builder checkpoint. BOARD.md records
+the later board revision and distinguishes current from historical evidence.
 
 The next stabilization pass found and corrected a goal-alignment gap: solve
 input now requires the same explicit FEASSIGN1 version header as verify input.

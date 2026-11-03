@@ -41,8 +41,13 @@ Public messages are:
 Submit requires Open, exact costs/selected/u/v lengths r*c/r/r/c and valid narrow
 ABI values. It reads each element into the bounded model/certificate. Sequential
 ProblemBuilder construction avoids the large redundant matrix staging array.
-`canonical_dyn_array` decodes and re-encodes the cost elements after guards,
-and the semantic tuple is hashed. Matching the immutable digest precedes the
+`problem_digest` independently reads every cost after its shape/length guards.
+For static `i64`, the pinned decoder/constructors retain exactly one length word
+and one32-byte word per element. A successful typed read checks that each word
+is the unique canonical sign extension. The validated tail can therefore be
+copied directly into the fresh semantic tuple and hashed; no second array
+allocation/zeroing/re-encoding is needed. Tuple encoding fixes the outer offset.
+This argument is specific to static `i64`, not dynamic/nested arrays. Matching the immutable digest precedes the
 shared pure verifier. Every mathematical condition must pass before any storage
 write. Then the board records p and total and marks Solved. Repeats revert.
 The submitted message contains no objective value to trust.
@@ -69,26 +74,27 @@ The initial O1 board emitted27,695 runtime bytes and exceeded EIP-170; O2 and
 size optimization still exceeded it. Initializing the1024 staging array from a
 runtime value worsened size to32,408bytes. Those artifacts remain evidence.
 The pure sequential builder removed the staging array while preserving all
-full-i64/full32 values. Current O1 emitted runtime is23,572bytes; actual deployed
-code is23,668bytes including96bytes of immutable data, below24,576. Creation
-code is24,059bytes; total initcode including96bytes of constructor ABI arguments
-is24,155, below49,152. Runtime has908bytes of current headroom, so later changes
+full-i64/full32 values. Current O1 emitted runtime is23,498bytes; actual deployed
+code is23,594bytes including96bytes of immutable data, below24,576. Creation
+code is23,985bytes; total initcode including96bytes of constructor ABI arguments
+is24,081, below49,152. Runtime has982bytes of current headroom, so later changes
 must recheck actual code size. A first test-harness assertion mistakenly equated
 emitted and deployed runtime, then assumed an ABI-shaped immutable tail. Those
 two harness failures are preserved; actual getters and emitted-prefix comparison
 now establish the constructor values without treating internal layout as ABI.
 
-Observed deployments used5,070,834gas. Three full32×32 submissions had36,100
+Observed deployments used5,054,840gas. Three full32×32 submissions had36,100
 canonical calldata bytes each:
 
 | Actual case | Stored total | Receipt gasUsed |
 | --- | ---: | ---: |
-| zero-delta/augmentation chain |31|2,492,178|
-| all i64-min | -295147905179352825856 |2,822,349|
-| one min-cost column, other costs i64-max |276701161105643274209|2,588,519|
+| zero-delta/augmentation chain |31|2,407,387|
+| all i64-min | -295147905179352825856 |2,737,558|
+| one min-cost column, other costs i64-max |276701161105643274209|2,503,728|
 
-These are specific measurements, not a universal gas bound, savings claim or
-comparison to another deployment. All32 stored indices matched the actual Fe
+These are specific measurements, not a universal gas bound. The same three
+full32 payloads used84,791 less gas each than before the static-tail change;
+this comparison is limited to these inputs under the same pinned Osaka setup. All32 stored indices matched the actual Fe
 CLI certificate. Repeat and malformed/invalid submissions preserved mutable
 slots0..33 (solved,total,chosen32), with relevant public-state checks. The ABI
 edge campaign observed40 transactions:28 expected failures and12 successes,
@@ -100,8 +106,15 @@ domain/version/objective/dimensions and invalid constructors.
 Current core/model/API checks are8+46 functions on each native/EVM backend,
 plus2 EVM board functions and5 intended external compiler rejections. The
 2,906-result native independent certificate/I/O campaign passed again after
-the builder change. Details and source/binary/bytecode hashes are in
-`docs/evidence/board.json`; earlier checkpoint JSON remains historical.
+the builder change. `docs/evidence/board.json` retains the original builder checkpoint and its old
+source/size/gas scope. The later static-tail revision has unchanged core/CLI
+sources and ABI,2 EVM board function passes,60 receipted demo/protocol checks,
+and a separate existing mixed-full-i64 case with3 receipts and32 getter checks.
+Its helper-isolation control rejects both dirty signed words independently of
+other Submit checks; omitting only the typed-read loop makes them return. These
+controls are temporary research copies, not added product APIs or test cases.
+The current candidate manifest binds the revised source and evidence; earlier
+checkpoint JSON and whole-suite counts remain historical.
 
 This board proves an optimum for its committed integer matrix. It does not
 authenticate resources, certify true costs, dispatch jobs or prove work delivery.

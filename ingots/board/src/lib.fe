@@ -1,5 +1,5 @@
 use core::Result
-use std::abi::{DynArray, canonical_dyn_array}
+use std::abi::DynArray
 use std::evm::{encode_abi_payload, keccak256}
 use assignment::{Problem, start_problem, append_cost, finish_problem, new_certificate, selected_column, verify}
 
@@ -16,11 +16,11 @@ fn checked_count(_ r: u8, _ c: u8, _ costs: DynArray<i64>) -> usize {
 }
 
 /// Keccak256(abi.encode(domain,version,objective,rows,columns,int64[] costs)).
-/// canonical_dyn_array reads and re-encodes every signed element after guards.
 pub fn problem_digest(_ r: u8, _ c: u8, _ costs: DynArray<i64>) -> u256 {
-    let _ = checked_count(r, c, costs)
-    let canonical = canonical_dyn_array(costs)
-    let encoded = encode_abi_payload((PROBLEM_DOMAIN, FORMAT_VERSION, MINIMUM_SUM, r, c, canonical))
+    for index in 0..checked_count(r, c, costs) {
+        let _ = costs.get(index)
+    }
+    let encoded = encode_abi_payload((PROBLEM_DOMAIN, FORMAT_VERSION, MINIMUM_SUM, r, c, costs))
     keccak256(encoded.span())
 }
 

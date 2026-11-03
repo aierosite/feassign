@@ -50,7 +50,7 @@ cases. It includes endpoints and hostile i128 proofs, rectangular conditions,
 ties, long/zero-delta augmentation, seeded/metamorphic checks, independent
 certificate inspection, both backends, real I/O failures and actual Osaka
 transactions at full32. Raw ABI bytes are not the problem commitment: values
-are validated/re-encoded first. Dirty encodings reject; accepted nonminimal
+are validated and encoded into a canonical tuple first. Dirty encodings reject; accepted nonminimal
 representations have the same meaning. Failed submissions preserve state.
 
 One command after setup runs the normal story plus an invalid proof, another

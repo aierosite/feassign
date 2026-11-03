@@ -32,8 +32,8 @@ input originally required a header. Both solve and verify now require exact
 The same2906 exported-certificate/roundtrip campaign passed with43 classified
 negative cases, the exact128KiB boundary and real descriptor/I/O checks.
 Public CLI outcomes distinguish syntax, size limit, invalid proof, I/O,
-internal invariant and usage. Python evidence tools refuse optimized Python
-that disables their assertions; Fe product checks do not depend on Python.
+internal invariant and usage. Assertion-based Python evidence drivers refuse
+optimized mode; Fe product checks do not depend on Python.
 
 Native owners are fixed arrays and official live argc/argv views. No explicit
 Fe heap owners require release. C owns stdio state and signal-layout handling;

@@ -18,10 +18,10 @@ Every u+v is at most the corresponding cost, the
 selected edges are tight, column potentials are nonpositive and unused ones
 are zero. These conditions prove the minimum sum, independently of the search.
 
-Install the exact Fe26.5.1 release asset and Foundry1.8.7 tools for Linux x86-64,
-plus Python3.10+ and a system C compiler named cc. WSL is supported. Tool hashes
-and full commits are in toolchain.json. No external service or API key is used.
-Run from this source root:
+Follow the [pinned Linux setup](REPRODUCE.md) for the exact tools, hashes and
+binary prerequisites, including Fe's GLIBC_2.39 and cast's libudev.so.1.
+The observed environment is Ubuntu24.04 under WSL. No external service or API
+key is used. Run from this source root:
 
 ```sh
 python3 tools/demo.py --fe /absolute/path/to/fe --anvil /absolute/path/to/anvil --cast /absolute/path/to/cast --out target/demo-01

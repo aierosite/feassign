@@ -44,8 +44,8 @@ Actual human review and final freeze remain pending.
 The pure core owns the bounded model, Hungarian optimizer and separate
 dual-certificate verifier. It has no I/O, hashing, storage or network effects.
 Python independently enumerates small assignments for evidence; it does not
-implement the product optimizer. A small C bridge supplies scalar native
-I/O status only. Parsing, formatting and all assignment mathematics stay in Fe.
+implement the product optimizer. A small C bridge provides byte I/O and stream
+status through scalar calls. Parsing, formatting and assignment mathematics stay in Fe.
 
 This model does not express forbidden edges, multiple-task capacity, routing,
 minimum makespan, fairness, truthful costs, resource identity or work delivery.

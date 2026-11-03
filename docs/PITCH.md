@@ -3,7 +3,7 @@
 FeAssign gives a small minimum-cost assignment result a checkable explanation.
 It assigns every row to a different column, allowing extra columns to remain
 unused. All pairs must be allowed and costs must be known finite integers.
-The complete supported model is1 <= rows <= columns <=32 with full i64 costs.
+The complete supported model is `1 <= rows <= columns <= 32`, with full `i64` costs.
 This fits a small batch choosing among compatible resources. Direct demand
 from Fe users is still inferred; the demo is an illustrative model, not a
 measured production deployment.
@@ -23,7 +23,7 @@ supplies the product optimizer.
 Fe is central to the implementation. The pure assignment ingot owns the bounded
 model, Hungarian optimizer and separate verifier. Native Fe parses bounded
 versioned input, solves, verifies and formats a deterministic certificate. A
-small scalar C bridge supplies only OS/stdio status. The EVM consumer hashes a
+small scalar C bridge supplies byte I/O and stream status. The EVM consumer hashes a
 canonical semantic problem and calls the same pure verifier. It does not run
 the optimizer or trust a submitted objective. The board has immutable dimensions
 and digest, records one verified result and rejects later submissions.
@@ -55,7 +55,8 @@ representations have the same meaning. Failed submissions preserve state.
 
 One command after setup runs the normal story plus an invalid proof, another
 matrix and a repeat. The evidence contains receipts, getter values, code/init
-sizes, gas and honest process timings. See DEMO.md and BOARD.md for limits.
+sizes, gas and honest process timings. See [the demo](DEMO.md) and
+[board limits](BOARD.md).
 The board does not authenticate resources, make costs truthful, prove delivered
 work or hold funds. It is not a general scheduler, makespan/fairness optimizer,
 capacity/forbidden-edge model, routing tool or zero-knowledge proof system.

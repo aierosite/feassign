@@ -109,3 +109,10 @@ the pinned official release and SHA-checked under the surrounding task root,
 not installed globally or included in source. Reproduction/package work must
 record the actually tested source commit and fresh extraction; a script's
 existence is not a successful fresh-source run or remote CI claim.
+
+The first full fresh-source run passed core/native/I/O/demo/full32 checks but
+the following ABI campaign failed before node startup: a fixed-port probe met
+the previous stopped server's TCP reservation. That failed snapshot and logs
+remain. Demo/protocol tools now default to an OS-selected free loopback port,
+record it and still refuse to attach to an existing node. A later fresh-source
+run must establish the repaired workflow; the first failure is not overwritten.

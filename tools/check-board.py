@@ -32,7 +32,7 @@ def main():
     parser.add_argument('--anvil', default='anvil')
     parser.add_argument('--cast', default='cast')
     parser.add_argument('--evidence', required=True, type=Path)
-    parser.add_argument('--port', default=18550, type=int)
+    parser.add_argument('--port', default=0, type=int)
     parser.add_argument('--abi-edges', action='store_true')
     args = parser.parse_args()
     if sys.platform != 'linux' or not __debug__:
@@ -65,6 +65,7 @@ def main():
     port = args.port
     with socket.socket() as probe:
         probe.bind(('127.0.0.1',port))
+        port = probe.getsockname()[1]
     url = f'http://127.0.0.1:{port}'
     command = [tools['anvil'], '--host','127.0.0.1','--port',str(port),
                '--chain-id','31337','--gas-limit','30000000','--hardfork','osaka',

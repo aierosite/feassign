@@ -34,7 +34,7 @@ def main():
     parser.add_argument('--anvil', default='anvil')
     parser.add_argument('--cast', default='cast')
     parser.add_argument('--out', required=True, type=Path, help='New evidence directory')
-    parser.add_argument('--port', default=18551, type=int)
+    parser.add_argument('--port', default=0, type=int)
     args = parser.parse_args()
     if sys.platform != 'linux' or not __debug__:
         parser.error('Linux x86-64 and Python assertions enabled are required')
@@ -60,7 +60,7 @@ def main():
                   versions=versions, binary_sha256={k:sha(Path(v)) for k,v in binaries.items()},
                   platform=sys.platform, transactions=[], native_timings={}, local_only=True)
     node = None
-    rpc_url = f'http://127.0.0.1:{args.port}'
+    rpc_url = None
 
     def save():
         (out / 'demo.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
@@ -156,7 +156,10 @@ def main():
             'total':'totalCost()','selected':'selectedColumn(uint8)'}.items()}
         with socket.socket() as probe:
             probe.bind(('127.0.0.1', args.port))
-        node_command = [binaries['anvil'], '--host', '127.0.0.1', '--port', str(args.port), '--chain-id','31337',
+            port = probe.getsockname()[1]
+        rpc_url = f'http://127.0.0.1:{port}'
+        report['node_port'] = port
+        node_command = [binaries['anvil'], '--host', '127.0.0.1', '--port', str(port), '--chain-id','31337',
             '--gas-limit','30000000','--hardfork','osaka','--enable-tx-gas-limit','--silent']
         report['node_command'] = node_command
         with (out / 'node.stdout').open('wb') as stdout, (out / 'node.stderr').open('wb') as stderr:

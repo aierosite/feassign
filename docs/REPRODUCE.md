@@ -20,6 +20,8 @@ descriptor/I/O tests, the15-transaction full32 campaign and40-transaction ABI
 edge campaign. All owned localhost nodes must stop. Source bytes must remain
 unchanged. Logs include commands, exit codes, versions, hashes, receipt/status,
 state and observed limits. Local success is not a remotely executed CI result.
+Each owned node defaults to a fresh OS-selected loopback port, avoiding reuse
+of a fixed port still reserved after a preceding process has stopped.
 
 For a smaller first look, run only the command in DEMO.md. Individual test/build
 commands are in README.md. Advanced protocol checks can use that demo's actual

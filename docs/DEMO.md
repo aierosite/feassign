@@ -24,8 +24,9 @@ Run from this source root:
 python3 tools/demo.py --fe /absolute/path/to/fe --anvil /absolute/path/to/anvil --cast /absolute/path/to/cast --out target/demo-01
 ```
 
-Use a new output directory for each run. Optional `--port` changes the fresh
-localhost Anvil port; the script never attaches to or stops an existing node.
+Use a new output directory for each run. By default the OS selects a free
+localhost port; optional `--port` requests a specific one. The script never
+attaches to or stops an existing node.
 It builds native Fe and the board with fresh output/cache, solves the versioned
 example, checks the real certificate in Python, invokes Fe verify, starts its
 own Osaka Anvil with the transaction cap enabled and deploys the committed

@@ -107,6 +107,6 @@ This board proves an optimum for its committed integer matrix. It does not
 authenticate resources, certify true costs, dispatch jobs or prove work delivery.
 An identical problem's certificate may be reused on another board legitimately;
 there is no spending authorization. Publish demo data for availability without
-claiming on-chain availability guarantees. The next work is remaining
-adversarial/API stabilization, a portable real demo and fresh-source package.
+claiming on-chain availability guarantees. The local demo and fresh-source workflow are described in
+[DEMO.md](DEMO.md) and [REPRODUCE.md](REPRODUCE.md).
 Actual human review and final freeze remain future requirements.

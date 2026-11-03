@@ -1,5 +1,8 @@
-"""Standard ABI bytes for the published FeAssign protocol; no solver here."""
+"""Shared ABI encoding and owned local RPC; no solver."""
+import json
+from pathlib import Path
 import subprocess
+import urllib.request
 
 DOMAIN = int.from_bytes(b'FEASSIGN_PROBLEM'.ljust(32, b'\0'), 'big')
 VERSION, OBJECTIVE = 1, 1
@@ -50,3 +53,19 @@ def submit_payload(costs, selected, u, v):
 def signed_word(data):
     assert len(data) == 32
     return int.from_bytes(data, 'big', signed=True)
+
+
+def rpc(process, port, method, params):
+    assert process.poll() is None, 'Owned node stopped'
+    listeners = {f'socket:[{row[9]}]' for row in map(str.split, Path('/proc/net/tcp').read_text().splitlines()[1:])
+                 if row[1] == f'0100007F:{port:04X}' and row[3] == '0A'}
+    owned = False
+    for fd in Path(f'/proc/{process.pid}/fd').iterdir():
+        try: owned |= str(fd.readlink()) in listeners
+        except FileNotFoundError: pass
+    if not owned:
+        raise ConnectionRefusedError('Owned node not listening')
+    request = urllib.request.Request(f'http://127.0.0.1:{port}', data=json.dumps(dict(jsonrpc='2.0', id=1,
+        method=method, params=params)).encode(), headers={'Content-Type':'application/json'})
+    with urllib.request.build_opener(urllib.request.ProxyHandler({})).open(request, timeout=20) as response:
+        return json.load(response)

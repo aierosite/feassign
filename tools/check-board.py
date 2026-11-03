@@ -10,13 +10,10 @@ import shutil
 import subprocess
 import sys
 import time
-import urllib.request
 
 ROOT = Path(__file__).resolve().parents[1]
-PRODUCT = ROOT
-sys.path.insert(0, str(PRODUCT / 'tools'))
 import board_abi as abi
-spec = importlib.util.spec_from_file_location('inspector', PRODUCT / 'tools/check-native.py')
+spec = importlib.util.spec_from_file_location('inspector', ROOT / 'tools/check-native.py')
 inspector = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(inspector)
 
@@ -62,11 +59,9 @@ def main():
     creation = bytes.fromhex((build / 'AssignmentBoard.bin').read_text().strip().removeprefix('0x'))
     runtime = bytes.fromhex((build / 'AssignmentBoard.runtime.bin').read_text().strip().removeprefix('0x'))
     assert len(runtime)+96 <= 24576 and len(creation)+96 <= 49152
-    port = args.port
     with socket.socket() as probe:
-        probe.bind(('127.0.0.1',port))
+        probe.bind(('127.0.0.1',args.port))
         port = probe.getsockname()[1]
-    url = f'http://127.0.0.1:{port}'
     command = [tools['anvil'], '--host','127.0.0.1','--port',str(port),
                '--chain-id','31337','--gas-limit','30000000','--hardfork','osaka',
                '--enable-tx-gas-limit','--silent']
@@ -83,10 +78,7 @@ def main():
         (logs / 'results.json').write_bytes((json.dumps(report, indent=2)+'\n').encode())
 
     def rpc(method, params):
-        request = urllib.request.Request(url, data=json.dumps(dict(jsonrpc='2.0', id=1, method=method,
-            params=params)).encode(), headers={'Content-Type': 'application/json'})
-        with urllib.request.urlopen(request, timeout=20) as response:
-            return json.load(response)
+        return abi.rpc(process, port, method, params)
 
     def call(address, data):
         return rpc('eth_call', [dict(to=address, data='0x'+data.hex(), gas=hex(16777216)), 'latest'])
@@ -96,8 +88,7 @@ def main():
         transaction_index += 1
         filename = f'{transaction_index:03}-{label}'
         (logs / (filename+'.hex')).write_text('0x'+data.hex()+'\n', encoding='ascii')
-        transaction = dict(from_=sender, gas=hex(16777216), value='0x0', data='0x'+data.hex())
-        transaction['from'] = transaction.pop('from_')
+        transaction = {'from':sender, 'gas':hex(16777216), 'value':'0x0', 'data':'0x'+data.hex()}
         if address:
             transaction['to'] = address
         response = rpc('eth_sendTransaction', [transaction])
@@ -109,7 +100,6 @@ def main():
         assert 'result' in response, row
         deadline = time.monotonic()+10
         while True:
-            assert process.poll() is None
             receipt = rpc('eth_getTransactionReceipt', [response['result']])['result']
             if receipt is not None:
                 break
@@ -145,7 +135,6 @@ def main():
         try:
             deadline = time.monotonic()+15
             while True:
-                assert process.poll() is None
                 try:
                     version = rpc('web3_clientVersion', [])['result']
                     break

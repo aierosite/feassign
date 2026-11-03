@@ -11,7 +11,9 @@ Compare SHA-256 for the Fe binary, Foundry archive and both extracted binaries
 with their Linux fields in toolchain.json. Give the three binaries executable
 permission and keep them in a separate tool directory. The command below takes
 their absolute paths. The workflow uses Python's standard library and local
-processes; keep tool binaries outside the source package.
+processes; keep tool binaries outside the source package. The runners need
+readable `/proc/net/tcp` and `/proc/<owned-child-pid>/fd` to check listener
+ownership before local RPC; environment proxies are bypassed.
 
 The tested environment is Ubuntu24.04 x86-64 under WSL, glibc2.39,
 Python3.12.3 and GCC13.3. The pinned Fe executable requires GLIBC_2.39 symbols.

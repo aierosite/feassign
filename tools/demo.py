@@ -13,7 +13,6 @@ import socket
 import subprocess
 import sys
 import time
-import urllib.request
 
 import board_abi as abi
 import importlib.util
@@ -60,7 +59,6 @@ def main():
                   versions=versions, binary_sha256={k:sha(Path(v)) for k,v in binaries.items()},
                   platform=sys.platform, transactions=[], native_timings={}, local_only=True)
     node = None
-    rpc_url = None
 
     def save():
         (out / 'demo.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
@@ -76,10 +74,7 @@ def main():
         return result, elapsed
 
     def rpc(method, params):
-        request = urllib.request.Request(rpc_url, data=json.dumps(dict(jsonrpc='2.0', id=1,
-            method=method, params=params)).encode(), headers={'Content-Type':'application/json'})
-        with urllib.request.urlopen(request, timeout=20) as response:
-            return json.load(response)
+        return abi.rpc(node, port, method, params)
 
     def call(address, data):
         return rpc('eth_call', [dict(to=address, data='0x'+data.hex(), gas=hex(16777216)), 'latest'])
@@ -100,7 +95,6 @@ def main():
             raise RuntimeError('Transaction RPC rejected '+label)
         until = time.monotonic()+15
         while True:
-            assert node.poll() is None
             receipt = rpc('eth_getTransactionReceipt', [response['result']])['result']
             if receipt is not None:
                 break
@@ -170,7 +164,6 @@ def main():
         with socket.socket() as probe:
             probe.bind(('127.0.0.1', args.port))
             port = probe.getsockname()[1]
-        rpc_url = f'http://127.0.0.1:{port}'
         report['node_port'] = port
         node_command = [binaries['anvil'], '--host', '127.0.0.1', '--port', str(port), '--chain-id','31337',
             '--gas-limit','30000000','--hardfork','osaka','--enable-tx-gas-limit','--silent']
@@ -180,7 +173,6 @@ def main():
         report['node_pid'] = node.pid
         until = time.monotonic()+15
         while True:
-            assert node.poll() is None
             try:
                 report['node_client'] = rpc('web3_clientVersion',[])['result']
                 break

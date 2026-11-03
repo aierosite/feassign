@@ -29,16 +29,20 @@ minimum and v is zero. A phase grows reached rows S and matched columns T;
 |S|=|T|+1. Minimum nonnegative slack raises u on S and lowers v on T, preserving
 feasibility and tightness. Zero delta still reaches a new column. A free column
 ends the search before joining T, then predecessors augment the injection.
-Matched columns remain matched; final unused columns retain zero v. Slack has
-an explicit initialized flag, not an arithmetic infinity. The dummy slot is
+Matched columns remain matched; final unused columns retain zero v. A complete
+first scan initializes slack explicitly, without an arithmetic infinity. The dummy slot is
 private workspace33, excluded from public32 values. The solver checks its own
 result with the separately structured verifier before returning a certificate.
 
-At phase start, real columns are unreached and have no initialized slack.
-The first scan assigns every real predecessor before any augmentation reads
-one. Index0 is never read as a predecessor: augmentation stops at0. Clearing
-that array again in every phase is unnecessary; its initial fixed-array
-initialization remains.
+At phase start, real columns are unreached and current is dummy0. Only the
+first scan has current==0: it visits every real column and assigns its slack
+and predecessor before either is used. Later scans choose current from1..c;
+all remaining slacks are initialized. The potential-update loop runs after a
+complete scan and dummy0 remains reached, so every unreached slot there is real
+and has a slack. Separate initialized-slack flags duplicate this existing state.
+Index0 is never read as a predecessor: augmentation stops at0. Clearing that
+array again in every phase is unnecessary; initial fixed-array initialization
+remains. These source invariants preserve tie comparisons and progress guards.
 
 Intended work is O(r²c) solve and O(rc) verify, with O(r+c) solver workspace
 beyond the matrix. These are algorithmic bounds, not measured speed or gas ratios.

@@ -288,7 +288,6 @@ pub fn solve(_ problem: ref Problem) -> Result<SolveError, Certificate> {
     var owner: [usize; 33] = [0; 33]
     var predecessor: [usize; 33] = [0; 33]
     var slack: [i256; 33] = [0; 33]
-    var has_slack: [bool; 33] = [false; 33]
     var reached: [bool; 33] = [false; 33]
 
     // Initialize every row, including future rows, to keep all pairs feasible.
@@ -312,10 +311,9 @@ pub fn solve(_ problem: ref Problem) -> Result<SolveError, Certificate> {
         var column: usize = 0
         while column <= c {
             reached[column] = false
-            has_slack[column] = false
             column += 1
         }
-        var current: usize = 0
+        var current: usize = 0 // The first full scan initializes every real slack/predecessor.
         var searching = true
         var scans: usize = 0
         while searching {
@@ -337,9 +335,8 @@ pub fn solve(_ problem: ref Problem) -> Result<SolveError, Certificate> {
                     let edge = read_cost(problem, (active_row - 1) * c + column - 1) as i256
                     let reduced = edge - u[active_row] - v[column]
                     if reduced < 0 { return Result::Err(SolveError::InternalInvariant) }
-                    if !has_slack[column] || reduced < slack[column] {
+                    if current == 0 || reduced < slack[column] {
                         slack[column] = reduced
-                        has_slack[column] = true
                         predecessor[column] = current
                     }
                     if !found || slack[column] < delta {
@@ -360,7 +357,7 @@ pub fn solve(_ problem: ref Problem) -> Result<SolveError, Certificate> {
                     }
                     u[matched_row] += delta
                     v[column] -= delta
-                } else if has_slack[column] {
+                } else {
                     slack[column] -= delta
                 }
                 column += 1

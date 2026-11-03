@@ -19,10 +19,12 @@ Every row potential starts at that row's minimum; column potentials start at
 zero. This makes every pair feasible even with negative costs. A tight partial
 matching grows by one row at each phase.
 
-Seven local 33-slot arrays hold row/column potentials, column owners,
-predecessors, slacks, initialized-slack flags and reached-column flags. Slot 0
-is a separate dummy; public certificate arrays still have 32 slots and zero-based
-indices. Uninitialized slack is explicit rather than an arithmetic infinity.
+Current code uses six local 33-slot arrays for row/column potentials, owners,
+predecessors, slacks and reached flags. The initial checkpoint also stored
+initialized-slack flags. Current code derives initialization from the first
+complete scan at dummy0; every real slack is assigned before an update. Slot0
+is a separate dummy; public certificate arrays still have32 zero-based slots.
+There is no arithmetic-infinity sentinel; see [the invariant argument](PROOF.md).
 
 Each search scans unreached columns, updates their best slack/predecessor and
 chooses a minimum nonnegative delta. It increases reached-row potentials and

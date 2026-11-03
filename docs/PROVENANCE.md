@@ -129,5 +129,14 @@ The first repair's full run at303dd32 caught one remaining old path-alias name
 before protocol node startup. Final05995ab corrected it and passed a fresh-source,
 fresh-output/cache11-stage run:110 Fe function executions,5 intended compiler
 rejections,2906 certificate/verify roundtrips,43 native negatives,8 I/O checks and
-60 receipted transactions with state checks. This document update changes no
-code; those results remain tied to05995ab. No human feedback has been received.
+60 receipted transactions with state checks. The provenance-only revision at
+811d07f changed no code; those results remain tied to05995ab. No human feedback
+has been received.
+
+A subsequent solver simplification removes initialized-slack flags whose state
+is already established by the first complete dummy0 scan. Source reasoning and
+O1 IR showed retained duplicate bookkeeping; an isolated assertion-instrumented
+copy passed92 API-function executions and2906 unchanged certificate outputs.
+The smaller isolated candidate also reproduced all2906 outputs byte for byte.
+No compiler defect or normal-input mathematical failure is claimed; current
+source regression results remain bound to their own recorded commit.

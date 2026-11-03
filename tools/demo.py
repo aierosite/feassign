@@ -130,9 +130,21 @@ def main():
         report['native_executable_sha256'] = sha(executable)
         _, baseline = run('native-startup-help', [str(executable), '--help'])
         example = (ROOT / 'examples/resource-batch.txt').read_bytes()
+        costs = [1,2,9,1,100,3]
+        assert example.split() == inspector.solve_input(2,3,costs).split()
         solved, solve_ns = run('native-solve', [str(executable), 'solve'], example)
-        proof = inspector.inspect_certificate(solved.stdout, 2, 3, [4,1,8,2,6,3],
-                                                inspector.exact_minimum(2,3,[4,1,8,2,6,3]))
+        exact = inspector.exact_minimum(2,3,costs)
+        proof = inspector.inspect_certificate(solved.stdout, 2, 3, costs, exact)
+        # A transparent comparator for this example, never a product optimizer:
+        # both row minima choose0 (infeasible); row-order greedy chooses[0,2].
+        greedy = [0,2]
+        greedy_total = sum(costs[i*3+j] for i,j in enumerate(greedy))
+        assert proof['selected'] == [1,0] and exact == 3 < greedy_total == 4
+        assert proof['column_potentials'][0] < 0
+        report['comparison'] = dict(row_minima_selected=[0,0], row_minima_feasible=False,
+            row_order_greedy_selected=greedy, row_order_greedy_total=greedy_total,
+            independent_exact_minimum=exact,
+            scope='Illustrative two-row comparison, not measured production benefit')
         checked, verify_ns = run('native-verify', [str(executable), 'verify'], solved.stdout)
         assert checked.stdout == b'VALID 3\n' and not solved.stderr and not checked.stderr
         (out / 'solution.cert').write_bytes(solved.stdout)
@@ -140,11 +152,12 @@ def main():
             verify_process_ns=verify_ns, scope='Single process-wall samples including startup/I/O; not isolated kernel timing')
         report['proof'] = proof
         print('Fe solved the two-job, three-resource example: columns [1,0], total3; resource2 unused.', flush=True)
+        print('Both jobs prefer resource0; row-order greedy costs4. The certificate proves the global minimum3.', flush=True)
         print('Independent Python conditions and the Fe verify command passed.', flush=True)
 
         creation = bytes.fromhex((out / 'board/AssignmentBoard.bin').read_text().strip().removeprefix('0x'))
         emitted = bytes.fromhex((out / 'board/AssignmentBoard.runtime.bin').read_text().strip().removeprefix('0x'))
-        problem = abi.problem_payload(2,3,[4,1,8,2,6,3])
+        problem = abi.problem_payload(2,3,costs)
         digest = abi.keccak(problem, binaries['cast'])
         report['problem_digest'] = '0x'+digest.hex()
         (out / 'problem.abi.hex').write_text('0x'+problem.hex()+'\n',encoding='ascii')
@@ -202,7 +215,7 @@ def main():
             print(label+': rejected; board state unchanged.',flush=True)
             save()
 
-        costs, p, u, v = [4,1,8,2,6,3], proof['selected'],proof['row_potentials'],proof['column_potentials']
+        p, u, v = proof['selected'],proof['row_potentials'],proof['column_potentials']
         rejected('invalid-certificate',selectors['submit']+abi.submit_payload(costs,[0,0],u,v),'invalid certificate')
         shifted = [x+1 for x in costs]
         inspector.inspect_certificate(inspector.envelope(2,3,shifted,p,[x+1 for x in u],v,5),2,3,shifted,5)

@@ -3,40 +3,43 @@
 An exact minimum-total-cost assignment library in Fe, with an independently
 structured verifier for an optimality certificate.
 
-The complete target model assigns every task to a different resource for
+The complete model assigns every task to a different resource for
 `1 <= rows <= columns <= 32`, with all pairs allowed and full-range finite
-`i64` costs. Extra resources can remain unused. The intended consumers are a
+`i64` costs. Extra resources can remain unused. The two consumers are a
 Linux native solve/verify CLI and an immutable EVM reference board committed
 to the same problem.
 
-## Development status
+## What the example demonstrates
 
-Implementation began after November 3, 2026 at 00:00 UTC. An initial bounded
-`Problem` and shape-valid `Certificate`, checked construction and scalar
-reference access, an actual Hungarian optimizer and a separate mathematical
-verifier now exist. Model/API, directed solver/verifier and independent expected-
-cost checks have run on native and EVM;
-see [the bounded API](docs/CORE-API.md). The initial full32 gate's scope and
-the preserved EVM `-O 0` failure are in
-[the representation gate](docs/REPRESENTATION-GATE.md).
-See [certificate verification](docs/VERIFIER.md) for the contract, directed
-evidence and repair of an EVM aggregate-stack failure. See
-[the optimizer checkpoint](docs/SOLVER.md) for the 2,780 cost-reference cases and
-their limits. The Linux [solve/verify CLI](docs/CLI.md) now exports real Fe
-certificates. Python independently checked all primal/dual conditions for 2,906
-exported results, with exact small-instance and controlled metamorphic checks;
-see [native and independent evidence](docs/NATIVE-CHECKPOINT.md).
-The [immutable EVM board](docs/BOARD.md) now binds a canonical semantic problem
-digest and records one verified result. Actual Osaka transactions passed for
-three full32 cases with ordinary code/init/transaction limits, including i64
-endpoints. Signed/dirty ABI, alternate wire encodings and failed-state controls
-also ran. Its measured code-size failure and sequential-construction repair are
-preserved. See [board evidence](docs/evidence/board.json) for current source
-hashes and limits. The [portable local demo](docs/DEMO.md) now runs on Linux with
-the normal result and three sensitive failures. [Stabilization](docs/STABILIZATION.md)
-and [certificate reasoning](docs/PROOF.md) state the boundaries. A fresh-source
-complete-package rehearsal and actual human review/freeze remain separate
-requirements; the full build goal is active.
+Both jobs prefer the same resource, which can accept only one of them. Choosing
+each job's cheapest available resource in row order costs 4; Fe finds an
+assignment costing 3 and supplies a certificate attaining the dual lower bound 3.
+The reference board checks that certificate against the committed input without
+rerunning the optimizer. [Run the example](docs/DEMO.md) after tool setup for the
+normal result and three sensitive rejected submissions.
+
+## Implementation and evidence
+
+Product implementation began after November 3, 2026 at 00:00 UTC. The bounded
+model, actual Hungarian optimizer, separate verifier, native CLI and immutable
+board are implemented. Prior checkpoint evidence includes 2,906 actual exported
+certificates independently inspected in Python, native/EVM functions, I/O
+failures and three full32 Osaka transaction cases under ordinary limits.
+A fresh-source/output/cache complete reproduction has also run successfully.
+Evidence is specific to its recorded source and compiler, not an exhaustive
+full-domain proof or a remotely executed CI result. The main example was
+revised to expose resource contention; the reproduction command below records
+the actual result for the source being run.
+
+Start with [the bounded API](docs/CORE-API.md), [the CLI](docs/CLI.md) and
+[the board](docs/BOARD.md). [Stabilization](docs/STABILIZATION.md) and
+[certificate reasoning](docs/PROOF.md) explain the current boundaries.
+[Native evidence](docs/NATIVE-CHECKPOINT.md), [the optimizer checkpoint](docs/SOLVER.md),
+[the verifier record](docs/VERIFIER.md) and
+[the representation gate](docs/REPRESENTATION-GATE.md) preserve earlier
+checkpoint scopes, compiler/profile failures and their repairs. Those dated
+records are historical evidence; the run's source hashes establish its scope.
+Actual human review and final freeze remain pending.
 
 The pure core owns the bounded model, Hungarian optimizer and separate
 dual-certificate verifier. It has no I/O, hashing, storage or network effects.
@@ -52,8 +55,8 @@ The board is a reference consumer of the mathematical result, with no funds.
 
 Exact asset and source pins are in [toolchain.json](toolchain.json).
 Initial native support targets Linux x86_64, including WSL on a Windows host.
-Reproducible product commands and observed results will be documented as each
-actual build gate is executed. Environment/upstream tests are not product tests.
+Product commands are below, with a complete fresh-source path in
+[REPRODUCE.md](docs/REPRODUCE.md). Environment/upstream tests are not product tests.
 
 With the pinned `fe` on PATH, from this repository root:
 
@@ -73,7 +76,7 @@ Build and check the native consumer on Linux with the pinned compiler:
 
 ```sh
 python3 tools/build-native.py --fe /absolute/path/to/fe-26.5.1
-printf 'FEASSIGN 1\n2 3\n4 1 8\n2 6 3\n' | target/native/feassign solve > target/example.cert
+printf 'FEASSIGN 1\n2 3\n1 2 9\n1 100 3\n' | target/native/feassign solve > target/example.cert
 target/native/feassign verify < target/example.cert
 python3 tools/check-native.py --executable target/native/feassign --evidence target/check-native-01
 python3 tools/check-native-io.py --executable target/native/feassign --evidence target/check-io-01

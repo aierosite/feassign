@@ -6,12 +6,15 @@ integer costs are illustrative points, not measured prices or real dispatch:
 
 | | Resource0 | Resource1 | Resource2 |
 | --- | ---: | ---: | ---: |
-| Job0 |4|1|8|
-| Job1 |2|6|3|
+| Job0 |1|2|9|
+| Job1 |1|100|3|
 
-The actual Fe solver selects columns `[1,0]`: Job0 costs1, Job1 costs2, total3.
-Resource2 remains unused. The certificate contains row potentials `[1,2]` and
-column potentials `[0,0,0]`. Every u+v is at most the corresponding cost, the
+Both row minima choose Resource0, violating its one-job limit. A row-order
+greedy choice gives Job0 Resource0 and Job1 Resource2, costing `1+3=4`.
+The actual Fe solver selects columns `[1,0]`: Job0 costs2, Job1 costs1, total3.
+Resource2 remains unused. The certificate contains row potentials `[2,2]` and
+column potentials `[-1,0,0]`, so its lower bound is `2+2-1=3`.
+Every u+v is at most the corresponding cost, the
 selected edges are tight, column potentials are nonpositive and unused ones
 are zero. These conditions prove the minimum sum, independently of the search.
 
@@ -52,8 +55,9 @@ The actual native proof is solution.cert, the semantic problem bytes are
 problem.abi.hex and all build/node/stdout/stderr evidence remains in the output.
 Full32 and adversarial ABI measurements are separate from this small story.
 
-The first executed portable Linux run observed total3, p `[1,0]`, deployed
-code23668bytes, full initcode24155bytes, deployment5070834gas and normal submit
-141938gas. Three expected rejections left state unchanged. Timing samples were
-about3.56ms for help,5.46ms solve and5.26ms verify in that environment; subsequent
-runs may differ. This is an observed example, not a universal performance bound.
+The earlier portable checkpoint used a different, uncontended matrix. Its gas,
+digest and timing samples do not measure this revised example. A run of the
+command above records this example's actual values in demo.json; compare its
+`proof`, `comparison` and transaction receipts. Full32 evidence is a separate
+campaign. No universal performance bound or measured production savings follow
+from this small example.

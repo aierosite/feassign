@@ -6,8 +6,8 @@ Initial platform: Linux x86-64, including WSL. Run:
 python3 tools/build-native.py --fe /absolute/path/to/fe-26.5.1
 ```
 
-The builder checks the exact Linux release asset hash in toolchain.json.
-The executable is `target/native/feassign`.
+The builder requires a new output directory and checks the pinned compiler hash.
+The default executable is `target/native/feassign`; use --out-dir for another run.
 The build uses the pinned official compiler and a child-only `cc` wrapper to add
 `native/io.c`; it does not alter global PATH, the compiler or the pure kernel.
 This link route reuses a preparation experiment; the product bridge is new.

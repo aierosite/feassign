@@ -101,7 +101,7 @@ See [reproduction](docs/REPRODUCE.md) for fresh-source/output/cache scope and
 standalone full32/ABI checks. Local records are not a remotely passed CI result
 or published deployment. The human review and final freeze are still pending.
 
-The checks require fresh evidence directories; use a new suffix for a new run.
+The build and checks require new output/evidence directories for each run.
 `--smoke` on check-native runs directed/negative/I/O checks without the larger
 corpus. Python's standard library, Linux x86-64, a system C compiler (`cc`) and
 the pinned Fe release asset are required. The signal-interruption test compiles

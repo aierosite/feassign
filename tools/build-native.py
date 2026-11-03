@@ -38,9 +38,9 @@ def main():
     if digest(Path(fe)) != pin['linux_amd64_asset_sha256']:
         parser.error('Compiler bytes do not match the pinned Linux x86-64 release asset')
     out = args.out_dir.resolve()
-    out.mkdir(parents=True, exist_ok=True)
+    out.mkdir(parents=True, exist_ok=False)
     wrapper_dir = out / 'link-driver'
-    wrapper_dir.mkdir(exist_ok=True)
+    wrapper_dir.mkdir()
     wrapper = wrapper_dir / 'cc'
     trace = out / 'linker-args.txt'
     bridge = ROOT / 'native/io.c'

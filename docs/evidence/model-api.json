@@ -1,0 +1,183 @@
+{
+  "audited_utc": "2026-11-03T00:25:45.620946+00:00",
+  "task": "FA01 bounded model/API",
+  "status": "complete_for_model_acceptance",
+  "compiler": "fe26.5.1(149c758)",
+  "core_source_sha256": "d0e8b6e8624277134dc1c2b0621a1bcf7f1219b80aa08ecc49897a73f2371b3f",
+  "consumer_source_sha256": "a02f4bdb7a571112e556a8029e89bc33a3667031e5da7f8be54ef9b3fc3b9f1c",
+  "criteria": [
+    {
+      "item": "Bounded complete model and exact semantic lengths",
+      "status": "met",
+      "evidence": "Private Problem with1024 i64 cells, dimensions1<=rows<=columns<=32 and checked exact cost_count; six directed core tests include zero/over32/reversed dimensions, wrong counts and one-row surplus access."
+    },
+    {
+      "item": "Bounded certificate and checked scalar API",
+      "status": "met",
+      "evidence": "Private Certificate with32 selected indices and32+32 i128 potentials; exact row/row/column counts; checked reads ignore unused physical capacity; full i128 values and untrusted index255 preserved without falsely certifying math."
+    },
+    {
+      "item": "Full32 entry gate before optimizer",
+      "status": "met_on_named_profiles_with_limit",
+      "evidence": "Initial full32 owned storage, shared reads, index>255, i64 endpoints and runtime loop/size observations occurred before solver; current same test passed again after model changes. EVM O0 StackOverflow remains disclosed, EVM O1/native O0 pass. Test code/harness sizes do not establish production deployment limits."
+    },
+    {
+      "item": "Widened indexing and pure boundary",
+      "status": "met_for_model",
+      "evidence": "rows/columns/indices become usize before multiplication; potentials are stored i128 without combined math yet. Source imports core::Result only, has no unsafe/ABI/deserializer/I/O/hash/storage/capability. Working i256 verification/solver math remains FA02/FA03."
+    },
+    {
+      "item": "Actual external consumer and ownership/privacy",
+      "status": "met_for_named_cases",
+      "evidence": "One full32 Problem/Certificate test passed from api_tests on EVM O1/native O0. Three standalone negative ingots reject all private fields and use-after-move with exactly the intended diagnostics; portable Python check ran successfully with pinned compiler."
+    },
+    {
+      "item": "Local solver workspace separation",
+      "status": "design_constraint_preserved_for_FA03",
+      "evidence": "No solver or dummy index exists in public model; later Hungarian dummy storage must be local33-slot workspace underFA03, not a public selected column or extra task."
+    }
+  ],
+  "runs": [
+    {
+      "label": "feassign-fa01-attempt07-model-api",
+      "backend": "sonatina",
+      "optimize": "1",
+      "passed": 6,
+      "failed": 0,
+      "command": [
+        "D:\\Upwork\\fe-builders\\environment\\bin\\fe-26.5.1.exe",
+        "--color",
+        "never",
+        "test",
+        "D:\\Upwork\\fe-builders\\project\\feassign",
+        "--ingot",
+        "assignment",
+        "--backend",
+        "sonatina",
+        "-O",
+        "1",
+        "--emit",
+        "ir,rmir",
+        "--report",
+        "--report-out",
+        "D:\\Upwork\\fe-builders\\logs\\feassign-fa01-attempt07-model-api\\test-report.tar.gz"
+      ],
+      "started_utc": "2026-11-03T00:19:16.561242+00:00",
+      "ended_utc": "2026-11-03T00:19:17.428140+00:00",
+      "source_sha256": "d0e8b6e8624277134dc1c2b0621a1bcf7f1219b80aa08ecc49897a73f2371b3f"
+    },
+    {
+      "label": "feassign-fa01-attempt08-model-native",
+      "backend": "native",
+      "optimize": "0",
+      "passed": 6,
+      "failed": 0,
+      "command": [
+        "wsl.exe",
+        "-d",
+        "FeBuildersContest",
+        "--",
+        "env",
+        "FE_CACHE_DIR=/mnt/d/Upwork/fe-builders/project/feassign/.cache/linux",
+        "TMPDIR=/mnt/d/Upwork/fe-builders/environment/linux-temp",
+        "/mnt/d/Upwork/fe-builders/environment/bin/fe-linux-26.5.1",
+        "--color",
+        "never",
+        "test",
+        "/mnt/d/Upwork/fe-builders/project/feassign",
+        "--ingot",
+        "assignment",
+        "--backend",
+        "native",
+        "-O",
+        "0",
+        "--emit",
+        "ir,rmir",
+        "--report",
+        "--report-out",
+        "/mnt/d/Upwork/fe-builders/logs/feassign-fa01-attempt08-model-native/test-report.tar.gz"
+      ],
+      "started_utc": "2026-11-03T00:20:18.401469+00:00",
+      "ended_utc": "2026-11-03T00:20:20.289968+00:00",
+      "source_sha256": "d0e8b6e8624277134dc1c2b0621a1bcf7f1219b80aa08ecc49897a73f2371b3f"
+    },
+    {
+      "label": "feassign-fa01-attempt09-consumer-evm",
+      "backend": "sonatina",
+      "optimize": "1",
+      "passed": 1,
+      "failed": 0,
+      "command": [
+        "D:\\Upwork\\fe-builders\\environment\\bin\\fe-26.5.1.exe",
+        "--color",
+        "never",
+        "test",
+        "D:\\Upwork\\fe-builders\\project\\feassign",
+        "--ingot",
+        "api_tests",
+        "--backend",
+        "sonatina",
+        "-O",
+        "1",
+        "--emit",
+        "ir,rmir",
+        "--report",
+        "--report-out",
+        "D:\\Upwork\\fe-builders\\logs\\feassign-fa01-attempt09-consumer-evm\\test-report.tar.gz"
+      ],
+      "started_utc": "2026-11-03T00:20:35.078438+00:00",
+      "ended_utc": "2026-11-03T00:20:35.393461+00:00",
+      "source_sha256": "a02f4bdb7a571112e556a8029e89bc33a3667031e5da7f8be54ef9b3fc3b9f1c"
+    },
+    {
+      "label": "feassign-fa01-attempt10-consumer-native",
+      "backend": "native",
+      "optimize": "0",
+      "passed": 1,
+      "failed": 0,
+      "command": [
+        "wsl.exe",
+        "-d",
+        "FeBuildersContest",
+        "--",
+        "env",
+        "FE_CACHE_DIR=/mnt/d/Upwork/fe-builders/project/feassign/.cache/linux",
+        "TMPDIR=/mnt/d/Upwork/fe-builders/environment/linux-temp",
+        "/mnt/d/Upwork/fe-builders/environment/bin/fe-linux-26.5.1",
+        "--color",
+        "never",
+        "test",
+        "/mnt/d/Upwork/fe-builders/project/feassign",
+        "--ingot",
+        "api_tests",
+        "--backend",
+        "native",
+        "-O",
+        "0",
+        "--emit",
+        "ir,rmir",
+        "--report",
+        "--report-out",
+        "/mnt/d/Upwork/fe-builders/logs/feassign-fa01-attempt10-consumer-native/test-report.tar.gz"
+      ],
+      "started_utc": "2026-11-03T00:20:35.078573+00:00",
+      "ended_utc": "2026-11-03T00:20:36.227318+00:00",
+      "source_sha256": "a02f4bdb7a571112e556a8029e89bc33a3667031e5da7f8be54ef9b3fc3b9f1c"
+    }
+  ],
+  "distinct_runtime_tests": 7,
+  "latest_successful_case_executions": 14,
+  "negative_compiler_cases": 3,
+  "negative_report": "logs/feassign-fa01-compile-boundaries-clean/result.json",
+  "portable_negative_report": "logs/feassign-fa01-portable-boundaries-pinned/result.json",
+  "initial_representation_history": "docs/evidence/representation-gate.json",
+  "limitations": [
+    "Some known-value checks may fold; current scope is Fe language/model/API observations, not independent optimization proof",
+    "EVM O0 failure is unresolved; no all-profile compiler correctness claim",
+    "Largest internal model-test runtime observed25590bytes exceeds ordinary deployment code size; internal VM tests are not deployability evidence. Actual board code/init/gas/receipt/state remainsFA07/FA08",
+    "No optimizer/verifier/CLI/board/oracle/demo yet; FA02-FA13 remain",
+    "Pure model types have no public dummy; actual33-slot algorithm workspace is inherited byFA03"
+  ],
+  "goal_complete": false,
+  "next_task": "FA02 separate mathematical certificate verifier"
+}

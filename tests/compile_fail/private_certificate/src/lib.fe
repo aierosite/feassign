@@ -1,0 +1,12 @@
+use assignment::Certificate
+
+// Expected failure: no external literal/deserializer can bypass length checks.
+pub fn forge_certificate() -> Certificate {
+    let selected: [u8; 32] = [0; 32]
+    let u: [i128; 32] = [0; 32]
+    let v: [i128; 32] = [0; 32]
+    Certificate {
+        rows: 0, columns: 255,
+        selected, row_potentials: u, column_potentials: v,
+    }
+}

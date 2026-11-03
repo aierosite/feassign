@@ -1,0 +1,6 @@
+[ingot]
+name = "use_after_move"
+version = "0.1.0"
+
+[dependencies]
+assignment = { path = "../../../ingots/assignment" }

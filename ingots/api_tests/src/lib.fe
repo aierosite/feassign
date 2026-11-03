@@ -1,0 +1,57 @@
+use core::Result
+use assignment::{
+    new_problem, rows, columns, cost,
+    new_certificate, certificate_shape, selected_column, row_potential, column_potential,
+}
+
+/// A separate ingot must consume the public API without private-field access.
+#[test]
+fn external_full32_problem_and_certificate_api() {
+    var costs: [i64; 1024] = [0; 1024]
+    costs[1023] = i64::min()
+    let problem = match new_problem(32, 32, 1024, costs) {
+        Result::Ok(value) => value,
+        Result::Err(_) => core::panic(),
+    }
+    assert!(rows(ref problem) == 32 && columns(ref problem) == 32)
+    match cost(ref problem, 31, 31) {
+        Result::Ok(value) => assert!(value == i64::min()),
+        _ => core::panic(),
+    }
+    var selected: [u8; 32] = [0; 32]
+    var u: [i128; 32] = [0; 32]
+    var v: [i128; 32] = [0; 32]
+    var index: u8 = 0
+    while index < 32 {
+        selected[index as usize] = 31 - index
+        u[index as usize] = i128::min() + (index as i128)
+        v[index as usize] = i128::max() - (index as i128)
+        index += 1
+    }
+    let certificate = match new_certificate(ref problem, 32, 32, 32, selected, u, v) {
+        Result::Ok(value) => value,
+        Result::Err(_) => core::panic(),
+    }
+    let (r, c) = certificate_shape(ref certificate)
+    assert!(r == 32 && c == 32)
+    match selected_column(ref certificate, 31) {
+        Result::Ok(value) => assert!(value == 0),
+        _ => core::panic(),
+    }
+    match row_potential(ref certificate, 0) {
+        Result::Ok(value) => assert!(value == i128::min()),
+        _ => core::panic(),
+    }
+    match row_potential(ref certificate, 31) {
+        Result::Ok(value) => assert!(value == i128::min() + 31),
+        _ => core::panic(),
+    }
+    match column_potential(ref certificate, 0) {
+        Result::Ok(value) => assert!(value == i128::max()),
+        _ => core::panic(),
+    }
+    match column_potential(ref certificate, 31) {
+        Result::Ok(value) => assert!(value == i128::max() - 31),
+        _ => core::panic(),
+    }
+}

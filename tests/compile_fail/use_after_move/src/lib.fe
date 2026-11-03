@@ -1,0 +1,9 @@
+use assignment::{Problem, rows}
+
+fn consume(_ value: own Problem) { }
+
+// Expected failure: Problem is owned and is not implicitly copied.
+pub fn moved_problem(_ problem: own Problem) -> u8 {
+    consume(problem)
+    rows(ref problem)
+}

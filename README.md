@@ -12,8 +12,9 @@ to the same problem.
 ## Development status
 
 Implementation began after November 3, 2026 at 00:00 UTC. An initial bounded
-`Problem`, checked construction and scalar reference access now exist. One
-directed full32 representation test has run on native and EVM; its scope and
+`Problem` and shape-valid `Certificate`, checked construction and scalar
+reference access now exist. Model/API checks have run on native and EVM;
+see [the bounded API](docs/CORE-API.md). The initial full32 gate's scope and
 the preserved EVM `-O 0` failure are in
 [the representation gate](docs/REPRESENTATION-GATE.md).
 The optimizer, certificate verifier, CLI and board are not implemented yet.
@@ -44,7 +45,7 @@ fe test . --ingot assignment --backend native -O 1
 ```
 
 The native command requires the supported Linux environment and its system
-linker. These currently run only the initial representation test, not the
+linker. These currently run the model/representation checks, not the
 planned solver, verifier or board suite. EVM `-O 0` is not a passing profile for
 this gate.
 

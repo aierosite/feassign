@@ -3,7 +3,14 @@ use core::Result
 pub enum ModelError {
     Dimensions,
     CostCount,
+    AssignmentCount,
+    RowPotentialCount,
+    ColumnPotentialCount,
     Index,
+}
+
+fn valid_dimensions(_ rows: u8, _ columns: u8) -> bool {
+    rows > 0 && rows <= columns && columns <= 32
 }
 
 /// Complete finite row-major matrix. Only rows * columns cells are semantic.
@@ -20,7 +27,7 @@ pub fn new_problem(
     _ cost_count: u16,
     _ costs: own [i64; 1024],
 ) -> Result<ModelError, Problem> {
-    if rows == 0 || columns == 0 || rows > columns || columns > 32 {
+    if !valid_dimensions(rows, columns) {
         return Result::Err(ModelError::Dimensions)
     }
     let expected = (rows as usize) * (columns as usize)
@@ -39,11 +46,92 @@ pub fn cost(
     _ row: u8,
     _ column: u8,
 ) -> Result<ModelError, i64> {
+    if !valid_dimensions(problem.rows, problem.columns) {
+        return Result::Err(ModelError::Dimensions)
+    }
     if row >= problem.rows || column >= problem.columns {
         return Result::Err(ModelError::Index)
     }
     let index = (row as usize) * (problem.columns as usize) + (column as usize)
     Result::Ok(problem.costs[index])
+}
+
+/// Shape-valid, mathematically untrusted certificate. No ABI/deserializer bypass.
+pub struct Certificate {
+    rows: u8,
+    columns: u8,
+    selected: [u8; 32],
+    row_potentials: [i128; 32],
+    column_potentials: [i128; 32],
+}
+
+/// Validate semantic lengths, not injectivity or dual feasibility.
+/// Every selected byte and every i128 potential remains untrusted proof input.
+pub fn new_certificate(
+    _ problem: ref Problem,
+    _ selected_count: u8,
+    _ row_potential_count: u8,
+    _ column_potential_count: u8,
+    _ selected: own [u8; 32],
+    _ row_potentials: own [i128; 32],
+    _ column_potentials: own [i128; 32],
+) -> Result<ModelError, Certificate> {
+    if !valid_dimensions(problem.rows, problem.columns) {
+        return Result::Err(ModelError::Dimensions)
+    }
+    if selected_count != problem.rows {
+        return Result::Err(ModelError::AssignmentCount)
+    }
+    if row_potential_count != problem.rows {
+        return Result::Err(ModelError::RowPotentialCount)
+    }
+    if column_potential_count != problem.columns {
+        return Result::Err(ModelError::ColumnPotentialCount)
+    }
+    Result::Ok(Certificate {
+        rows: problem.rows,
+        columns: problem.columns,
+        selected,
+        row_potentials,
+        column_potentials,
+    })
+}
+
+pub fn certificate_shape(_ certificate: ref Certificate) -> (u8, u8) {
+    (certificate.rows, certificate.columns)
+}
+
+pub fn selected_column(
+    _ certificate: ref Certificate,
+    _ row: u8,
+) -> Result<ModelError, u8> {
+    if !valid_dimensions(certificate.rows, certificate.columns) {
+        return Result::Err(ModelError::Dimensions)
+    }
+    if row >= certificate.rows { return Result::Err(ModelError::Index) }
+    Result::Ok(certificate.selected[row as usize])
+}
+
+pub fn row_potential(
+    _ certificate: ref Certificate,
+    _ row: u8,
+) -> Result<ModelError, i128> {
+    if !valid_dimensions(certificate.rows, certificate.columns) {
+        return Result::Err(ModelError::Dimensions)
+    }
+    if row >= certificate.rows { return Result::Err(ModelError::Index) }
+    Result::Ok(certificate.row_potentials[row as usize])
+}
+
+pub fn column_potential(
+    _ certificate: ref Certificate,
+    _ column: u8,
+) -> Result<ModelError, i128> {
+    if !valid_dimensions(certificate.rows, certificate.columns) {
+        return Result::Err(ModelError::Dimensions)
+    }
+    if column >= certificate.columns { return Result::Err(ModelError::Index) }
+    Result::Ok(certificate.column_potentials[column as usize])
 }
 
 fn checked_cost(_ problem: ref Problem, _ row: u8, _ column: u8) -> i64 {
@@ -90,4 +178,146 @@ fn full32_owned_storage_shared_reads_and_signed_endpoints() {
     // Sum(k-512), k=0..1023, is -512. Replacing the endpoints preserves it:
     // (-512)+511 == i64::min()+i64::max() == -1, in the wider type.
     assert!(total == -512)
+}
+
+#[test]
+fn invalid_problem_dimensions_reject_before_count_or_access() {
+    let bad_rows: [u8; 8] = [0, 0, 1, 2, 1, 33, 32, 255]
+    let bad_columns: [u8; 8] = [0, 1, 0, 1, 33, 33, 33, 255]
+    var index: usize = 0
+    while index < 8 {
+        match new_problem(bad_rows[index], bad_columns[index], 0, [0; 1024]) {
+            Result::Err(ModelError::Dimensions) => (),
+            _ => core::panic(),
+        }
+        index += 1
+    }
+}
+
+#[test]
+fn exact_cost_count_is_not_capacity_or_truncation() {
+    let bad_counts: [u16; 5] = [0, 31, 33, 1024, 65535]
+    var index: usize = 0
+    while index < 5 {
+        match new_problem(1, 32, bad_counts[index], [0; 1024]) {
+            Result::Err(ModelError::CostCount) => (),
+            _ => core::panic(),
+        }
+        index += 1
+    }
+    match new_problem(32, 32, 1023, [0; 1024]) {
+        Result::Err(ModelError::CostCount) => (),
+        _ => core::panic(),
+    }
+    match new_problem(32, 32, 1025, [0; 1024]) {
+        Result::Err(ModelError::CostCount) => (),
+        _ => core::panic(),
+    }
+}
+
+fn one_by_two_problem() -> Problem {
+    var values: [i64; 1024] = [0; 1024]
+    values[0] = i64::min()
+    values[1] = i64::max()
+    values[2] = 123 // Unused physical capacity must not become a third column.
+    match new_problem(1, 2, 2, values) {
+        Result::Ok(value) => value,
+        Result::Err(_) => core::panic(),
+    }
+}
+
+#[test]
+fn one_row_surplus_columns_and_checked_access() {
+    let problem = one_by_two_problem()
+    assert!(rows(ref problem) == 1)
+    assert!(columns(ref problem) == 2)
+    assert!(checked_cost(ref problem, 0, 0) == i64::min())
+    assert!(checked_cost(ref problem, 0, 1) == i64::max())
+    match cost(ref problem, 0, 2) {
+        Result::Err(ModelError::Index) => (),
+        _ => core::panic(),
+    }
+    match cost(ref problem, 1, 0) {
+        Result::Err(ModelError::Index) => (),
+        _ => core::panic(),
+    }
+    match cost(ref problem, 255, 255) {
+        Result::Err(ModelError::Index) => (),
+        _ => core::panic(),
+    }
+}
+
+#[test]
+fn certificate_lengths_are_exact_and_independent() {
+    let problem = one_by_two_problem()
+    match new_certificate(ref problem, 0, 1, 2, [0; 32], [0; 32], [0; 32]) {
+        Result::Err(ModelError::AssignmentCount) => (),
+        _ => core::panic(),
+    }
+    match new_certificate(ref problem, 1, 2, 2, [0; 32], [0; 32], [0; 32]) {
+        Result::Err(ModelError::RowPotentialCount) => (),
+        _ => core::panic(),
+    }
+    match new_certificate(ref problem, 1, 1, 1, [0; 32], [0; 32], [0; 32]) {
+        Result::Err(ModelError::ColumnPotentialCount) => (),
+        _ => core::panic(),
+    }
+    match new_certificate(ref problem, 255, 1, 2, [0; 32], [0; 32], [0; 32]) {
+        Result::Err(ModelError::AssignmentCount) => (),
+        _ => core::panic(),
+    }
+    match new_certificate(ref problem, 1, 255, 2, [0; 32], [0; 32], [0; 32]) {
+        Result::Err(ModelError::RowPotentialCount) => (),
+        _ => core::panic(),
+    }
+    match new_certificate(ref problem, 1, 1, 255, [0; 32], [0; 32], [0; 32]) {
+        Result::Err(ModelError::ColumnPotentialCount) => (),
+        _ => core::panic(),
+    }
+}
+
+#[test]
+fn certificate_preserves_untrusted_full_width_values_and_limits_reads() {
+    let problem = one_by_two_problem()
+    var selected: [u8; 32] = [0; 32]
+    var u: [i128; 32] = [0; 32]
+    var v: [i128; 32] = [0; 32]
+    selected[0] = 255 // Shape is valid; mathematical verification must reject it.
+    u[0] = i128::min()
+    v[0] = i128::max()
+    v[1] = i128::min()
+    let certificate = match new_certificate(ref problem, 1, 1, 2, selected, u, v) {
+        Result::Ok(value) => value,
+        Result::Err(_) => core::panic(),
+    }
+    let (r, c) = certificate_shape(ref certificate)
+    assert!(r == 1 && c == 2)
+    match selected_column(ref certificate, 0) {
+        Result::Ok(value) => assert!(value == 255),
+        _ => core::panic(),
+    }
+    match row_potential(ref certificate, 0) {
+        Result::Ok(value) => assert!(value == i128::min()),
+        _ => core::panic(),
+    }
+    match column_potential(ref certificate, 0) {
+        Result::Ok(value) => assert!(value == i128::max()),
+        _ => core::panic(),
+    }
+    match column_potential(ref certificate, 1) {
+        Result::Ok(value) => assert!(value == i128::min()),
+        _ => core::panic(),
+    }
+    match selected_column(ref certificate, 1) {
+        Result::Err(ModelError::Index) => (),
+        _ => core::panic(),
+    }
+    match row_potential(ref certificate, 255) {
+        Result::Err(ModelError::Index) => (),
+        _ => core::panic(),
+    }
+    match column_potential(ref certificate, 2) {
+        Result::Err(ModelError::Index) => (),
+        _ => core::panic(),
+    }
 }

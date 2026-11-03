@@ -43,6 +43,7 @@ objects/executables are not extracted as the normal product build route.
 Machine-readable observations are in [the evidence record](evidence/representation-gate.json).
 Full raw logs, emitted IR and original debug archives remain in the surrounding
 task workspace under `logs/feassign-fa01-attempt01` through the named attempt06
-directory. All source, syntax and API acceptance beyond this first entry gate
-remain work in progress: invalid dimensions/counts/indices, external-consumer
-privacy and ownership paths, certificate model and actual optimizer/verifier.
+directory. At this initial checkpoint, broader API acceptance was pending.
+The later bounded model/length/index, external-consumer and ownership checks are
+recorded separately in [CORE-API.md](CORE-API.md). Optimizer and mathematical
+verifier acceptance are later gates.

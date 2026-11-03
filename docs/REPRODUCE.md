@@ -13,6 +13,13 @@ permission and keep them in a separate tool directory. The command below takes
 their absolute paths. The workflow uses Python's standard library and local
 processes; keep tool binaries outside the source package.
 
+The tested environment is Ubuntu24.04 x86-64 under WSL, glibc2.39,
+Python3.12.3 and GCC13.3. The pinned Fe executable requires GLIBC_2.39 symbols.
+These GNU/Linux assets use /lib64/ld-linux-x86-64.so.2 and the libc/libm/libgcc
+runtime libraries; cast also needs libudev.so.1. Ensure those existing binary
+dependencies are available in the build environment. The ELF requirements and
+this tested environment do not establish compatibility with every Linux image.
+
 From a fresh extraction/check-out of this source:
 
 ```sh

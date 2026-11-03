@@ -121,7 +121,7 @@ def main():
                             input_sha256=sha(data), stderr=result.stderr.decode('ascii')))
 
     try:
-        _, sample = case('documented-rectangle', 2, 3, [4, 1, 8, 2, 6, 3], 3)
+        _, sample = case('board-rectangle', 2, 3, [4, 1, 8, 2, 6, 3], 3)
         (evidence / 'sample-output.txt').write_bytes(sample)
         for value in [MIN64, MAX64, -1, 0]:
             case(f'singleton-{value}', 1, 1, [value], value)

@@ -2,6 +2,6 @@ use assignment::Problem
 
 // Expected failure: external code cannot construct validated private fields.
 pub fn forge_problem() -> Problem {
-    let values: [i64; 1024] = [0; 1024]
-    Problem { rows: 0, columns: 255, costs: values }
+    let values: [u256; 256] = [0; 256]
+    Problem { rows: 0, columns: 255, packed_costs: values }
 }

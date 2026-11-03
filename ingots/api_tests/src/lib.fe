@@ -2,6 +2,7 @@ use core::Result
 use assignment::{
     new_problem, rows, columns, cost,
     new_certificate, certificate_shape, selected_column, row_potential, column_potential,
+    Problem, Certificate, VerifyError, verify,
 }
 
 /// A separate ingot must consume the public API without private-field access.
@@ -9,7 +10,7 @@ use assignment::{
 fn external_full32_problem_and_certificate_api() {
     var costs: [i64; 1024] = [0; 1024]
     costs[1023] = i64::min()
-    let problem = match new_problem(32, 32, 1024, costs) {
+    let problem = match new_problem(32, 32, 1024, ref costs) {
         Result::Ok(value) => value,
         Result::Err(_) => core::panic(),
     }
@@ -52,6 +53,259 @@ fn external_full32_problem_and_certificate_api() {
     }
     match column_potential(ref certificate, 31) {
         Result::Ok(value) => assert!(value == i128::max() - 31),
+        _ => core::panic(),
+    }
+}
+
+fn problem_for(_ r: u8, _ c: u8, _ costs: ref [i64; 1024]) -> Problem {
+    match new_problem(r, c, (r as u16) * (c as u16), costs) {
+        Result::Ok(value) => value,
+        Result::Err(_) => core::panic(),
+    }
+}
+
+fn uniform_problem(_ r: u8, _ c: u8, _ value: i64) -> Problem {
+    var costs: [i64; 1024] = [0; 1024]
+    var index: usize = 0
+    while index < (r as usize) * (c as usize) {
+        costs[index] = value
+        index += 1
+    }
+    problem_for(r, c, ref costs)
+}
+
+fn certificate_for(
+    _ problem: ref Problem,
+    _ selected: own [u8; 32],
+    _ u: own [i128; 32],
+    _ v: own [i128; 32],
+) -> Certificate {
+    match new_certificate(problem, rows(problem), rows(problem), columns(problem), selected, u, v) {
+        Result::Ok(value) => value,
+        Result::Err(_) => core::panic(),
+    }
+}
+
+fn two_cost_problem(_ a: i64, _ b: i64) -> Problem {
+    var costs: [i64; 1024] = [0; 1024]
+    costs[0] = a
+    costs[1] = b
+    problem_for(1, 2, ref costs)
+}
+
+fn accepts(_ problem: ref Problem, _ certificate: ref Certificate, _ expected: i128) {
+    match verify(problem, certificate) {
+        Result::Ok(total) => assert!(total == expected),
+        Result::Err(_) => core::panic(),
+    }
+}
+
+#[test]
+fn verify_one_row_surplus_optimum_and_recomputed_total() {
+    let problem = two_cost_problem(5, 3)
+    var selected: [u8; 32] = [0; 32]
+    var u: [i128; 32] = [0; 32]
+    selected[0] = 1
+    u[0] = 3
+    let certificate = certificate_for(ref problem, selected, u, [0; 32])
+    accepts(ref problem, ref certificate, 3)
+}
+
+#[test]
+fn verify_square_optimum() {
+    var costs: [i64; 1024] = [0; 1024]
+    costs[0] = 4
+    costs[1] = 1
+    costs[2] = 2
+    costs[3] = 3
+    let problem = problem_for(2, 2, ref costs)
+    var selected: [u8; 32] = [0; 32]
+    var u: [i128; 32] = [0; 32]
+    selected[0] = 1
+    u[0] = 1
+    u[1] = 2
+    let certificate = certificate_for(ref problem, selected, u, [0; 32])
+    accepts(ref problem, ref certificate, 3)
+}
+
+#[test]
+fn verify_rectangle_with_negative_matched_potential_and_alternative_optima() {
+    var costs: [i64; 1024] = [0; 1024]
+    costs[1] = 10
+    costs[2] = 20
+    costs[4] = 10
+    costs[5] = 20
+    let problem = problem_for(2, 3, ref costs)
+    var p1: [u8; 32] = [0; 32]
+    p1[1] = 1
+    var u1: [i128; 32] = [0; 32]
+    u1[0] = 10
+    u1[1] = 10
+    var v1: [i128; 32] = [0; 32]
+    v1[0] = -10
+    let first = certificate_for(ref problem, p1, u1, v1)
+    accepts(ref problem, ref first, 10)
+    var p2: [u8; 32] = [0; 32]
+    p2[0] = 1
+    var u2: [i128; 32] = [0; 32]
+    u2[0] = 10
+    u2[1] = 10
+    var v2: [i128; 32] = [0; 32]
+    v2[0] = -10
+    let second = certificate_for(ref problem, p2, u2, v2)
+    accepts(ref problem, ref second, 10)
+}
+
+#[test]
+fn verify_singleton_i64_minimum() {
+    let problem = uniform_problem(1, 1, i64::min())
+    var u: [i128; 32] = [0; 32]
+    u[0] = i64::min() as i128
+    let certificate = certificate_for(ref problem, [0; 32], u, [0; 32])
+    accepts(ref problem, ref certificate, -9223372036854775808)
+}
+
+#[test]
+fn verify_full32_all_i64_maximum_without_i64_sum_overflow() {
+    let problem = uniform_problem(32, 32, i64::max())
+    var selected: [u8; 32] = [0; 32]
+    var index: u8 = 0
+    while index < 32 {
+        selected[index as usize] = index
+        index += 1
+    }
+    let certificate = certificate_for(ref problem, selected, [i64::max() as i128; 32], [0; 32])
+    accepts(ref problem, ref certificate, 295147905179352825824)
+}
+
+#[test]
+fn verify_full32_all_i64_minimum_without_i64_sum_overflow() {
+    let problem = uniform_problem(32, 32, i64::min())
+    var selected: [u8; 32] = [0; 32]
+    var index: u8 = 0
+    while index < 32 {
+        selected[index as usize] = index
+        index += 1
+    }
+    let certificate = certificate_for(ref problem, selected, [i64::min() as i128; 32], [0; 32])
+    accepts(ref problem, ref certificate, -295147905179352825856)
+}
+
+#[test]
+fn verify_valid_full_i128_cancellation_is_not_restricted_to_solver_bounds() {
+    let problem = uniform_problem(1, 1, -1)
+    let certificate = certificate_for(ref problem, [0; 32], [i128::max(); 32], [i128::min(); 32])
+    accepts(ref problem, ref certificate, -1)
+}
+
+#[test]
+fn verify_hostile_i128_pair_widens_before_addition() {
+    let problem = uniform_problem(1, 1, 0)
+    let certificate = certificate_for(ref problem, [0; 32], [i128::min(); 32], [i128::min(); 32])
+    match verify(ref problem, ref certificate) {
+        Result::Err(VerifyError::SelectedEdgeNotTight) => (),
+        _ => core::panic(),
+    }
+}
+
+#[test]
+fn verify_rejects_out_of_range_column_before_indexing() {
+    let problem = two_cost_problem(5, 3)
+    let certificate = certificate_for(ref problem, [255; 32], [0; 32], [0; 32])
+    match verify(ref problem, ref certificate) {
+        Result::Err(VerifyError::ColumnIndex) => (),
+        _ => core::panic(),
+    }
+}
+
+#[test]
+fn verify_rejects_duplicate_selected_column() {
+    let problem = uniform_problem(2, 2, 0)
+    let certificate = certificate_for(ref problem, [0; 32], [0; 32], [0; 32])
+    match verify(ref problem, ref certificate) {
+        Result::Err(VerifyError::DuplicateColumn) => (),
+        _ => core::panic(),
+    }
+}
+
+#[test]
+fn verify_sign_condition_blocks_suboptimal_omission_counterexample() {
+    // All other explicit proof conditions hold for selected cost5, but optimum3.
+    let problem = two_cost_problem(5, 3)
+    var u: [i128; 32] = [0; 32]
+    var v: [i128; 32] = [0; 32]
+    u[0] = 3
+    v[0] = 2
+    let certificate = certificate_for(ref problem, [0; 32], u, v)
+    match verify(ref problem, ref certificate) {
+        Result::Err(VerifyError::PositiveColumnPotential) => (),
+        _ => core::panic(),
+    }
+}
+
+#[test]
+fn verify_unused_condition_blocks_suboptimal_omission_counterexample() {
+    // Sign, feasibility and selected tightness hold for cost5; optimum is3.
+    let problem = two_cost_problem(5, 3)
+    var u: [i128; 32] = [0; 32]
+    var v: [i128; 32] = [0; 32]
+    u[0] = 5
+    v[1] = -2
+    let certificate = certificate_for(ref problem, [0; 32], u, v)
+    match verify(ref problem, ref certificate) {
+        Result::Err(VerifyError::NonzeroUnusedColumn) => (),
+        _ => core::panic(),
+    }
+}
+
+#[test]
+fn verify_unselected_edge_can_violate_dual_feasibility() {
+    let problem = two_cost_problem(5, 3)
+    var u: [i128; 32] = [0; 32]
+    u[0] = 5
+    let certificate = certificate_for(ref problem, [0; 32], u, [0; 32])
+    match verify(ref problem, ref certificate) {
+        Result::Err(VerifyError::DualInfeasible) => (),
+        _ => core::panic(),
+    }
+}
+
+#[test]
+fn verify_feasible_but_nontight_optimal_assignment_is_not_a_valid_certificate() {
+    let problem = two_cost_problem(5, 3)
+    var selected: [u8; 32] = [0; 32]
+    var u: [i128; 32] = [0; 32]
+    selected[0] = 1
+    u[0] = 2
+    let certificate = certificate_for(ref problem, selected, u, [0; 32])
+    match verify(ref problem, ref certificate) {
+        Result::Err(VerifyError::SelectedEdgeNotTight) => (),
+        _ => core::panic(),
+    }
+}
+
+#[test]
+fn verify_shape_mismatch_rejects_before_array_access() {
+    let original = two_cost_problem(5, 3)
+    let certificate = certificate_for(ref original, [0; 32], [0; 32], [0; 32])
+    let other = uniform_problem(2, 2, 0)
+    match verify(ref other, ref certificate) {
+        Result::Err(VerifyError::Shape) => (),
+        _ => core::panic(),
+    }
+}
+
+#[test]
+fn verify_uses_actual_problem_costs_not_previous_certificate_context() {
+    let original = two_cost_problem(5, 3)
+    var selected: [u8; 32] = [0; 32]
+    var u: [i128; 32] = [0; 32]
+    selected[0] = 1
+    u[0] = 3
+    let certificate = certificate_for(ref original, selected, u, [0; 32])
+    let changed = two_cost_problem(5, 2)
+    match verify(ref changed, ref certificate) {
+        Result::Err(VerifyError::DualInfeasible) => (),
         _ => core::panic(),
     }
 }

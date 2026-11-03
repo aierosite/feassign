@@ -16,7 +16,7 @@ def main():
     if '26.5.1' not in version or '149c758' not in version:
         raise RuntimeError('Expected pinned Fe26.5.1 commit149c758; observed: ' + version)
     cases = [
-        ('private_problem', ['`rows` is not visible', '`columns` is not visible', '`costs` is not visible'], 3),
+        ('private_problem', ['`rows` is not visible', '`columns` is not visible', '`packed_costs` is not visible'], 3),
         ('private_certificate', ['`rows` is not visible', '`columns` is not visible',
                                  '`selected` is not visible', '`row_potentials` is not visible',
                                  '`column_potentials` is not visible'], 5),

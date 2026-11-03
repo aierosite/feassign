@@ -38,3 +38,14 @@ Detailed dated preparation snapshots and execution records are retained in the
 surrounding authorized task workspace, separately from product source history.
 Later self-contained product evidence will record exact commands, versions,
 failures, fixes and observed results without treating plans as passes.
+
+After opening, Codex implemented the bounded model, shape-valid certificate,
+pure Fe mathematical verifier, directed tests and a separate API-consumer ingot.
+Observed EVM aggregate-stack failures prompted borrowed-buffer construction
+and private four-i64-lane packed storage without reducing the complete model.
+Original failures and sources remain dated evidence; a smaller constructor
+experiment passed and is not presented as a universal compiler-bug reproducer.
+The initial directed verifier checkpoint, expected-value cross-checks and
+remaining optimizer/CLI/board work are described in VERIFIER.md. Python only
+enumerated tiny example minima at this checkpoint; the complete solver-oracle
+campaign remains future work. No human review or public submission is implied.

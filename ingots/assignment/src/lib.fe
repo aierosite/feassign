@@ -13,19 +13,20 @@ fn valid_dimensions(_ rows: u8, _ columns: u8) -> bool {
     rows > 0 && rows <= columns && columns <= 32
 }
 
-/// Complete finite row-major matrix. Only rows * columns cells are semantic.
+/// Complete row-major matrix; four two's-complement i64 lanes per owned word.
 pub struct Problem {
     rows: u8,
     columns: u8,
-    costs: [i64; 1024],
+    packed_costs: [u256; 256],
 }
 
-/// Consume bounded storage after checking the supplied semantic cell count.
+/// Copy a bounded input buffer into owned packed storage after shape checks.
+/// Retain no reference to the supplied buffer and ignore unused capacity.
 pub fn new_problem(
     _ rows: u8,
     _ columns: u8,
     _ cost_count: u16,
-    _ costs: own [i64; 1024],
+    _ costs: ref [i64; 1024],
 ) -> Result<ModelError, Problem> {
     if !valid_dimensions(rows, columns) {
         return Result::Err(ModelError::Dimensions)
@@ -34,7 +35,29 @@ pub fn new_problem(
     if (cost_count as usize) != expected {
         return Result::Err(ModelError::CostCount)
     }
-    Result::Ok(Problem { rows, columns, costs })
+    var packed_costs: [u256; 256] = [0; 256]
+    var index: usize = 0
+    while index < expected {
+        let signed = costs[index] as i256
+        let encoded = if signed < 0 { signed + 18446744073709551616 } else { signed }
+        let lane: u256 = encoded.downcast().unwrap()
+        let word = index / 4
+        let shift = ((index % 4) * 64) as u256
+        packed_costs[word] = packed_costs[word] | (lane << shift)
+        index += 1
+    }
+    Result::Ok(Problem { rows, columns, packed_costs })
+}
+
+// Callers prove index < rows*columns <=1024 before entering this private helper.
+fn read_cost(_ problem: ref Problem, _ index: usize) -> i64 {
+    let shift = ((index % 4) * 64) as u256
+    let lane = (problem.packed_costs[index / 4] >> shift) & 18446744073709551615
+    let unsigned: i256 = lane.downcast().unwrap()
+    let signed = if unsigned >= 9223372036854775808 {
+        unsigned - 18446744073709551616
+    } else { unsigned }
+    signed.downcast().unwrap()
 }
 
 pub fn rows(_ problem: ref Problem) -> u8 { problem.rows }
@@ -53,7 +76,7 @@ pub fn cost(
         return Result::Err(ModelError::Index)
     }
     let index = (row as usize) * (problem.columns as usize) + (column as usize)
-    Result::Ok(problem.costs[index])
+    Result::Ok(read_cost(problem, index))
 }
 
 /// Shape-valid, mathematically untrusted certificate. No ABI/deserializer bypass.
@@ -134,6 +157,84 @@ pub fn column_potential(
     Result::Ok(certificate.column_potentials[column as usize])
 }
 
+pub enum VerifyError {
+    Shape,
+    ColumnIndex,
+    DuplicateColumn,
+    PositiveColumnPotential,
+    DualInfeasible,
+    SelectedEdgeNotTight,
+    NonzeroUnusedColumn,
+}
+
+/// Verify a rectangular minimum-cost assignment without running an optimizer.
+/// For any other injection, feasibility and v<=0 give the full-dual lower bound.
+/// Tight chosen edges and zero unused v attain it. All combined math widens first.
+pub fn verify(
+    _ problem: ref Problem,
+    _ certificate: ref Certificate,
+) -> Result<VerifyError, i128> {
+    if !valid_dimensions(problem.rows, problem.columns)
+        || !valid_dimensions(certificate.rows, certificate.columns)
+        || certificate.rows != problem.rows || certificate.columns != problem.columns {
+        return Result::Err(VerifyError::Shape)
+    }
+    let row_count = problem.rows as usize
+    let column_count = problem.columns as usize
+    var seen: [bool; 32] = [false; 32]
+
+    var row: usize = 0
+    while row < row_count {
+        let column = certificate.selected[row] as usize
+        if column >= column_count { return Result::Err(VerifyError::ColumnIndex) }
+        if seen[column] { return Result::Err(VerifyError::DuplicateColumn) }
+        seen[column] = true
+        row += 1
+    }
+
+    var column: usize = 0
+    while column < column_count {
+        if certificate.column_potentials[column] > 0 {
+            return Result::Err(VerifyError::PositiveColumnPotential)
+        }
+        column += 1
+    }
+
+    var total: i256 = 0
+    row = 0
+    while row < row_count {
+        let u = certificate.row_potentials[row] as i256
+        let base = row * column_count
+        column = 0
+        while column < column_count {
+            let v = certificate.column_potentials[column] as i256
+            let edge_cost = read_cost(problem, base + column) as i256
+            if u + v > edge_cost { return Result::Err(VerifyError::DualInfeasible) }
+            column += 1
+        }
+        let selected = certificate.selected[row] as usize
+        let selected_cost = read_cost(problem, base + selected) as i256
+        let selected_v = certificate.column_potentials[selected] as i256
+        if u + selected_v != selected_cost {
+            return Result::Err(VerifyError::SelectedEdgeNotTight)
+        }
+        total += selected_cost
+        row += 1
+    }
+
+    column = 0
+    while column < column_count {
+        if !seen[column] && certificate.column_potentials[column] != 0 {
+            return Result::Err(VerifyError::NonzeroUnusedColumn)
+        }
+        column += 1
+    }
+    // At most32 i64 costs fit i128. Failure here is an implementation invariant
+    // failure, never an unsupported-input escape for a valid complete problem.
+    let checked_total: i128 = total.downcast().unwrap()
+    Result::Ok(checked_total)
+}
+
 fn checked_cost(_ problem: ref Problem, _ row: u8, _ column: u8) -> i64 {
     match cost(problem, row, column) {
         Result::Ok(value) => value,
@@ -154,7 +255,7 @@ fn full32_owned_storage_shared_reads_and_signed_endpoints() {
     values[0] = i64::min()
     values[1023] = i64::max()
 
-    let problem = match new_problem(32, 32, 1024, values) {
+    let problem = match new_problem(32, 32, 1024, ref values) {
         Result::Ok(value) => value,
         Result::Err(_) => core::panic(),
     }
@@ -170,7 +271,16 @@ fn full32_owned_storage_shared_reads_and_signed_endpoints() {
     while row < 32 {
         var column: u8 = 0
         while column < 32 {
-            total += checked_cost(ref problem, row, column) as i256
+            let offset = (row as usize) * 32 + (column as usize)
+            let actual = checked_cost(ref problem, row, column)
+            let expected: i64 = if offset == 0 { i64::min() }
+                else if offset == 1023 { i64::max() }
+                else {
+                    let value: i64 = offset.downcast().unwrap()
+                    value - 512
+                }
+            assert!(actual == expected)
+            total += actual as i256
             column += 1
         }
         row += 1
@@ -181,12 +291,28 @@ fn full32_owned_storage_shared_reads_and_signed_endpoints() {
 }
 
 #[test]
+fn constructed_problem_owns_its_data_after_input_changes() {
+    var values: [i64; 1024] = [0; 1024]
+    values[0] = -7
+    values[1] = 11
+    let problem = match new_problem(1, 2, 2, ref values) {
+        Result::Ok(value) => value,
+        Result::Err(_) => core::panic(),
+    }
+    values[0] = 99
+    values[1] = -123
+    assert!(checked_cost(ref problem, 0, 0) == -7)
+    assert!(checked_cost(ref problem, 0, 1) == 11)
+}
+
+#[test]
 fn invalid_problem_dimensions_reject_before_count_or_access() {
+    let values: [i64; 1024] = [0; 1024]
     let bad_rows: [u8; 8] = [0, 0, 1, 2, 1, 33, 32, 255]
     let bad_columns: [u8; 8] = [0, 1, 0, 1, 33, 33, 33, 255]
     var index: usize = 0
     while index < 8 {
-        match new_problem(bad_rows[index], bad_columns[index], 0, [0; 1024]) {
+        match new_problem(bad_rows[index], bad_columns[index], 0, ref values) {
             Result::Err(ModelError::Dimensions) => (),
             _ => core::panic(),
         }
@@ -196,20 +322,21 @@ fn invalid_problem_dimensions_reject_before_count_or_access() {
 
 #[test]
 fn exact_cost_count_is_not_capacity_or_truncation() {
+    let values: [i64; 1024] = [0; 1024]
     let bad_counts: [u16; 5] = [0, 31, 33, 1024, 65535]
     var index: usize = 0
     while index < 5 {
-        match new_problem(1, 32, bad_counts[index], [0; 1024]) {
+        match new_problem(1, 32, bad_counts[index], ref values) {
             Result::Err(ModelError::CostCount) => (),
             _ => core::panic(),
         }
         index += 1
     }
-    match new_problem(32, 32, 1023, [0; 1024]) {
+    match new_problem(32, 32, 1023, ref values) {
         Result::Err(ModelError::CostCount) => (),
         _ => core::panic(),
     }
-    match new_problem(32, 32, 1025, [0; 1024]) {
+    match new_problem(32, 32, 1025, ref values) {
         Result::Err(ModelError::CostCount) => (),
         _ => core::panic(),
     }
@@ -220,7 +347,7 @@ fn one_by_two_problem() -> Problem {
     values[0] = i64::min()
     values[1] = i64::max()
     values[2] = 123 // Unused physical capacity must not become a third column.
-    match new_problem(1, 2, 2, values) {
+    match new_problem(1, 2, 2, ref values) {
         Result::Ok(value) => value,
         Result::Err(_) => core::panic(),
     }

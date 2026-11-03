@@ -1,0 +1,460 @@
+{
+  "audited_utc": "2026-11-03T00:50:28.600073+00:00",
+  "task": "FA02 separate certificate verifier",
+  "status": "directed_acceptance_complete",
+  "goal_complete": false,
+  "core_source_sha256": "48919675cf19e44c2f9c35217a158e955cda4373ef4665f91711cd2ae8a768ad",
+  "consumer_source_sha256": "69d2090aa25f0377372fc7811de35703d6a3ceba060f513c960bb46dcd7c378e",
+  "model_preserved": "1<=rows<=columns<=32; all pairs allowed; full finite i64; i128 public potentials/total; i256 combined work; full square32 and surplus columns retained",
+  "criteria": [
+    {
+      "requirement": "Separate optimizer-independent pure verifier",
+      "result": "met",
+      "evidence": "Source/IR review; verify calls only dimensions and private matrix read; no search/augment/slack/update code, I/O/hash/storage/network or unsafe"
+    },
+    {
+      "requirement": "Every defining certificate condition and recomputed objective",
+      "result": "met_for_named_directed_cases",
+      "evidence": "Shape/index/injection/nonpositive-v/all-pair feasibility/selected tightness/zero-unused-v explicitly checked; recomputed selected matrix cost checked intoi128; seven public errors have named witnesses"
+    },
+    {
+      "requirement": "Both rectangular omission conditions independently exposed",
+      "result": "met",
+      "evidence": "Costs[5,3],selected0 withu3/v[2,0] rejectedPositiveColumnPotential; u5/v[0,-2] rejectedNonzeroUnusedColumn; independent small enumeration optimum3"
+    },
+    {
+      "requirement": "Full numeric range and actual full32",
+      "result": "met_for_directed_cases",
+      "evidence": "Full32 all-i64-min/max certificates accepted with literal independent wider sums; i128 max/min cancellation accepted; min+min hostile pair rejected by proof condition rather than overflow; every mixed-sign full32 model cell checked"
+    },
+    {
+      "requirement": "Both backends and source-matched model/API regression",
+      "result": "met",
+      "evidence": "Seven model and seventeen consumer/verifier tests each pass EVM O1/native O0, matching current source hashes; three intended compiler-negative cases pass again after representation change"
+    }
+  ],
+  "public_error_witnesses": {
+    "Shape": "verify_shape_mismatch_rejects_before_array_access",
+    "ColumnIndex": "verify_rejects_out_of_range_column_before_indexing",
+    "DuplicateColumn": "verify_rejects_duplicate_selected_column",
+    "PositiveColumnPotential": "verify_sign_condition_blocks_suboptimal_omission_counterexample",
+    "DualInfeasible": "verify_unselected_edge_can_violate_dual_feasibility",
+    "SelectedEdgeNotTight": "verify_feasible_but_nontight_optimal_assignment_is_not_a_valid_certificate",
+    "NonzeroUnusedColumn": "verify_unused_condition_blocks_suboptimal_omission_counterexample"
+  },
+  "distinct_tests": 24,
+  "mathematical_verifier_tests": 16,
+  "latest_successful_case_executions": 48,
+  "negative_compiler_cases": 3,
+  "runs": [
+    {
+      "label": "feassign-fa02-attempt08-packed-model",
+      "ingot": "assignment",
+      "backend": "sonatina",
+      "optimize": "1",
+      "command": [
+        "D:\\Upwork\\fe-builders\\environment\\bin\\fe-26.5.1.exe",
+        "--color",
+        "never",
+        "test",
+        "D:\\Upwork\\fe-builders\\project\\feassign",
+        "--ingot",
+        "assignment",
+        "--backend",
+        "sonatina",
+        "-O",
+        "1",
+        "--emit",
+        "ir,rmir",
+        "--report",
+        "--report-out",
+        "D:\\Upwork\\fe-builders\\logs\\feassign-fa02-attempt08-packed-model\\test-report.tar.gz"
+      ],
+      "started_utc": "2026-11-03T00:39:35.101039+00:00",
+      "ended_utc": "2026-11-03T00:39:36.014040+00:00",
+      "passed": 7,
+      "failed": 0,
+      "test_names": [
+        "invalid_problem_dimensions_reject_before_count_or_access",
+        "certificate_preserves_untrusted_full_width_values_and_limits_reads",
+        "constructed_problem_owns_its_data_after_input_changes",
+        "exact_cost_count_is_not_capacity_or_truncation",
+        "certificate_lengths_are_exact_and_independent",
+        "one_row_surplus_columns_and_checked_access",
+        "full32_owned_storage_shared_reads_and_signed_endpoints"
+      ],
+      "source_files": [
+        {
+          "path": "ingots/api_tests/fe.toml",
+          "sha256": "40e12525f19bf2503b2f04f1f9065b7a93d185079440c2db8669d83bbcc0c0d1"
+        },
+        {
+          "path": "ingots/api_tests/src/lib.fe",
+          "sha256": "69d2090aa25f0377372fc7811de35703d6a3ceba060f513c960bb46dcd7c378e"
+        },
+        {
+          "path": "ingots/assignment/fe.toml",
+          "sha256": "a4d4dfb2a56d8611eb8c534adaa0a1f2cc6162014b077eb8c040292c9cabd3a2"
+        },
+        {
+          "path": "ingots/assignment/src/lib.fe",
+          "sha256": "48919675cf19e44c2f9c35217a158e955cda4373ef4665f91711cd2ae8a768ad"
+        }
+      ],
+      "emitted_ir": [
+        {
+          "name": "assignment.test.rmir",
+          "bytes": 327303,
+          "sha256": "65cd41d3cf2769824539aa54ea36d702c20b83fab90c670e95b9cb8b85742dc7"
+        },
+        {
+          "name": "assignment.test.sona",
+          "bytes": 57942,
+          "sha256": "a600e3cfb94c6f3cb1a84e4fcae117744b25913bae06e56a4cfe479d41750420"
+        }
+      ]
+    },
+    {
+      "label": "feassign-fa02-attempt11-model-native",
+      "ingot": "assignment",
+      "backend": "native",
+      "optimize": "0",
+      "command": [
+        "wsl.exe",
+        "-d",
+        "FeBuildersContest",
+        "--",
+        "env",
+        "FE_CACHE_DIR=/mnt/d/Upwork/fe-builders/project/feassign/.cache/linux",
+        "TMPDIR=/mnt/d/Upwork/fe-builders/environment/linux-temp",
+        "/mnt/d/Upwork/fe-builders/environment/bin/fe-linux-26.5.1",
+        "--color",
+        "never",
+        "test",
+        "/mnt/d/Upwork/fe-builders/project/feassign",
+        "--ingot",
+        "assignment",
+        "--backend",
+        "native",
+        "-O",
+        "0",
+        "--emit",
+        "ir,rmir",
+        "--report",
+        "--report-out",
+        "/mnt/d/Upwork/fe-builders/logs/feassign-fa02-attempt11-model-native/test-report.tar.gz"
+      ],
+      "started_utc": "2026-11-03T00:40:54.765121+00:00",
+      "ended_utc": "2026-11-03T00:40:59.756539+00:00",
+      "passed": 7,
+      "failed": 0,
+      "test_names": [
+        "full32_owned_storage_shared_reads_and_signed_endpoints",
+        "exact_cost_count_is_not_capacity_or_truncation",
+        "certificate_preserves_untrusted_full_width_values_and_limits_reads",
+        "invalid_problem_dimensions_reject_before_count_or_access",
+        "constructed_problem_owns_its_data_after_input_changes",
+        "certificate_lengths_are_exact_and_independent",
+        "one_row_surplus_columns_and_checked_access"
+      ],
+      "source_files": [
+        {
+          "path": "ingots/api_tests/fe.toml",
+          "sha256": "40e12525f19bf2503b2f04f1f9065b7a93d185079440c2db8669d83bbcc0c0d1"
+        },
+        {
+          "path": "ingots/api_tests/src/lib.fe",
+          "sha256": "69d2090aa25f0377372fc7811de35703d6a3ceba060f513c960bb46dcd7c378e"
+        },
+        {
+          "path": "ingots/assignment/fe.toml",
+          "sha256": "a4d4dfb2a56d8611eb8c534adaa0a1f2cc6162014b077eb8c040292c9cabd3a2"
+        },
+        {
+          "path": "ingots/assignment/src/lib.fe",
+          "sha256": "48919675cf19e44c2f9c35217a158e955cda4373ef4665f91711cd2ae8a768ad"
+        }
+      ],
+      "emitted_ir": [
+        {
+          "name": "assignment.native.test.rmir",
+          "bytes": 327476,
+          "sha256": "90e59a0086675c391e21ea197515aabe60c2e627270425738dfa95ca56239f12"
+        },
+        {
+          "name": "assignment.native.test.sona",
+          "bytes": 68455,
+          "sha256": "4e8f03d1f489a79e18274a50211643321cdcc60df03a4efad8968ed957f7d0ab"
+        }
+      ]
+    },
+    {
+      "label": "feassign-fa02-attempt10-final-evm",
+      "ingot": "api_tests",
+      "backend": "sonatina",
+      "optimize": "1",
+      "command": [
+        "D:\\Upwork\\fe-builders\\environment\\bin\\fe-26.5.1.exe",
+        "--color",
+        "never",
+        "test",
+        "D:\\Upwork\\fe-builders\\project\\feassign",
+        "--ingot",
+        "api_tests",
+        "--backend",
+        "sonatina",
+        "-O",
+        "1",
+        "--emit",
+        "ir,rmir",
+        "--report",
+        "--report-out",
+        "D:\\Upwork\\fe-builders\\logs\\feassign-fa02-attempt10-final-evm\\test-report.tar.gz"
+      ],
+      "started_utc": "2026-11-03T00:40:54.765491+00:00",
+      "ended_utc": "2026-11-03T00:40:56.642409+00:00",
+      "passed": 17,
+      "failed": 0,
+      "test_names": [
+        "verify_rejects_duplicate_selected_column",
+        "verify_rectangle_with_negative_matched_potential_and_alternative_optima",
+        "verify_one_row_surplus_optimum_and_recomputed_total",
+        "verify_feasible_but_nontight_optimal_assignment_is_not_a_valid_certificate",
+        "verify_hostile_i128_pair_widens_before_addition",
+        "verify_rejects_out_of_range_column_before_indexing",
+        "verify_sign_condition_blocks_suboptimal_omission_counterexample",
+        "verify_singleton_i64_minimum",
+        "verify_shape_mismatch_rejects_before_array_access",
+        "verify_square_optimum",
+        "verify_unused_condition_blocks_suboptimal_omission_counterexample",
+        "verify_unselected_edge_can_violate_dual_feasibility",
+        "verify_valid_full_i128_cancellation_is_not_restricted_to_solver_bounds",
+        "verify_uses_actual_problem_costs_not_previous_certificate_context",
+        "external_full32_problem_and_certificate_api",
+        "verify_full32_all_i64_maximum_without_i64_sum_overflow",
+        "verify_full32_all_i64_minimum_without_i64_sum_overflow"
+      ],
+      "source_files": [
+        {
+          "path": "ingots/api_tests/fe.toml",
+          "sha256": "40e12525f19bf2503b2f04f1f9065b7a93d185079440c2db8669d83bbcc0c0d1"
+        },
+        {
+          "path": "ingots/api_tests/src/lib.fe",
+          "sha256": "69d2090aa25f0377372fc7811de35703d6a3ceba060f513c960bb46dcd7c378e"
+        },
+        {
+          "path": "ingots/assignment/fe.toml",
+          "sha256": "a4d4dfb2a56d8611eb8c534adaa0a1f2cc6162014b077eb8c040292c9cabd3a2"
+        },
+        {
+          "path": "ingots/assignment/src/lib.fe",
+          "sha256": "48919675cf19e44c2f9c35217a158e955cda4373ef4665f91711cd2ae8a768ad"
+        }
+      ],
+      "emitted_ir": [
+        {
+          "name": "api_tests.test.rmir",
+          "bytes": 432685,
+          "sha256": "95f546e1a725a20879d81ec72ee85b392dd0c9281ae9109f5920c989c63351a9"
+        },
+        {
+          "name": "api_tests.test.sona",
+          "bytes": 113032,
+          "sha256": "29d1b9d7ef500674bfbe347337c5ddacb1e0a9c8909fe97735f76c858c3de4c3"
+        }
+      ]
+    },
+    {
+      "label": "feassign-fa02-attempt09-packed-native",
+      "ingot": "api_tests",
+      "backend": "native",
+      "optimize": "0",
+      "command": [
+        "wsl.exe",
+        "-d",
+        "FeBuildersContest",
+        "--",
+        "env",
+        "FE_CACHE_DIR=/mnt/d/Upwork/fe-builders/project/feassign/.cache/linux",
+        "TMPDIR=/mnt/d/Upwork/fe-builders/environment/linux-temp",
+        "/mnt/d/Upwork/fe-builders/environment/bin/fe-linux-26.5.1",
+        "--color",
+        "never",
+        "test",
+        "/mnt/d/Upwork/fe-builders/project/feassign",
+        "--ingot",
+        "api_tests",
+        "--backend",
+        "native",
+        "-O",
+        "0",
+        "--emit",
+        "ir,rmir",
+        "--report",
+        "--report-out",
+        "/mnt/d/Upwork/fe-builders/logs/feassign-fa02-attempt09-packed-native/test-report.tar.gz"
+      ],
+      "started_utc": "2026-11-03T00:39:35.101206+00:00",
+      "ended_utc": "2026-11-03T00:39:36.911709+00:00",
+      "passed": 17,
+      "failed": 0,
+      "test_names": [
+        "verify_full32_all_i64_minimum_without_i64_sum_overflow",
+        "verify_full32_all_i64_maximum_without_i64_sum_overflow",
+        "verify_square_optimum",
+        "verify_rectangle_with_negative_matched_potential_and_alternative_optima",
+        "verify_one_row_surplus_optimum_and_recomputed_total",
+        "external_full32_problem_and_certificate_api",
+        "verify_singleton_i64_minimum",
+        "verify_valid_full_i128_cancellation_is_not_restricted_to_solver_bounds",
+        "verify_sign_condition_blocks_suboptimal_omission_counterexample",
+        "verify_unused_condition_blocks_suboptimal_omission_counterexample",
+        "verify_shape_mismatch_rejects_before_array_access",
+        "verify_rejects_duplicate_selected_column",
+        "verify_unselected_edge_can_violate_dual_feasibility",
+        "verify_hostile_i128_pair_widens_before_addition",
+        "verify_feasible_but_nontight_optimal_assignment_is_not_a_valid_certificate",
+        "verify_rejects_out_of_range_column_before_indexing",
+        "verify_uses_actual_problem_costs_not_previous_certificate_context"
+      ],
+      "source_files": [
+        {
+          "path": "ingots/api_tests/fe.toml",
+          "sha256": "40e12525f19bf2503b2f04f1f9065b7a93d185079440c2db8669d83bbcc0c0d1"
+        },
+        {
+          "path": "ingots/api_tests/src/lib.fe",
+          "sha256": "69d2090aa25f0377372fc7811de35703d6a3ceba060f513c960bb46dcd7c378e"
+        },
+        {
+          "path": "ingots/assignment/fe.toml",
+          "sha256": "a4d4dfb2a56d8611eb8c534adaa0a1f2cc6162014b077eb8c040292c9cabd3a2"
+        },
+        {
+          "path": "ingots/assignment/src/lib.fe",
+          "sha256": "48919675cf19e44c2f9c35217a158e955cda4373ef4665f91711cd2ae8a768ad"
+        }
+      ],
+      "emitted_ir": [
+        {
+          "name": "api_tests.native.test.rmir",
+          "bytes": 433192,
+          "sha256": "8951b2bd25d8eef5976d85cdbd42c26212ac40b8cfd4be07dc1492454265da0a"
+        },
+        {
+          "name": "api_tests.native.test.sona",
+          "bytes": 89890,
+          "sha256": "031b25f33d342ebbcbe50b5523c51e4633d846ada83d747804fa47e544b89abf"
+        }
+      ]
+    }
+  ],
+  "negative_boundary_report": "logs/feassign-fa02-packed-api-boundaries/result.json",
+  "ir_and_expected_values": "logs/feassign-fa02-ir-and-expectation-review.json",
+  "independent_small_expected_value_checks": [
+    {
+      "name": "one-row",
+      "matrix": [
+        [
+          5,
+          3
+        ]
+      ],
+      "enumerated_injections": 2,
+      "minimum": 3,
+      "optimal_assignments": [
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "name": "square",
+      "matrix": [
+        [
+          4,
+          1
+        ],
+        [
+          2,
+          3
+        ]
+      ],
+      "enumerated_injections": 2,
+      "minimum": 3,
+      "optimal_assignments": [
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    {
+      "name": "rectangle",
+      "matrix": [
+        [
+          0,
+          10,
+          20
+        ],
+        [
+          0,
+          10,
+          20
+        ]
+      ],
+      "enumerated_injections": 6,
+      "minimum": 10,
+      "optimal_assignments": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    }
+  ],
+  "full32_expected_sums": {
+    "maximum": 295147905179352825824,
+    "minimum": -295147905179352825856
+  },
+  "representation_adjustment": {
+    "before": "Owned full1024-cell array input and full-array Problem value",
+    "observed_failure": "17-case suite:8 EVM StackOverflow failures atO1 andO2, all17 nativepassed",
+    "small_constructor_reduction": "Two cases passed, so no stand-alone universally reproduced compiler defect claimed",
+    "after": "Borrowed1024-cell buffer copied into owned256-word storage with four signed64-bit lanes/word; no retained reference/heap/unsafe",
+    "unchanged": "All17 semantic cases and complete domain; no host optimizer or checker-only product substitution",
+    "evidence_snapshots": "logs/feassign-fa02-before-packing; original run reports kept"
+  },
+  "current_internal_runtime_byte_range": [
+    96,
+    9531
+  ],
+  "preserved_failures": [
+    "Original initial representation EVM O0 failure",
+    "FA02 initial EVM O1/O2 eight stack failures",
+    "Packing shift-type compile error and test-syntax compile error, fixed before final runs"
+  ],
+  "evidence_bookkeeping": [
+    "Original ingot-selector IR copy-path bug corrected; explicitO2 recapture recorded",
+    "Driver now copies only current-run Wrote artifacts; final successful IR observations were explicitly emitted",
+    "Debug archives used for observation only, not normal product linking"
+  ],
+  "remaining": [
+    "FA03 actual Fe Hungarian optimizer with separate local33-slot workspace",
+    "FA04 larger independent exhaustive injection/oracle campaign and minimized failures",
+    "FA05 full solver/verifier vertical slice after actual solver",
+    "FA06 actual CLI and I/O bridge",
+    "FA07/FA08 canonical board/deployment/code/init/gas/receipts/state",
+    "FA09-FA13 adversarial/repro/demo/full human review/actual feedback/final freeze"
+  ],
+  "limitations": [
+    "Directed tests, small expected-value enumeration and IR are not a formal implementation proof, universal profile guarantee or complete optimizer oracle",
+    "Internal test byte sizes are not board deployability/protocol gas or universal performance bounds",
+    "No arbitrary square gauge, truthful-cost/fairness/privacy/work-delivery/global novelty/rank/audit/security claim"
+  ]
+}

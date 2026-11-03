@@ -5,10 +5,12 @@ Neither type implements Copy or an ABI/deserialization trait. This is a Fe API,
 not a C ABI. There is no I/O, hashing, storage, allocation service or dependency
 on std in the assignment ingot.
 
-`new_problem(rows, columns, cost_count, costs)` consumes `[i64;1024]` storage.
+`new_problem(rows, columns, cost_count, ref costs)` reads a `[i64;1024]` buffer.
 It requires `1 <= rows <= columns <= 32` and exactly
 `cost_count == rows * columns`, widening before multiplication. Only that
-row-major prefix is semantic; remaining capacity is ignored. `rows`, `columns`
+row-major prefix is semantic; remaining capacity is ignored. Construction
+copies values into owned private storage, retaining no input reference. The
+caller can reuse/change its input buffer after construction. `rows`, `columns`
 and checked `cost(ref problem, row, column)` expose values without returning or
 copying the entire matrix. Out-of-range access returns `ModelError::Index`.
 
@@ -22,16 +24,33 @@ narrowing into these counts; truncating a raw length is not valid decoding.
 `certificate_shape`, `selected_column`, `row_potential` and `column_potential`
 provide dimensions and checked scalar reads. All i128 potentials and all byte
 values in selected indices are preserved. Construction validates shape only:
-an index255, duplicate column, positive column potential or nonoptimal proof
+an index 255, duplicate column, positive column potential or nonoptimal proof
 may still be represented. The separate mathematical verifier must check every
 condition rather than trust construction. No submitted objective is stored.
 
 The library owns construction results; solving and verification are intended
 to borrow them. Actual independent-ingot compilation rejects external literals
 for every private field and rejects using a Problem after ownership moves.
-The positive consumer in `api_tests` accesses the full32 representation and
+The positive consumer in `api_tests` accesses the full 32×32 representation and
 both i128 potential endpoints on native and EVM. These checks are not a proof
 of all aliasing behavior or zero copying throughout a whole application.
+
+The private representation packs four two's-complement i64 lanes into each of
+256 u256 words. This preserves all 1,024 costs while reducing the size of a
+Problem value at EVM function boundaries. Encoding uses a wider signed value
+and adds 2^64 for negative inputs; decoding masks a 64-bit lane and subtracts 2^64
+when its high bit is set. Conversions are checked and use no unsafe/pointers or
+external allocator. This is an internal representation, not the ABI/commitment
+format. Adapters must still encode the logical row-major i64 values and both
+dimensions.
+
+The original full-array-by-value interface passed the first model checks but
+later produced StackOverflow in eight verifier-suite cases at both EVM O1/O2.
+The same 17 semantic cases passed after the packed owned representation and
+borrowed-buffer constructor were introduced. The two-case reduced constructor
+experiment passed, so no universally reproduced compiler defect/root cause is
+claimed. Original failures and pre-change sources remain recorded. See
+[the verifier record](VERIFIER.md).
 
 ## Current checks
 
@@ -45,8 +64,8 @@ fe test . --ingot api_tests --backend native -O 0
 python tools/check-api-boundaries.py --fe fe
 ```
 
-Native commands require supported Linux and a system linker. The six model
-tests and one separate-ingot consumer passed on the named profiles. Some
+Native commands require supported Linux and a system linker. Seven model tests
+and seventeen separate-ingot consumer/verifier tests passed on both named profiles. Some
 known-value checks may be optimized/constant-evaluated; their results are
 language/API observations, not independent mathematical-oracle evidence.
 The initial full32 IR/runtime evidence and EVM O0 failure remain in
@@ -54,5 +73,7 @@ The initial full32 IR/runtime evidence and EVM O0 failure remain in
 must fail for their specified privacy/move diagnostics, not for an unrelated
 type or dependency error.
 
-The optimizer, mathematical verifier, CLI and board are still forthcoming at
-this model checkpoint. See [the dated model evidence](evidence/model-api.json).
+The initial six-test model checkpoint is historical evidence in
+[model-api.json](evidence/model-api.json). Current packed-model/verifier evidence
+is in [verifier.json](evidence/verifier.json). The optimizer, CLI and board remain
+forthcoming.

@@ -1,0 +1,578 @@
+{
+  "audited_utc": "2026-11-03T01:30:32.960856+00:00",
+  "phase": "Fe Hungarian solver and current independent expected-cost checkpoint",
+  "goal_complete": false,
+  "fa03_status": "Directed solver/full-shape-family acceptance complete",
+  "fa04_status": "Partial: global cost oracle passed; external Python inspection of actual Fe certificate fields pending native output/CLI",
+  "fa05_status": "Current kernel executes on both backends; full dependency closure pendingFA04 certificate inspection",
+  "source_hashes": {
+    "assignment": "19235c78e12d400b6f2443ae2cba98a85a09596ee66d549efa05ac101364660a",
+    "api_tests": "db41cf932b220dbf55cec63dcef79137f7afe3d51494839781e8eaeb78d43008",
+    "oracle_fe": "2993cd2a09429b67fede4128f720b89fa8cd892d4fe148305db4c919a2c782fc",
+    "generator": "a75fd775b8146a2e687f417393eb3891d70ee42b8fa8edadfc5e7cc1573041ef"
+  },
+  "scope_preserved": "1<=rows<=columns<=32; all finitei64 costs/all pairs; Fe optimizer plus independent verifier; publici128, worki256",
+  "algorithm": {
+    "initialization": "All-row minima; all v0",
+    "workspace": "Seven local33-slot arrays, dummy0 separate from32 publicslots",
+    "search": "Explicit slack flags; minimum nonnegative delta; new-column progress even atdelta0; stop free column before v decreases",
+    "augmentation": "Predecessor rotation; no NoAssignment escape",
+    "output": "Checked i128 potentials and independent verify postcondition; objective from actualmatrix, not dummy",
+    "internal_errors": "Shape defensive; InternalInvariant denotes an implementation failure. Exceptional branches are not claimed as normal-input coverage."
+  },
+  "directed_solver_tests": [
+    "solve_singleton_minimum_and_maximum",
+    "solve_one_row_surplus_signed_endpoints",
+    "solve_rectangle_positive_delta_and_zero_unused_potential",
+    "solve_square_off_diagonal_optimum",
+    "solve_full32_long_augmenting_chain",
+    "solve_three_cycle_beats_every_two_swap_from_identity",
+    "solve_reduced_cost_larger_than_i64_with_unused_resource",
+    "solve_full32_i64_maximum",
+    "solve_full32_i64_minimum_and_nonzero_initial_dual",
+    "solve_full32_ties_zero_delta_progress_and_repeatability"
+  ],
+  "internal_shape_test": "solve_defensively_rejects_internal_malformed_shape",
+  "cost_oracle": {
+    "corpus_entries_per_backend": 2780,
+    "small_finite_space_entries": 2252,
+    "finite_unique_logical_matrices": 2250,
+    "closed_form_all_shape_entries": 528,
+    "total_unique_logical_matrices": 2778,
+    "python_exhaustively_enumerated_injections": 12570,
+    "small_closed_form_crosschecks": 20,
+    "spaces": [
+      {
+        "name": "ternary_1x1",
+        "rows": 1,
+        "columns": 1,
+        "alphabet": [
+          -1,
+          0,
+          1
+        ],
+        "matrices": 3,
+        "injections_per_matrix": 1
+      },
+      {
+        "name": "ternary_1x2",
+        "rows": 1,
+        "columns": 2,
+        "alphabet": [
+          -1,
+          0,
+          1
+        ],
+        "matrices": 9,
+        "injections_per_matrix": 2
+      },
+      {
+        "name": "ternary_1x3",
+        "rows": 1,
+        "columns": 3,
+        "alphabet": [
+          -1,
+          0,
+          1
+        ],
+        "matrices": 27,
+        "injections_per_matrix": 3
+      },
+      {
+        "name": "ternary_1x4",
+        "rows": 1,
+        "columns": 4,
+        "alphabet": [
+          -1,
+          0,
+          1
+        ],
+        "matrices": 81,
+        "injections_per_matrix": 4
+      },
+      {
+        "name": "ternary_2x2",
+        "rows": 2,
+        "columns": 2,
+        "alphabet": [
+          -1,
+          0,
+          1
+        ],
+        "matrices": 81,
+        "injections_per_matrix": 2
+      },
+      {
+        "name": "ternary_2x3",
+        "rows": 2,
+        "columns": 3,
+        "alphabet": [
+          -1,
+          0,
+          1
+        ],
+        "matrices": 729,
+        "injections_per_matrix": 6
+      },
+      {
+        "name": "binary_3x3",
+        "rows": 3,
+        "columns": 3,
+        "alphabet": [
+          0,
+          1
+        ],
+        "matrices": 512,
+        "injections_per_matrix": 6
+      },
+      {
+        "name": "endpoints_2x2",
+        "rows": 2,
+        "columns": 2,
+        "alphabet": [
+          -9223372036854775808,
+          0,
+          9223372036854775807
+        ],
+        "matrices": 81,
+        "injections_per_matrix": 2
+      },
+      {
+        "name": "endpoints_2x3",
+        "rows": 2,
+        "columns": 3,
+        "alphabet": [
+          -9223372036854775808,
+          0,
+          9223372036854775807
+        ],
+        "matrices": 729,
+        "injections_per_matrix": 6
+      }
+    ],
+    "closed_form_family": "C[i,j]=(13*i-200)+((17*j)%37-18); optimum=sum rowoffsets+sum r smallest columnoffsets",
+    "generated_test_functions": 17,
+    "generation_exactly_reproduced": true,
+    "manifest": "docs/evidence/oracle-cases.json",
+    "counts_scope": "Corpus entries/loop bounds are not unique matrices/testfunctions or exhaustive general32 data"
+  },
+  "distinct_test_functions": 52,
+  "latest_case_function_executions": 104,
+  "compiler_negative_cases": 3,
+  "runs": [
+    {
+      "ingot": "api_tests",
+      "backend": "native",
+      "optimize": "1",
+      "command": [
+        "wsl.exe",
+        "-d",
+        "FeBuildersContest",
+        "--",
+        "env",
+        "FE_CACHE_DIR=/mnt/d/Upwork/fe-builders/project/feassign/.cache/linux",
+        "TMPDIR=/mnt/d/Upwork/fe-builders/environment/linux-temp",
+        "/mnt/d/Upwork/fe-builders/environment/bin/fe-linux-26.5.1",
+        "--color",
+        "never",
+        "test",
+        "/mnt/d/Upwork/fe-builders/project/feassign",
+        "--ingot",
+        "api_tests",
+        "--backend",
+        "native",
+        "-O",
+        "1",
+        "--emit",
+        "ir,rmir"
+      ],
+      "started_utc": "2026-11-03T01:19:10.490379+00:00",
+      "ended_utc": "2026-11-03T01:19:19.861119+00:00",
+      "passed": 44,
+      "failed": 0,
+      "source_files": [
+        {
+          "path": "ingots/api_tests/fe.toml",
+          "sha256": "40e12525f19bf2503b2f04f1f9065b7a93d185079440c2db8669d83bbcc0c0d1"
+        },
+        {
+          "path": "ingots/api_tests/src/lib.fe",
+          "sha256": "db41cf932b220dbf55cec63dcef79137f7afe3d51494839781e8eaeb78d43008"
+        },
+        {
+          "path": "ingots/api_tests/src/oracle.fe",
+          "sha256": "2993cd2a09429b67fede4128f720b89fa8cd892d4fe148305db4c919a2c782fc"
+        },
+        {
+          "path": "ingots/assignment/fe.toml",
+          "sha256": "a4d4dfb2a56d8611eb8c534adaa0a1f2cc6162014b077eb8c040292c9cabd3a2"
+        },
+        {
+          "path": "ingots/assignment/src/lib.fe",
+          "sha256": "19235c78e12d400b6f2443ae2cba98a85a09596ee66d549efa05ac101364660a"
+        }
+      ],
+      "emitted_ir": [
+        {
+          "name": "api_tests.native.test.rmir",
+          "bytes": 1770730,
+          "sha256": "efcbbc03d5750c9a3ad8e9f129d8e3e6a8ef839f3454090b8573e7d931ddcee2"
+        },
+        {
+          "name": "api_tests.native.test.sona",
+          "bytes": 201818,
+          "sha256": "768f07839843d479d113b0253fef608c70bf3e7b546717b1d9c83293dc815f4f"
+        }
+      ],
+      "label": "feassign-fa04-attempt06-all-shapes-native",
+      "test_names": [
+        "verify_singleton_i64_minimum",
+        "external_full32_problem_and_certificate_api",
+        "verify_one_row_surplus_optimum_and_recomputed_total",
+        "verify_full32_all_i64_minimum_without_i64_sum_overflow",
+        "verify_full32_all_i64_maximum_without_i64_sum_overflow",
+        "verify_rectangle_with_negative_matched_potential_and_alternative_optima",
+        "verify_square_optimum",
+        "verify_valid_full_i128_cancellation_is_not_restricted_to_solver_bounds",
+        "verify_sign_condition_blocks_suboptimal_omission_counterexample",
+        "verify_rejects_duplicate_selected_column",
+        "verify_shape_mismatch_rejects_before_array_access",
+        "verify_rejects_out_of_range_column_before_indexing",
+        "verify_feasible_but_nontight_optimal_assignment_is_not_a_valid_certificate",
+        "verify_unselected_edge_can_violate_dual_feasibility",
+        "verify_hostile_i128_pair_widens_before_addition",
+        "solve_singleton_minimum_and_maximum",
+        "verify_unused_condition_blocks_suboptimal_omission_counterexample",
+        "solve_one_row_surplus_signed_endpoints",
+        "solve_rectangle_positive_delta_and_zero_unused_potential",
+        "solve_square_off_diagonal_optimum",
+        "solve_full32_long_augmenting_chain",
+        "verify_uses_actual_problem_costs_not_previous_certificate_context",
+        "solve_three_cycle_beats_every_two_swap_from_identity",
+        "solve_reduced_cost_larger_than_i64_with_unused_resource",
+        "solve_full32_i64_maximum",
+        "solve_full32_i64_minimum_and_nonzero_initial_dual",
+        "oracle_ternary_1x1",
+        "oracle_ternary_1x3",
+        "oracle_ternary_1x4",
+        "oracle_ternary_2x2",
+        "oracle_ternary_1x2",
+        "solve_full32_ties_zero_delta_progress_and_repeatability",
+        "oracle_endpoints_2x2",
+        "oracle_separable_shapes_columns_1_4",
+        "oracle_separable_shapes_columns_9_12",
+        "oracle_separable_shapes_columns_5_8",
+        "oracle_endpoints_2x3",
+        "oracle_binary_3x3",
+        "oracle_ternary_2x3",
+        "oracle_separable_shapes_columns_13_16",
+        "oracle_separable_shapes_columns_17_20",
+        "oracle_separable_shapes_columns_21_24",
+        "oracle_separable_shapes_columns_25_28",
+        "oracle_separable_shapes_columns_29_32"
+      ]
+    },
+    {
+      "ingot": "api_tests",
+      "backend": "sonatina",
+      "optimize": "1",
+      "command": [
+        "D:\\Upwork\\fe-builders\\environment\\bin\\fe-26.5.1.exe",
+        "--color",
+        "never",
+        "test",
+        "D:\\Upwork\\fe-builders\\project\\feassign",
+        "--ingot",
+        "api_tests",
+        "--backend",
+        "sonatina",
+        "-O",
+        "1"
+      ],
+      "started_utc": "2026-11-03T01:19:10.488930+00:00",
+      "ended_utc": "2026-11-03T01:19:24.690700+00:00",
+      "passed": 44,
+      "failed": 0,
+      "source_files": [
+        {
+          "path": "ingots/api_tests/fe.toml",
+          "sha256": "40e12525f19bf2503b2f04f1f9065b7a93d185079440c2db8669d83bbcc0c0d1"
+        },
+        {
+          "path": "ingots/api_tests/src/lib.fe",
+          "sha256": "db41cf932b220dbf55cec63dcef79137f7afe3d51494839781e8eaeb78d43008"
+        },
+        {
+          "path": "ingots/api_tests/src/oracle.fe",
+          "sha256": "2993cd2a09429b67fede4128f720b89fa8cd892d4fe148305db4c919a2c782fc"
+        },
+        {
+          "path": "ingots/assignment/fe.toml",
+          "sha256": "a4d4dfb2a56d8611eb8c534adaa0a1f2cc6162014b077eb8c040292c9cabd3a2"
+        },
+        {
+          "path": "ingots/assignment/src/lib.fe",
+          "sha256": "19235c78e12d400b6f2443ae2cba98a85a09596ee66d549efa05ac101364660a"
+        }
+      ],
+      "emitted_ir": [],
+      "label": "feassign-fa04-attempt07-all-shapes-evm",
+      "test_names": [
+        "external_full32_problem_and_certificate_api",
+        "oracle_separable_shapes_columns_1_4",
+        "oracle_endpoints_2x2",
+        "oracle_separable_shapes_columns_5_8",
+        "oracle_endpoints_2x3",
+        "oracle_ternary_1x1",
+        "oracle_ternary_1x2",
+        "oracle_ternary_1x3",
+        "oracle_separable_shapes_columns_9_12",
+        "oracle_ternary_1x4",
+        "oracle_ternary_2x2",
+        "oracle_binary_3x3",
+        "oracle_separable_shapes_columns_13_16",
+        "solve_full32_i64_minimum_and_nonzero_initial_dual",
+        "solve_full32_i64_maximum",
+        "solve_one_row_surplus_signed_endpoints",
+        "solve_rectangle_positive_delta_and_zero_unused_potential",
+        "solve_reduced_cost_larger_than_i64_with_unused_resource",
+        "solve_singleton_minimum_and_maximum",
+        "solve_square_off_diagonal_optimum",
+        "solve_three_cycle_beats_every_two_swap_from_identity",
+        "verify_feasible_but_nontight_optimal_assignment_is_not_a_valid_certificate",
+        "solve_full32_long_augmenting_chain",
+        "verify_full32_all_i64_maximum_without_i64_sum_overflow",
+        "verify_hostile_i128_pair_widens_before_addition",
+        "verify_one_row_surplus_optimum_and_recomputed_total",
+        "verify_rectangle_with_negative_matched_potential_and_alternative_optima",
+        "verify_rejects_duplicate_selected_column",
+        "verify_rejects_out_of_range_column_before_indexing",
+        "verify_shape_mismatch_rejects_before_array_access",
+        "verify_sign_condition_blocks_suboptimal_omission_counterexample",
+        "verify_singleton_i64_minimum",
+        "verify_square_optimum",
+        "verify_unselected_edge_can_violate_dual_feasibility",
+        "verify_unused_condition_blocks_suboptimal_omission_counterexample",
+        "verify_full32_all_i64_minimum_without_i64_sum_overflow",
+        "verify_uses_actual_problem_costs_not_previous_certificate_context",
+        "verify_valid_full_i128_cancellation_is_not_restricted_to_solver_bounds",
+        "solve_full32_ties_zero_delta_progress_and_repeatability",
+        "oracle_ternary_2x3",
+        "oracle_separable_shapes_columns_17_20",
+        "oracle_separable_shapes_columns_21_24",
+        "oracle_separable_shapes_columns_25_28",
+        "oracle_separable_shapes_columns_29_32"
+      ]
+    },
+    {
+      "ingot": "assignment",
+      "backend": "native",
+      "optimize": "1",
+      "command": [
+        "wsl.exe",
+        "-d",
+        "FeBuildersContest",
+        "--",
+        "env",
+        "FE_CACHE_DIR=/mnt/d/Upwork/fe-builders/project/feassign/.cache/linux",
+        "TMPDIR=/mnt/d/Upwork/fe-builders/environment/linux-temp",
+        "/mnt/d/Upwork/fe-builders/environment/bin/fe-linux-26.5.1",
+        "--color",
+        "never",
+        "test",
+        "/mnt/d/Upwork/fe-builders/project/feassign",
+        "--ingot",
+        "assignment",
+        "--backend",
+        "native",
+        "-O",
+        "1",
+        "--emit",
+        "ir,rmir"
+      ],
+      "started_utc": "2026-11-03T01:10:12.578262+00:00",
+      "ended_utc": "2026-11-03T01:10:18.502834+00:00",
+      "passed": 8,
+      "failed": 0,
+      "source_files": [
+        {
+          "path": "ingots/api_tests/fe.toml",
+          "sha256": "40e12525f19bf2503b2f04f1f9065b7a93d185079440c2db8669d83bbcc0c0d1"
+        },
+        {
+          "path": "ingots/api_tests/src/lib.fe",
+          "sha256": "db41cf932b220dbf55cec63dcef79137f7afe3d51494839781e8eaeb78d43008"
+        },
+        {
+          "path": "ingots/api_tests/src/oracle.fe",
+          "sha256": "76cedcbd1334d921121d12c741bedf7df6c6058c8e4b53d5df466f9f978f910a"
+        },
+        {
+          "path": "ingots/assignment/fe.toml",
+          "sha256": "a4d4dfb2a56d8611eb8c534adaa0a1f2cc6162014b077eb8c040292c9cabd3a2"
+        },
+        {
+          "path": "ingots/assignment/src/lib.fe",
+          "sha256": "19235c78e12d400b6f2443ae2cba98a85a09596ee66d549efa05ac101364660a"
+        }
+      ],
+      "emitted_ir": [
+        {
+          "name": "assignment.native.test.rmir",
+          "bytes": 477764,
+          "sha256": "10fcf004bfb3801925c5cda1f8daa80d4acf879b190aeeb45c48f14b3bb66d0f"
+        },
+        {
+          "name": "assignment.native.test.sona",
+          "bytes": 78280,
+          "sha256": "54ff1d48c1c31b3fce5b7d14d9a372c1f48157a776ebc214de9532282cd81aab"
+        }
+      ],
+      "label": "feassign-fa03-attempt03-model-native",
+      "test_names": [
+        "solve_defensively_rejects_internal_malformed_shape",
+        "invalid_problem_dimensions_reject_before_count_or_access",
+        "exact_cost_count_is_not_capacity_or_truncation",
+        "certificate_lengths_are_exact_and_independent",
+        "constructed_problem_owns_its_data_after_input_changes",
+        "one_row_surplus_columns_and_checked_access",
+        "certificate_preserves_untrusted_full_width_values_and_limits_reads",
+        "full32_owned_storage_shared_reads_and_signed_endpoints"
+      ]
+    },
+    {
+      "ingot": "assignment",
+      "backend": "sonatina",
+      "optimize": "1",
+      "command": [
+        "D:\\Upwork\\fe-builders\\environment\\bin\\fe-26.5.1.exe",
+        "--color",
+        "never",
+        "test",
+        "D:\\Upwork\\fe-builders\\project\\feassign",
+        "--ingot",
+        "assignment",
+        "--backend",
+        "sonatina",
+        "-O",
+        "1",
+        "--emit",
+        "ir,rmir"
+      ],
+      "started_utc": "2026-11-03T01:12:13.360147+00:00",
+      "ended_utc": "2026-11-03T01:12:14.359208+00:00",
+      "passed": 8,
+      "failed": 0,
+      "source_files": [
+        {
+          "path": "ingots/api_tests/fe.toml",
+          "sha256": "40e12525f19bf2503b2f04f1f9065b7a93d185079440c2db8669d83bbcc0c0d1"
+        },
+        {
+          "path": "ingots/api_tests/src/lib.fe",
+          "sha256": "db41cf932b220dbf55cec63dcef79137f7afe3d51494839781e8eaeb78d43008"
+        },
+        {
+          "path": "ingots/api_tests/src/oracle.fe",
+          "sha256": "76cedcbd1334d921121d12c741bedf7df6c6058c8e4b53d5df466f9f978f910a"
+        },
+        {
+          "path": "ingots/assignment/fe.toml",
+          "sha256": "a4d4dfb2a56d8611eb8c534adaa0a1f2cc6162014b077eb8c040292c9cabd3a2"
+        },
+        {
+          "path": "ingots/assignment/src/lib.fe",
+          "sha256": "19235c78e12d400b6f2443ae2cba98a85a09596ee66d549efa05ac101364660a"
+        }
+      ],
+      "emitted_ir": [
+        {
+          "name": "assignment.test.rmir",
+          "bytes": 477559,
+          "sha256": "309133b1d4a7446c6b188f99ae7d2d9c7a2bbf5586d2cef710055f1aa6c5084a"
+        },
+        {
+          "name": "assignment.test.sona",
+          "bytes": 84760,
+          "sha256": "9e796f344e2bef3e47b4c2a04159f2dd4b5ece0afe3b34056f844e7d47f4ee24"
+        }
+      ],
+      "label": "feassign-fa03-attempt04-model-evm",
+      "test_names": [
+        "solve_defensively_rejects_internal_malformed_shape",
+        "invalid_problem_dimensions_reject_before_count_or_access",
+        "exact_cost_count_is_not_capacity_or_truncation",
+        "constructed_problem_owns_its_data_after_input_changes",
+        "certificate_preserves_untrusted_full_width_values_and_limits_reads",
+        "one_row_surplus_columns_and_checked_access",
+        "certificate_lengths_are_exact_and_independent",
+        "full32_owned_storage_shared_reads_and_signed_endpoints"
+      ]
+    }
+  ],
+  "compiler_boundaries": "logs/feassign-fa03-api-boundaries/result.json",
+  "actual_native_ir": {
+    "path": "logs/feassign-fa04-attempt06-all-shapes-native/api_tests.native.test.sona",
+    "sha256": "768f07839843d479d113b0253fef608c70bf3e7b546717b1d9c83293dc815f4f",
+    "functions": [
+      {
+        "name": "solve",
+        "header": "func private %solve(v0.objref<@layout_0>) -> @layout_17 {",
+        "observed_calls": [
+          "downcast__g1e92",
+          "read_cost",
+          "valid_dimensions",
+          "verify"
+        ],
+        "local33_slot_allocations": [
+          "v1.objref<[i256; 33]> = obj.alloc [i256; 33];",
+          "v2.objref<[i256; 33]> = obj.alloc [i256; 33];",
+          "v3.objref<[i256; 33]> = obj.alloc [i256; 33];",
+          "v4.objref<[i256; 33]> = obj.alloc [i256; 33];",
+          "v5.objref<[i256; 33]> = obj.alloc [i256; 33];",
+          "v6.objref<[i1; 33]> = obj.alloc [i1; 33];",
+          "v7.objref<[i1; 33]> = obj.alloc [i1; 33];"
+        ]
+      },
+      {
+        "name": "verify",
+        "header": "func private %verify(v0.objref<@layout_0>, v1.objref<@layout_1>) -> @layout_19 {",
+        "observed_calls": [
+          "downcast__g1e92",
+          "read_cost",
+          "valid_dimensions"
+        ],
+        "local33_slot_allocations": []
+      },
+      {
+        "name": "read_cost",
+        "header": "func private %read_cost(v0.objref<@layout_0>, v1.i256) -> i64 {",
+        "observed_calls": [],
+        "local33_slot_allocations": []
+      },
+      {
+        "name": "downcast__g1e92",
+        "header": "func private %downcast__g1e92(v0.i256) -> @layout_9 {",
+        "observed_calls": [],
+        "local33_slot_allocations": []
+      }
+    ],
+    "checked_cast_review": "downcast__g1e92 compares i256 against exact i128 min/max before truncation; no callees",
+    "scope": "Shared-reference solver/verifier and localworkspace, not production executable/board-size or universal performance proof"
+  },
+  "known_failure": "Optional filtered submodule EVM --emit ir,rmir failed no-root-objects export; same fullcorpus passed without optional debug export, no data/domain removed",
+  "remaining": [
+    "Independent Python check of actual Fe selected/u/v values, not only Fe verifier success",
+    "Complete FA04 seeded/metamorphic and larger-case inspection with failures minimized",
+    "Actual native CLI/input/modes/I/O/flush/error behaviorFA06",
+    "Immutable canonical board and full32 ordinary deployment/code/init/gas/receipt/stateFA07/08",
+    "Adversarial/repro/demo/human-review/feedback/finalfreezeFA09-13"
+  ],
+  "limitations": [
+    "Exhaustive only in named finite spaces;528-shape family is one closed-form example each",
+    "Current cost comparison is independent; actual certificate fields have not yet been independently exported/inspected in Python",
+    "Same-source two-backend runs are not formal proof/audit/security or all-profile assurance",
+    "Internal EVM test runs are not protocol deployment/code-size/initcode/gas-cap/receipts",
+    "No public repo/push/submission/human feedback/rank claim"
+  ]
+}

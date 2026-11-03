@@ -1,5 +1,8 @@
 # Certificate verification
 
+This records the initial FA02 checkpoint. The defining verification contract is
+unchanged; current optimizer/cost-oracle scope is in [SOLVER.md](SOLVER.md).
+
 `verify(ref problem, ref certificate) -> Result<VerifyError, i128>` recomputes
 the selected cost and verifies optimality for the complete finite assignment
 model. It performs no optimization, I/O, hashing or storage operation.
@@ -82,7 +85,7 @@ stale out/ artifacts after a compile failure. Final passing IR observations use
 files reported written by those successful runs. Original test outputs/archives
 were not replaced.
 
-Current internal test runtime sizes range from 96 to 9,531 bytes. These are test
+At that checkpoint internal test runtime sizes ranged from 96 to 9,531 bytes. These are test
 programs and fixture initialization, not deployed AssignmentBoard code, initcode,
 protocol transaction gas, or a universal size/performance bound. The actual
 board deployment/receipt/state gate remains pending.

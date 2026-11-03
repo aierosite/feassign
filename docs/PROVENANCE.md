@@ -49,3 +49,11 @@ The initial directed verifier checkpoint, expected-value cross-checks and
 remaining optimizer/CLI/board work are described in VERIFIER.md. Python only
 enumerated tiny example minima at this checkpoint; the complete solver-oracle
 campaign remains future work. No human review or public submission is implied.
+
+The following optimizer checkpoint added the actual Fe Hungarian solver and an
+independent Python finite-space expected-cost generator. The corpus contains
+2,252 small-space entries and 528 closed-form shape examples, all authored and
+executed after opening. It preserves overlap counts and distinguishes expected-
+cost comparison from independent inspection of actual certificate fields, which
+still awaits an export adapter. Current scope is in SOLVER.md; Python is not a
+product optimization engine.

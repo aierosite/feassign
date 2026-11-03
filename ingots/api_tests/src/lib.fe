@@ -2,7 +2,7 @@ use core::Result
 use assignment::{
     new_problem, rows, columns, cost,
     new_certificate, certificate_shape, selected_column, row_potential, column_potential,
-    Problem, Certificate, VerifyError, verify,
+    Problem, Certificate, VerifyError, verify, solve,
 }
 
 /// A separate ingot must consume the public API without private-field access.
@@ -308,4 +308,144 @@ fn verify_uses_actual_problem_costs_not_previous_certificate_context() {
         Result::Err(VerifyError::DualInfeasible) => (),
         _ => core::panic(),
     }
+}
+
+fn solved(_ problem: ref Problem) -> Certificate {
+    match solve(problem) {
+        Result::Ok(certificate) => certificate,
+        Result::Err(_) => core::panic(),
+    }
+}
+
+fn check_solved(_ problem: ref Problem, _ expected: i128) {
+    let certificate = solved(problem)
+    accepts(problem, ref certificate, expected)
+}
+
+#[test]
+fn solve_singleton_minimum_and_maximum() {
+    {
+        let problem = uniform_problem(1, 1, i64::min())
+        check_solved(ref problem, -9223372036854775808)
+    }
+    {
+        let problem = uniform_problem(1, 1, i64::max())
+        check_solved(ref problem, 9223372036854775807)
+    }
+}
+
+#[test]
+fn solve_one_row_surplus_signed_endpoints() {
+    let problem = two_cost_problem(i64::max(), i64::min())
+    check_solved(ref problem, -9223372036854775808)
+}
+
+#[test]
+fn solve_square_off_diagonal_optimum() {
+    var costs: [i64; 1024] = [0; 1024]
+    costs[0] = 4
+    costs[1] = 1
+    costs[2] = 2
+    costs[3] = 3
+    let problem = problem_for(2, 2, ref costs)
+    check_solved(ref problem, 3)
+}
+
+#[test]
+fn solve_rectangle_positive_delta_and_zero_unused_potential() {
+    var costs: [i64; 1024] = [0; 1024]
+    costs[1] = 10
+    costs[2] = 20
+    costs[4] = 10
+    costs[5] = 20
+    let problem = problem_for(2, 3, ref costs)
+    let certificate = solved(ref problem)
+    accepts(ref problem, ref certificate, 10)
+    match column_potential(ref certificate, 0) {
+        Result::Ok(value) => assert!(value < 0),
+        _ => core::panic(),
+    }
+    match column_potential(ref certificate, 2) {
+        Result::Ok(value) => assert!(value == 0),
+        _ => core::panic(),
+    }
+}
+
+#[test]
+fn solve_three_cycle_beats_every_two_swap_from_identity() {
+    var costs: [i64; 1024] = [0; 1024]
+    costs[1] = -1
+    costs[2] = 10
+    costs[3] = 10
+    costs[5] = -1
+    costs[6] = -1
+    costs[7] = 10
+    let problem = problem_for(3, 3, ref costs)
+    check_solved(ref problem, -3)
+}
+
+#[test]
+fn solve_full32_long_augmenting_chain() {
+    var costs: [i64; 1024] = [0; 1024]
+    var index: usize = 0
+    while index < 1024 {
+        costs[index] = 1000
+        index += 1
+    }
+    var row: usize = 0
+    while row < 31 {
+        costs[row * 32 + row] = 0
+        costs[row * 32 + row + 1] = 1
+        row += 1
+    }
+    costs[31 * 32] = 0
+    let problem = problem_for(32, 32, ref costs)
+    check_solved(ref problem, 31)
+}
+
+#[test]
+fn solve_full32_ties_zero_delta_progress_and_repeatability() {
+    let problem = uniform_problem(32, 32, 0)
+    let first = solved(ref problem)
+    let second = solved(ref problem)
+    accepts(ref problem, ref first, 0)
+    accepts(ref problem, ref second, 0)
+    var row: u8 = 0
+    while row < 32 {
+        let a = match selected_column(ref first, row) {
+            Result::Ok(value) => value,
+            _ => core::panic(),
+        }
+        let b = match selected_column(ref second, row) {
+            Result::Ok(value) => value,
+            _ => core::panic(),
+        }
+        assert!(a == b)
+        row += 1
+    }
+}
+
+#[test]
+fn solve_full32_i64_maximum() {
+    let problem = uniform_problem(32, 32, i64::max())
+    check_solved(ref problem, 295147905179352825824)
+}
+
+#[test]
+fn solve_full32_i64_minimum_and_nonzero_initial_dual() {
+    let problem = uniform_problem(32, 32, i64::min())
+    check_solved(ref problem, -295147905179352825856)
+}
+
+#[test]
+fn solve_reduced_cost_larger_than_i64_with_unused_resource() {
+    var costs: [i64; 1024] = [0; 1024]
+    costs[0] = i64::min()
+    costs[1] = i64::max()
+    costs[2] = i64::max()
+    costs[3] = i64::min()
+    costs[4] = i64::max()
+    costs[5] = i64::max()
+    let problem = problem_for(2, 3, ref costs)
+    check_solved(ref problem, -1)
 }

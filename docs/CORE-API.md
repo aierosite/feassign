@@ -28,8 +28,8 @@ an index 255, duplicate column, positive column potential or nonoptimal proof
 may still be represented. The separate mathematical verifier must check every
 condition rather than trust construction. No submitted objective is stored.
 
-The library owns construction results; solving and verification are intended
-to borrow them. Actual independent-ingot compilation rejects external literals
+The library owns construction results; solving and verification borrow them.
+Actual independent-ingot compilation rejects external literals
 for every private field and rejects using a Problem after ownership moves.
 The positive consumer in `api_tests` accesses the full 32×32 representation and
 both i128 potential endpoints on native and EVM. These checks are not a proof
@@ -59,13 +59,13 @@ From the repository root with the pinned compiler:
 ```sh
 fe test . --ingot assignment --backend sonatina -O 1
 fe test . --ingot api_tests --backend sonatina -O 1
-fe test . --ingot assignment --backend native -O 0
-fe test . --ingot api_tests --backend native -O 0
+fe test . --ingot assignment --backend native -O 1
+fe test . --ingot api_tests --backend native -O 1
 python tools/check-api-boundaries.py --fe fe
 ```
 
-Native commands require supported Linux and a system linker. Seven model tests
-and seventeen separate-ingot consumer/verifier tests passed on both named profiles. Some
+Native commands require supported Linux and a system linker. The current counts
+and expected-cost scope are in [SOLVER.md](SOLVER.md). Some
 known-value checks may be optimized/constant-evaluated; their results are
 language/API observations, not independent mathematical-oracle evidence.
 The initial full32 IR/runtime evidence and EVM O0 failure remain in
@@ -75,5 +75,6 @@ type or dependency error.
 
 The initial six-test model checkpoint is historical evidence in
 [model-api.json](evidence/model-api.json). Current packed-model/verifier evidence
-is in [verifier.json](evidence/verifier.json). The optimizer, CLI and board remain
-forthcoming.
+is in [verifier.json](evidence/verifier.json) as a dated verifier checkpoint;
+[solver.json](evidence/solver.json) records the current optimizer/cost campaign.
+CLI and board implementation remain forthcoming.

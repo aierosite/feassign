@@ -235,6 +235,175 @@ pub fn verify(
     Result::Ok(checked_total)
 }
 
+pub enum SolveError {
+    Shape,
+    InternalInvariant,
+}
+
+/// Rectangular Hungarian primal-dual optimizer. The verifier has no dependency
+/// on this search. All33-slot workspace is local; public indices stay zero-based.
+pub fn solve(_ problem: ref Problem) -> Result<SolveError, Certificate> {
+    if !valid_dimensions(problem.rows, problem.columns) {
+        return Result::Err(SolveError::Shape)
+    }
+    let r = problem.rows as usize
+    let c = problem.columns as usize
+    var u: [i256; 33] = [0; 33]
+    var v: [i256; 33] = [0; 33]
+    var owner: [usize; 33] = [0; 33]
+    var predecessor: [usize; 33] = [0; 33]
+    var slack: [i256; 33] = [0; 33]
+    var has_slack: [bool; 33] = [false; 33]
+    var reached: [bool; 33] = [false; 33]
+
+    // Initialize every row, including future rows, to keep all pairs feasible.
+    var row: usize = 1
+    while row <= r {
+        let base = (row - 1) * c
+        var minimum = read_cost(problem, base) as i256
+        var column: usize = 1
+        while column < c {
+            let value = read_cost(problem, base + column) as i256
+            if value < minimum { minimum = value }
+            column += 1
+        }
+        u[row] = minimum
+        row += 1
+    }
+
+    row = 1
+    while row <= r {
+        owner[0] = row // Dummy column points to the new, unmatched row.
+        var column: usize = 0
+        while column <= c {
+            reached[column] = false
+            has_slack[column] = false
+            predecessor[column] = 0
+            column += 1
+        }
+        var current: usize = 0
+        var searching = true
+        var scans: usize = 0
+        while searching {
+            scans += 1
+            if scans > row || reached[current] {
+                return Result::Err(SolveError::InternalInvariant)
+            }
+            reached[current] = true
+            let active_row = owner[current]
+            if active_row == 0 || active_row > r {
+                return Result::Err(SolveError::InternalInvariant)
+            }
+            var next: usize = 0
+            var delta: i256 = 0
+            var found = false
+            column = 1
+            while column <= c {
+                if !reached[column] {
+                    let edge = read_cost(problem, (active_row - 1) * c + column - 1) as i256
+                    let reduced = edge - u[active_row] - v[column]
+                    if reduced < 0 { return Result::Err(SolveError::InternalInvariant) }
+                    if !has_slack[column] || reduced < slack[column] {
+                        slack[column] = reduced
+                        has_slack[column] = true
+                        predecessor[column] = current
+                    }
+                    if !found || slack[column] < delta {
+                        delta = slack[column]
+                        next = column
+                        found = true
+                    }
+                }
+                column += 1
+            }
+            if !found || delta < 0 { return Result::Err(SolveError::InternalInvariant) }
+            column = 0
+            while column <= c {
+                if reached[column] {
+                    let matched_row = owner[column]
+                    if matched_row == 0 || matched_row > r {
+                        return Result::Err(SolveError::InternalInvariant)
+                    }
+                    u[matched_row] += delta
+                    v[column] -= delta
+                } else if has_slack[column] {
+                    slack[column] -= delta
+                }
+                column += 1
+            }
+            current = next
+            // A free column stops the search before it enters the update set.
+            searching = owner[current] != 0
+        }
+        var steps: usize = 0
+        while current != 0 {
+            steps += 1
+            let previous = predecessor[current]
+            if steps > row || previous > c || owner[previous] == 0 {
+                return Result::Err(SolveError::InternalInvariant)
+            }
+            owner[current] = owner[previous]
+            current = previous
+        }
+        row += 1
+    }
+
+    var selected: [u8; 32] = [0; 32]
+    var public_u: [i128; 32] = [0; 32]
+    var public_v: [i128; 32] = [0; 32]
+    row = 1
+    while row <= r {
+        let narrowed: core::Option<i128> = u[row].downcast()
+        match narrowed {
+            core::Option::Some(value) => public_u[row - 1] = value,
+            core::Option::None => return Result::Err(SolveError::InternalInvariant),
+        }
+        row += 1
+    }
+    var column: usize = 1
+    while column <= c {
+        let narrowed: core::Option<i128> = v[column].downcast()
+        match narrowed {
+            core::Option::Some(value) => public_v[column - 1] = value,
+            core::Option::None => return Result::Err(SolveError::InternalInvariant),
+        }
+        if owner[column] != 0 {
+            let public_column: u8 = (column - 1).downcast().unwrap()
+            selected[owner[column] - 1] = public_column
+        }
+        column += 1
+    }
+    let certificate = Certificate {
+        rows: problem.rows,
+        columns: problem.columns,
+        selected,
+        row_potentials: public_u,
+        column_potentials: public_v,
+    }
+    // Cost is recomputed by verify; -v[dummy] omits row-min initialization.
+    match verify(problem, ref certificate) {
+        Result::Ok(_) => Result::Ok(certificate),
+        Result::Err(_) => Result::Err(SolveError::InternalInvariant),
+    }
+}
+
+#[test]
+fn solve_defensively_rejects_internal_malformed_shape() {
+    // An external consumer cannot create these private fields. The solver
+    // nevertheless rejects bad metadata before touching its workspace/matrix.
+    var problem = Problem { rows: 0, columns: 32, packed_costs: [0; 256] }
+    match solve(ref problem) {
+        Result::Err(SolveError::Shape) => (),
+        _ => core::panic(),
+    }
+    problem.rows = 1
+    problem.columns = 33
+    match solve(ref problem) {
+        Result::Err(SolveError::Shape) => (),
+        _ => core::panic(),
+    }
+}
+
 fn checked_cost(_ problem: ref Problem, _ row: u8, _ column: u8) -> i64 {
     match cost(problem, row, column) {
         Result::Ok(value) => value,

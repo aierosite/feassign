@@ -13,17 +13,19 @@ to the same problem.
 
 Implementation began after November 3, 2026 at 00:00 UTC. An initial bounded
 `Problem` and shape-valid `Certificate`, checked construction and scalar
-reference access and a separate mathematical verifier now exist. Model/API and
-directed verifier checks have run on native and EVM;
+reference access, an actual Hungarian optimizer and a separate mathematical
+verifier now exist. Model/API, directed solver/verifier and independent expected-
+cost checks have run on native and EVM;
 see [the bounded API](docs/CORE-API.md). The initial full32 gate's scope and
 the preserved EVM `-O 0` failure are in
 [the representation gate](docs/REPRESENTATION-GATE.md).
 See [certificate verification](docs/VERIFIER.md) for the contract, directed
-evidence and repair of an EVM aggregate-stack failure. The optimizer, CLI and
-board are not implemented yet.
-Independent solver-oracle and deployed-board evidence remains pending.
+evidence and repair of an EVM aggregate-stack failure. See
+[the optimizer checkpoint](docs/SOLVER.md) for the 2,780 cost-reference cases and
+their limits. Independent external certificate inspection, CLI and board
+implementation remain pending.
 
-The intended pure core owns the bounded model, Hungarian optimizer and separate
+The pure core owns the bounded model, Hungarian optimizer and separate
 dual-certificate verifier. It has no I/O, hashing, storage or network effects.
 Python may independently enumerate small assignments for evidence; it will not
 implement the product optimizer. A small C bridge may provide scalar native
@@ -44,13 +46,16 @@ With the pinned `fe` on PATH, from this repository root:
 
 ```sh
 fe test . --ingot assignment --backend sonatina -O 1
-fe test . --ingot assignment --backend native -O 0
+fe test . --ingot assignment --backend native -O 1
+fe test . --ingot api_tests --backend sonatina -O 1
+fe test . --ingot api_tests --backend native -O 1
 ```
 
 The native command requires the supported Linux environment and its system
 linker. The assignment ingot runs model checks; the api_tests ingot runs the
-external API/verifier cases. The planned optimizer, CLI and board suite remains
-pending. The initial EVM `-O 0` failure is retained; no all-profile claim is made.
+external API/solver/verifier and cost-oracle cases. CLI and deployed-board gates
+remain pending. The initial EVM `-O 0` failure is retained; no all-profile claim
+is made.
 
 Read [the provenance record](docs/PROVENANCE.md) for pre-window design,
 preparatory experiments and AI assistance. Hungarian algorithms and duality

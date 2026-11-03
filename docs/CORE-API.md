@@ -32,10 +32,11 @@ shape guards ran on both backends. External code cannot forge builder fields or
 reuse one after finishing; the compiler-negative checker now has five cases.
 
 `new_certificate(ref problem, selected_count, row_potential_count,
-column_potential_count, selected, row_potentials, column_potentials)` consumes
-three 32-slot arrays. Logical counts must equal rows, rows and columns,
-respectively. Counts describe the supplied semantic prefix, not physical
-capacity. Adapters must validate actual decoded lengths before checked
+column_potential_count, selected, row_potentials, column_potentials)` stores
+three 32-slot array values. These arrays are copyable: callers may reuse/change
+their buffers without changing the owned certificate. Logical counts must equal
+rows, rows and columns, respectively. Counts describe the supplied semantic
+prefix, not physical capacity. Adapters must validate actual decoded lengths before checked
 narrowing into these counts; truncating a raw length is not valid decoding.
 
 `certificate_shape`, `selected_column`, `row_potential` and `column_potential`

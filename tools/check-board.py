@@ -43,7 +43,7 @@ def main():
                'src/lib.fe':'ingots/board/src/lib.fe', 'src/tests.fe':'ingots/board/src/tests.fe'}
     sources = {}
     for key, name in mapping.items():
-        content = (PRODUCT / name).read_bytes()
+        content = (ROOT / name).read_bytes()
         assert metadata['sources'][key]['content'].encode() == content
         sources[name] = sha(content)
     record = {'sources':sources}

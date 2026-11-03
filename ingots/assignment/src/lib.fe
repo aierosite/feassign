@@ -1,0 +1,93 @@
+use core::Result
+
+pub enum ModelError {
+    Dimensions,
+    CostCount,
+    Index,
+}
+
+/// Complete finite row-major matrix. Only rows * columns cells are semantic.
+pub struct Problem {
+    rows: u8,
+    columns: u8,
+    costs: [i64; 1024],
+}
+
+/// Consume bounded storage after checking the supplied semantic cell count.
+pub fn new_problem(
+    _ rows: u8,
+    _ columns: u8,
+    _ cost_count: u16,
+    _ costs: own [i64; 1024],
+) -> Result<ModelError, Problem> {
+    if rows == 0 || columns == 0 || rows > columns || columns > 32 {
+        return Result::Err(ModelError::Dimensions)
+    }
+    let expected = (rows as usize) * (columns as usize)
+    if (cost_count as usize) != expected {
+        return Result::Err(ModelError::CostCount)
+    }
+    Result::Ok(Problem { rows, columns, costs })
+}
+
+pub fn rows(_ problem: ref Problem) -> u8 { problem.rows }
+
+pub fn columns(_ problem: ref Problem) -> u8 { problem.columns }
+
+pub fn cost(
+    _ problem: ref Problem,
+    _ row: u8,
+    _ column: u8,
+) -> Result<ModelError, i64> {
+    if row >= problem.rows || column >= problem.columns {
+        return Result::Err(ModelError::Index)
+    }
+    let index = (row as usize) * (problem.columns as usize) + (column as usize)
+    Result::Ok(problem.costs[index])
+}
+
+fn checked_cost(_ problem: ref Problem, _ row: u8, _ column: u8) -> i64 {
+    match cost(problem, row, column) {
+        Result::Ok(value) => value,
+        Result::Err(_) => core::panic(),
+    }
+}
+
+/// Early representation gate, not a solver or certificate test.
+#[test]
+fn full32_owned_storage_shared_reads_and_signed_endpoints() {
+    var values: [i64; 1024] = [0; 1024]
+    var index: usize = 0
+    while index < 1024 {
+        let signed_index: i64 = index.downcast().unwrap()
+        values[index] = signed_index - 512
+        index += 1
+    }
+    values[0] = i64::min()
+    values[1023] = i64::max()
+
+    let problem = match new_problem(32, 32, 1024, values) {
+        Result::Ok(value) => value,
+        Result::Err(_) => core::panic(),
+    }
+    assert!(rows(ref problem) == 32)
+    assert!(columns(ref problem) == 32)
+    assert!(checked_cost(ref problem, 0, 0) == i64::min())
+    assert!(checked_cost(ref problem, 8, 0) == -256)
+    assert!(checked_cost(ref problem, 31, 30) == 510)
+    assert!(checked_cost(ref problem, 31, 31) == i64::max())
+
+    var total: i256 = 0
+    var row: u8 = 0
+    while row < 32 {
+        var column: u8 = 0
+        while column < 32 {
+            total += checked_cost(ref problem, row, column) as i256
+            column += 1
+        }
+        row += 1
+    }
+    // Sum(k-512), k=0..1023, is -512. Replacing the endpoints preserves it:
+    // (-512)+511 == i64::min()+i64::max() == -1, in the wider type.
+    assert!(total == -512)
+}

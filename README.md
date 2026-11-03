@@ -11,11 +11,13 @@ to the same problem.
 
 ## Development status
 
-This is the local contest baseline created after November 3, 2026 at 00:00 UTC.
-The optimizer, verifier, CLI and board are not implemented at this baseline.
-No product correctness, performance or deployment result is claimed. The first
-implementation gate measures the actual full-size representation on native
-and EVM before the algorithm is built.
+Implementation began after November 3, 2026 at 00:00 UTC. An initial bounded
+`Problem`, checked construction and scalar reference access now exist. One
+directed full32 representation test has run on native and EVM; its scope and
+the preserved EVM `-O 0` failure are in
+[the representation gate](docs/REPRESENTATION-GATE.md).
+The optimizer, certificate verifier, CLI and board are not implemented yet.
+No assignment-correctness, production performance or deployment claim is made.
 
 The intended pure core owns the bounded model, Hungarian optimizer and separate
 dual-certificate verifier. It has no I/O, hashing, storage or network effects.
@@ -33,6 +35,18 @@ Exact asset and source pins are in [toolchain.json](toolchain.json).
 Initial native support targets Linux x86_64, including WSL on a Windows host.
 Reproducible product commands and observed results will be documented as each
 actual build gate is executed. Environment/upstream tests are not product tests.
+
+With the pinned `fe` on PATH, from this repository root:
+
+```sh
+fe test . --ingot assignment --backend sonatina -O 1
+fe test . --ingot assignment --backend native -O 1
+```
+
+The native command requires the supported Linux environment and its system
+linker. These currently run only the initial representation test, not the
+planned solver, verifier or board suite. EVM `-O 0` is not a passing profile for
+this gate.
 
 Read [the provenance record](docs/PROVENANCE.md) for pre-window design,
 preparatory experiments and AI assistance. Hungarian algorithms and duality

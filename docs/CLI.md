@@ -63,6 +63,10 @@ without reproducing hostile input. A valid prefix followed by bad input produces
 no success output. A late write failure may leave partial output and no diagnostic;
 its exit status is 5. Treat the exit status as authoritative.
 
+The kernel checks a successful solve certificate. Its private CLI formatter sums
+selected costs in the existing selected-index loop using i256, then checked i128
+narrowing. External verify recomputes total while checking the whole certificate.
+
 All parsing, numeric formatting, solve and proof checks are Fe code. A streaming
 cursor uses one character of lookahead, checked magnitude accumulation and
 widening before signed negation. Output uses logical literal lengths and a

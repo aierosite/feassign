@@ -129,7 +129,7 @@ fn model_value<T>(_ result: own Result<ModelError, T>) -> T {
     }
 }
 
-fn output(_ problem: ref Problem, _ certificate: ref Certificate, _ total: i128) {
+fn output(_ problem: ref Problem, _ certificate: ref Certificate) {
     emit("FEASSIGN 1\n", 0)
     decimal(rows(problem) as i128, 0)
     emit(" ", 0)
@@ -147,9 +147,12 @@ fn output(_ problem: ref Problem, _ certificate: ref Certificate, _ total: i128)
         row += 1
     }
     row = 0
+    var total: i256 = 0
     while row < rows(problem) {
         if row > 0 { emit(" ", 0) }
-        decimal(model_value(selected_column(certificate, row)) as i128, 0)
+        let selected = model_value(selected_column(certificate, row))
+        decimal(selected as i128, 0)
+        total += model_value(cost(problem, row, selected)) as i256
         row += 1
     }
     emit("\n", 0)
@@ -167,7 +170,7 @@ fn output(_ problem: ref Problem, _ certificate: ref Certificate, _ total: i128)
         column += 1
     }
     emit("\nTOTAL ", 0)
-    decimal(total, 0)
+    decimal(total.downcast().unwrap(), 0)
     emit("\n", 0)
 }
 
@@ -244,11 +247,7 @@ fn run(_ checking: bool) -> i32 {
         Result::Ok(value) => value,
         Result::Err(_) => return 6,
     }
-    let total = match verify(ref problem, ref certificate) {
-        Result::Ok(value) => value,
-        Result::Err(_) => return 6,
-    }
-    output(ref problem, ref certificate, total)
+    output(ref problem, ref certificate)
     0
 }
 

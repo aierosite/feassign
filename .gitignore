@@ -1,0 +1,10 @@
+.cache/
+build/
+out/
+target/
+__pycache__/
+*.pyc
+*.o
+*.exe
+.env
+.env.*

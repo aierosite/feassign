@@ -1,0 +1,11 @@
+{
+  "fe_version": "26.5.1",
+  "fe_commit": "149c758503563ebd6ad7237b85e28a94dca6e22a",
+  "windows_asset_sha256": "7fe5339cd94a697c42ac81f6ad1bb547893ddc436c83d31b2dd9f3b175885d5f",
+  "linux_amd64_asset_sha256": "2d48fd56e45f56a775bea73a3180ffcab73ad440887d0a985be2050fb5993916",
+  "native_platform": "Linux x86_64; Windows host through WSL",
+  "anvil_version": "1.8.7",
+  "anvil_commit": "985eeea031d79922cd654d4e94e6c3701e1c7d73",
+  "anvil_required_args": ["--hardfork", "osaka", "--enable-tx-gas-limit"],
+  "product_checks_executed_at_baseline": false
+}

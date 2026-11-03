@@ -1,0 +1,6 @@
+[workspace]
+name = "feassign"
+version = "0.1.0"
+members = [
+  { path = "ingots/assignment", name = "assignment" },
+]

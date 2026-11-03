@@ -2,14 +2,14 @@
 
 This is the historical pre-board checkpoint. The later [board checkpoint](BOARD.md)
 changes bounded construction in response to measured code size and repeats the
-native certificate/I/O campaign; its JSON records the current source hashes.
+native certificate/I/O campaign; its JSON records source hashes at that checkpoint.
 
 On November 3, 2026 after opening, the pinned Fe 26.5.1 Linux x86-64 release
 compiled the real CLI at native -O 1. The compiler itself invokes cc; a scoped
 child PATH wrapper adds our C bridge to the normal executable link. It resolves
 the real compiler before the prepend. No object extraction, compiler patch,
 global environment change or host optimizer is involved. The pure assignment
-source remains SHA256
+source at this native checkpoint was SHA256
 `19235c78e12d400b6f2443ae2cba98a85a09596ee66d549efa05ac101364660a`.
 
 `tools/check-native.py` launches this executable and inspects actual exported
@@ -67,7 +67,8 @@ invented.
 references. Commands for fresh evidence are in README.md. The normal builder
 checks exact compiler asset bytes. This is FA04/FA05/FA06 acceptance evidence,
 not FA07/FA08, a fresh-source complete-project rehearsal, a human review or final
-freeze. The board, semantic commitment/signed ABI, real full32 transaction
-receipt/state/gas, final demo and remaining adversarial/package gates still
-require work. The persistent build goal remains active through the actual
-review/freeze requirements.
+freeze. Board, semantic commitment/signed ABI, real full32 transaction
+receipt/state/gas, demo and package work were outside this native checkpoint.
+Later evidence is in [BOARD.md](BOARD.md) and [REPRODUCE.md](REPRODUCE.md).
+The persistent build goal remains active through the actual review/freeze
+requirements.

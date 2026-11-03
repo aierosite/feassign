@@ -1,7 +1,9 @@
 # Certificate verification
 
-This records the initial FA02 checkpoint. The defining verification contract is
-unchanged; current optimizer/cost-oracle scope is in [SOLVER.md](SOLVER.md).
+This records the initial FA02 checkpoint; its counts and profiles are historical.
+The defining verification contract is unchanged. Current commands and check counts
+are in [REPRODUCE.md](REPRODUCE.md); subsequent optimizer and protocol evidence is
+in [SOLVER.md](SOLVER.md) and [BOARD.md](BOARD.md).
 
 `verify(ref problem, ref certificate) -> Result<VerifyError, i128>` recomputes
 the selected cost and verifies optimality for the complete finite assignment
@@ -39,8 +41,8 @@ a singleton, both full 32×32 all-i64-endpoint sums, full-i128 cancellation and 
 i128 addition, every public error, and changed matrix values. The original API
 consumer is a seventeenth test in that ingot. Seven model tests also check every
 cell of a mixed-sign full 32×32 matrix and data ownership after the input changes.
-The latest complete runs passed on EVM O1 and Linux native O0; three compiler
-boundary cases still reject with their intended diagnostics.
+The complete FA02 runs passed on EVM O1 and Linux native O0; three compiler
+boundary cases rejected with their intended diagnostics at that checkpoint.
 
 Two independent omission counterexamples use costs [5,3] with the more expensive
 column0 selected. With u=3, v=[2,0], all the other explicit conditions hold, but
@@ -48,15 +50,15 @@ the positive-v check rejects. With u=5, v=[0,-2], sign, feasibility and selected
 tightness hold, but unused-zero rejects. The optimum is 3 rather than5 in both
 cases. These isolate the two rectangular conditions rather than depending on
 a generic objective mismatch. Small example optima were also enumerated with
-Python injections; this is an expected-value cross-check, not the forthcoming
-complete optimizer-oracle campaign.
+Python injections; this is an expected-value cross-check that preceded the
+complete optimizer-oracle campaign recorded in SOLVER.md.
 
 Inspected emitted IR gives verifier and matrix reader shared object-reference
 parameters and sign-extends i128/i64 values before i256 additions. The verifier's
 observed calls are only the dimension guard and private matrix reader; it has
 no search/augmentation/slack/update dependency. Executing the same source on
 two backends does not rule out a common bug. Larger independent and adversarial
-coverage remains part of later gates.
+coverage was outside this checkpoint and is recorded in the subsequent guides.
 
 ## Preserved implementation failures and repair
 
@@ -88,7 +90,8 @@ were not replaced.
 At that checkpoint internal test runtime sizes ranged from 96 to 9,531 bytes. These are test
 programs and fixture initialization, not deployed AssignmentBoard code, initcode,
 protocol transaction gas, or a universal size/performance bound. The actual
-board deployment/receipt/state gate remains pending.
+board deployment/receipt/state gate was outside FA02; see BOARD.md for its
+later evidence.
 
 The dated machine-readable record is [verifier.json](evidence/verifier.json).
 The Hungarian optimizer, independent full solver-oracle campaign, CLI and board

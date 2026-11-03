@@ -74,8 +74,8 @@ A separate family covers every 528 valid (r,c) shape with
 sum of all row offsets plus the r smallest column offsets. This is one known-
 optimum matrix per shape, not exhaustive enumeration of general 32-sized data.
 Together there are 2,780 corpus entries per backend, with 2,778 unique logical
-matrices. The complete current suite has 52 Fe test functions on each named
-backend, plus three intended external compiler rejections.
+matrices. The complete suite at this checkpoint had 52 Fe test functions on each
+named backend, plus three intended external compiler rejections.
 
 Run with the pinned compiler from the repository root:
 
@@ -95,7 +95,7 @@ mathematical case was removed. Native emitted IR and prior directed EVM IR
 remain available for actual-code observations. Debug objects are never the
 normal build/link route.
 
-The current evidence is [solver.json](evidence/solver.json), with the full corpus
+The dated evidence is [solver.json](evidence/solver.json), with the full corpus
 definition in [oracle-cases.json](evidence/oracle-cases.json).
 
 ## Remaining acceptance
@@ -104,7 +104,8 @@ At this solver checkpoint FA04 was partial: independent inspection of actual
 selected/u/v still awaited an export adapter. The subsequent
 [native checkpoint](NATIVE-CHECKPOINT.md) now records that inspection, guarded
 seeded/metamorphic cases and implemented CLI/I/O acceptance. The earlier JSON
-remains historical evidence. Broader adversarial stabilization, board,
-full32 deployment/code/init/gas/receipt/state, complete demo/reproducibility,
-actual human review and freeze remain. These tests are not a formal proof or
-universal profile guarantee; the persistent build goal remains active.
+remains historical evidence. Subsequent board/full32 transaction and
+demo/reproducibility evidence is in [BOARD.md](BOARD.md) and
+[REPRODUCE.md](REPRODUCE.md). Actual human review and freeze remain pending.
+These tests are not a formal proof or universal profile guarantee; the persistent
+build goal remains active.

@@ -2,8 +2,16 @@
 
 Requirements are Linux x86-64 (WSL works), Python3.10+, a C compiler named cc,
 the exact official Fe26.5.1 Linux asset and Foundry Anvil/cast1.8.7. Exact
-commits/asset hashes are in toolchain.json. The workflow uses Python's standard
-library and local processes. Keep tool binaries outside the source package.
+commits/asset hashes are in [toolchain.json](../toolchain.json). Download
+[Fe26.5.1](https://github.com/argotorg/fe/releases/tag/v26.5.1)'s
+`fe_linux_amd64` executable and
+[Foundry1.8.7](https://github.com/foundry-rs/foundry/releases/tag/v1.8.7)'s
+`foundry_v1.8.7_linux_amd64.tar.gz`; extract `anvil` and `cast` from that archive.
+Compare SHA-256 for the Fe binary, Foundry archive and both extracted binaries
+with their Linux fields in toolchain.json. Give the three binaries executable
+permission and keep them in a separate tool directory. The command below takes
+their absolute paths. The workflow uses Python's standard library and local
+processes; keep tool binaries outside the source package.
 
 From a fresh extraction/check-out of this source:
 

@@ -12,11 +12,13 @@ The build uses the pinned official compiler and a child-only `cc` wrapper to add
 `native/io.c`; it does not alter global PATH, the compiler or the pure kernel.
 This link route reuses a preparation experiment; the product bridge is new.
 
-`feassign solve` reads two unsigned dimensions, rows then columns, followed by
+Both commands require the exact `FEASSIGN 1` header. `feassign solve` then reads
+two unsigned dimensions, rows then columns, followed by
 exactly rows*columns signed i64 costs in row-major order. Require
 1 <= rows <= columns <= 32. Example:
 
 ```text
+FEASSIGN 1
 2 3
 4 1 8
 2 6 3

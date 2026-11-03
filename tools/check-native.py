@@ -18,6 +18,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 MIN64, MAX64 = -(2**63), 2**63 - 1
 MIN128, MAX128 = -(2**127), 2**127 - 1
+HEADER = b'FEASSIGN 1\n'
 
 
 def sha(data):
@@ -25,7 +26,7 @@ def sha(data):
 
 
 def solve_input(r, c, costs):
-    return (f'{r} {c}\n' + ' '.join(map(str, costs)) + '\n').encode('ascii')
+    return HEADER + (f'{r} {c}\n' + ' '.join(map(str, costs)) + '\n').encode('ascii')
 
 
 def envelope(r, c, costs, p, u, v, total):
@@ -72,8 +73,8 @@ def main():
     parser.add_argument('--evidence', type=Path, required=True)
     parser.add_argument('--smoke', action='store_true')
     args = parser.parse_args()
-    if sys.platform != 'linux':
-        parser.error('Run on Linux/WSL to exercise the native executable and fd errors')
+    if sys.platform != 'linux' or not __debug__:
+        parser.error('Linux/WSL and Python assertions enabled are required')
     executable = args.executable.resolve()
     evidence = args.evidence.resolve()
     evidence.mkdir(parents=True, exist_ok=False)
@@ -190,17 +191,26 @@ def main():
             ('bare-minus', b'1 1 -', 2), ('nul', b'1 1 0\0', 2),
             ('non-ascii-space', b'1 1 0\xc2\xa0', 2),
             ('escape', b'1 1 0\x1b', 2), ('extra-after-space', b'1 1 0 \nx', 2),
-            ('oversized-trailing', b'1 1 0'+b' '*(131073-5), 3),
+            ('oversized-trailing', b'1 1 0'+b' '*(131073-len(HEADER)-5), 3),
             ('oversized-leading', b' '*131073, 3),
         ]
         for name, data, code in invalid_solve:
+            if name not in ('empty', 'oversized-leading'):
+                data = HEADER + data
             reject(name, 'solve', data, code)
-        for name, data in [('exact-cap', b'1 1 0'+b' '*(131072-5)),
-                           ('whitespace', b'\t1\r\n1\v\f-000\t\n')]:
+        for name, data in [('exact-cap', HEADER+b'1 1 0'+b' '*(131072-len(HEADER)-5)),
+                           ('whitespace', b'\t'+HEADER+b'\t1\r\n1\v\f-000\t\n')]:
             result = execute('solve', data)
             assert result.returncode == 0 and result.stderr == b''
             inspect_certificate(result.stdout, 1, 1, [0], 0)
             records.append(dict(name=name, actual=result.returncode, bytes=len(data)))
+        for name, data in [
+            ('missing-solve-version', b'1 1 0'),
+            ('wrong-solve-version', b'FEASSIGN 2\n1 1 0'),
+            ('noncanonical-solve-version', b'FEASSIGN 01\n1 1 0'),
+            ('truncated-solve-header', b'FEASSIGN'),
+        ]:
+            reject(name, 'solve', data, 2)
         mutations = [
             ('positive-v-only', envelope(1, 2, [5, 3], [0], [3], [2, 0], 5), 4),
             ('unused-v-only', envelope(1, 2, [5, 3], [0], [5], [0, -2], 5), 4),
@@ -229,7 +239,7 @@ def main():
         assert help_result.returncode == 0 and help_result.stderr == b'' and b'\0' not in help_result.stdout
         # These are real Linux stream failures, not substitute mock bridge results.
         with open('/dev/full', 'wb', buffering=0) as full:
-            result = subprocess.run([str(executable), 'solve'], input=b'1 1 0',
+            result = subprocess.run([str(executable), 'solve'], input=HEADER+b'1 1 0',
                                     stdout=full, stderr=subprocess.PIPE, timeout=10)
         assert result.returncode == 5, ('flush failure', result.returncode)
         records.append(dict(name='dev-full-buffered-final-flush', actual=result.returncode))
@@ -237,7 +247,7 @@ def main():
         read_fd, write_fd = os.pipe()
         os.close(read_fd)
         with os.fdopen(write_fd, 'wb', buffering=0) as broken:
-            result = subprocess.run([str(executable), 'solve'], input=b'1 1 0',
+            result = subprocess.run([str(executable), 'solve'], input=HEADER+b'1 1 0',
                                     stdout=broken, stderr=subprocess.PIPE, timeout=10)
         assert result.returncode == 5, ('broken pipe must not terminate by SIGPIPE', result.returncode)
         records.append(dict(name='closed-reader-pipe', actual=result.returncode))

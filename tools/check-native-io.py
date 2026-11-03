@@ -27,8 +27,8 @@ def main():
     parser.add_argument('--executable', type=Path, required=True)
     parser.add_argument('--evidence', type=Path, required=True)
     args = parser.parse_args()
-    if sys.platform != 'linux':
-        parser.error('Linux/WSL required')
+    if sys.platform != 'linux' or not __debug__:
+        parser.error('Linux/WSL and Python assertions enabled are required')
     executable = args.executable.resolve()
     evidence = args.evidence.resolve()
     evidence.mkdir(parents=True, exist_ok=False)
@@ -63,7 +63,7 @@ def main():
     try:
         # Byte-at-a-time writes, with the writer open until the complete input.
         active = spawn(stdin=subprocess.PIPE)
-        data = b'2 3\n4 1 8\n2 6 3\n'
+        data = inspector.solve_input(2, 3, [4, 1, 8, 2, 6, 3])
         for byte in data:
             active.stdin.write(bytes([byte]))
             active.stdin.flush()
@@ -78,7 +78,7 @@ def main():
 
         # A syntactically complete prefix must still wait for EOF/trailing input.
         active = spawn(stdin=subprocess.PIPE)
-        active.stdin.write(b'1 1 0 ')
+        active.stdin.write(inspector.HEADER+b'1 1 0 ')
         active.stdin.flush()
         channel = wait_blocked(active)
         assert not select.select([active.stdout], [], [], 0)[0]
@@ -90,7 +90,7 @@ def main():
         records.append(dict(name='valid-prefix-then-extra-token', actual=2, waiting=channel))
 
         # Actual EAGAIN, both before any token and after otherwise valid bytes.
-        for name, prefix in [('empty-nonblocking', b''), ('prefix-nonblocking', b'1 1 0 ')]:
+        for name, prefix in [('empty-nonblocking', b''), ('prefix-nonblocking', inspector.HEADER+b'1 1 0 ')]:
             read_fd, write_fd = os.pipe()
             try:
                 os.set_blocking(read_fd, False)
@@ -113,7 +113,7 @@ def main():
         # write, ferror, feof, fflush, our bridge, or the Fe executable.
         env = os.environ.copy()
         env['LD_PRELOAD'] = str(helper)
-        for name, prefix in [('handled-eintr-empty', b''), ('handled-eintr-after-prefix', b'1 1 0 ')]:
+        for name, prefix in [('handled-eintr-empty', b''), ('handled-eintr-after-prefix', inspector.HEADER+b'1 1 0 ')]:
             active = spawn(stdin=subprocess.PIPE, env=env)
             if prefix:
                 active.stdin.write(prefix)

@@ -174,10 +174,8 @@ fn output(_ problem: ref Problem, _ certificate: ref Certificate, _ total: i128)
 fn run(_ checking: bool) -> i32 {
     var input = Input { current: -1, count: 0, failure: 0 }
     input.advance()
-    if checking {
-        input.literal("FEASSIGN")
-        input.literal("1")
-    }
+    input.literal("FEASSIGN")
+    input.literal("1")
     let r_value = input.number(false, 32, 0)
     let c_value = input.number(false, 32, 0)
     if input.failure != 0 { return input.failure }

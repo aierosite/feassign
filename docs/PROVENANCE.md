@@ -92,3 +92,20 @@ real code size/prefix and getters, without changing the compiler's private tail
 layout. These are local technical tests with ephemeral test balances, not mainnet,
 public deployment, wallet authority, final submission or human acceptance.
 Current evidence and limitations are in BOARD.md and evidence/board.json.
+
+The next stabilization pass found and corrected a goal-alignment gap: solve
+input now requires the same explicit FEASSIGN1 version header as verify input.
+The native2906 certificate/roundtrip campaign and I/O checks were repeated.
+A deliberate corrupt-output mutant in an isolated copied tree exercised the
+solver's final certificate guard and CLI internal-failure status without changing
+product source; it is not presented as a normal-input solver failure.
+
+A new portable Linux demo and protocol checker derive from the disclosed local
+transaction driver. They build actual Fe, inspect its actual proof, exercise
+normal/invalid/different-matrix/repeat behavior and stop their own localhost
+nodes. Single process-wall timings distinguish help startup, solve and verify
+without claiming isolated-kernel speed. Linux Foundry assets were fetched from
+the pinned official release and SHA-checked under the surrounding task root,
+not installed globally or included in source. Reproduction/package work must
+record the actually tested source commit and fresh extraction; a script's
+existence is not a successful fresh-source run or remote CI claim.

@@ -32,8 +32,11 @@ three full32 cases with ordinary code/init/transaction limits, including i64
 endpoints. Signed/dirty ABI, alternate wire encodings and failed-state controls
 also ran. Its measured code-size failure and sequential-construction repair are
 preserved. See [board evidence](docs/evidence/board.json) for current source
-hashes and limits. Final demo, fresh-source package, remaining stabilization and
-actual human review/freeze are still pending; the full build goal is active.
+hashes and limits. The [portable local demo](docs/DEMO.md) now runs on Linux with
+the normal result and three sensitive failures. [Stabilization](docs/STABILIZATION.md)
+and [certificate reasoning](docs/PROOF.md) state the boundaries. A fresh-source
+complete-package rehearsal and actual human review/freeze remain separate
+requirements; the full build goal is active.
 
 The pure core owns the bounded model, Hungarian optimizer and separate
 dual-certificate verifier. It has no I/O, hashing, storage or network effects.
@@ -70,7 +73,7 @@ Build and check the native consumer on Linux with the pinned compiler:
 
 ```sh
 python3 tools/build-native.py --fe /absolute/path/to/fe-26.5.1
-printf '2 3\n4 1 8\n2 6 3\n' | target/native/feassign solve > target/example.cert
+printf 'FEASSIGN 1\n2 3\n4 1 8\n2 6 3\n' | target/native/feassign solve > target/example.cert
 target/native/feassign verify < target/example.cert
 python3 tools/check-native.py --executable target/native/feassign --evidence target/check-native-01
 python3 tools/check-native-io.py --executable target/native/feassign --evidence target/check-io-01
@@ -83,10 +86,17 @@ fe test . --ingot board --backend sonatina -O 1
 fe build . --ingot board --backend sonatina -O 1 --emit bytecode,runtime-bytecode,abi,metadata --out-dir target/board
 ```
 
-The contract uses no Call/fund/admin capability. The currently recorded
-transaction campaign is workspace-local evidence; a portable end-to-end demo
-and fresh-source rehearsal are the next packaging work, not an already passed
-CI or published deployment.
+The contract uses no Call/fund/admin capability. Run the full local demo or
+complete reproduction with pinned Linux tools:
+
+```sh
+python3 tools/demo.py --fe /absolute/path/to/fe --anvil /absolute/path/to/anvil --cast /absolute/path/to/cast --out target/demo-01
+python3 tools/reproduce.py --fe /absolute/path/to/fe --anvil /absolute/path/to/anvil --cast /absolute/path/to/cast --out target/repro-01
+```
+
+See [reproduction](docs/REPRODUCE.md) for fresh-source/output/cache scope and
+standalone full32/ABI checks. Local records are not a remotely passed CI result
+or published deployment. The human review and final freeze are still pending.
 
 The checks require fresh evidence directories; use a new suffix for a new run.
 `--smoke` on check-native runs directed/negative/I/O checks without the larger
@@ -101,3 +111,6 @@ are classical; no new mathematical algorithm or global-first claim is made.
 
 Original project source is MIT licensed. This repository is local; no public
 repository, submission or contest acceptance is claimed.
+
+[Third-party notices](THIRD-PARTY-NOTICES.md) retain tool/library attribution;
+the [five-minute pitch](docs/PITCH.md) explains the result and its limits.

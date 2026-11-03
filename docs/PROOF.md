@@ -47,12 +47,18 @@ There is no NoAssignment escape or forbidden-edge sentinel.
 
 Costs are full i64. The sum of at most32 such values fits i128. Both mathematical
 verification and optimization widen combined arithmetic to i256 first, including
-hostile full-i128 u/v additions. For M=2^63, initial dual>=-rM and optimum<=rM.
-Each phase update improves the dual by delta, hence total delta<=2rM. Under
-this initialization/update invariant, -M<=u<=(2r+1)M and -2rM<=v<=0, so exported
-i128 potentials suffice. Narrowing and progress failures are implementation
-invariant failures, not extra unsupported valid inputs. The objective is
-recomputed; -dummyPotential would omit the nonzero row-minimum initialization.
+hostile full-i128 u/v additions. The solver's generated real potentials have a
+tighter bound: each u[i] stays between that row's minimum and maximum cost.
+It starts at the minimum and only increases. Before every augmentation, even
+the last, a free real column k exists and retains v[k]=0; full-matrix dual
+feasibility therefore gives u[i]<=C[i,k]<=row_max. Augmentation changes owners,
+not potentials. For global cost extremes L and H, tight matched edges then give
+L-H<=v[j]<=0; unused v is zero. Thus generated u fits i64 and generated v is at
+least -(2^64-1), so exported i128 suffices. This excludes the private dummy slot
+and does not restrict external certificates: valid full-i128 gauge shifts remain
+accepted. Narrowing and progress failures are implementation invariant failures,
+not extra unsupported valid inputs. The objective is recomputed;
+-dummyPotential would omit the nonzero row-minimum initialization.
 
 Problem and certificate fields are private. A shape-valid Certificate is still
 an untrusted proof: indices and potentials can be mathematically invalid.

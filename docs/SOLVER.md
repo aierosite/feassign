@@ -1,5 +1,9 @@
 # Hungarian optimizer and cost-oracle checkpoint
 
+This checkpoint predates the streaming-construction repair and deployed board.
+Current construction/API and repeated regression evidence are in [BOARD.md](BOARD.md).
+The Hungarian and mathematical verifier algorithms are unchanged by that repair.
+
 `solve(ref problem) -> Result<SolveError, Certificate>` runs the actual Hungarian
 optimizer in Fe. It borrows the immutable problem and returns an owned
 certificate. It calls the separately structured verifier before returning

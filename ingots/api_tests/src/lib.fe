@@ -2,7 +2,76 @@ use core::Result
 use assignment::{
     new_problem, rows, columns, cost,
     new_certificate, certificate_shape, selected_column, row_potential, column_potential,
-    Problem, Certificate, VerifyError, verify, solve,
+    Problem, Certificate, VerifyError, verify, solve, ModelError,
+    start_problem, append_cost, finish_problem,
+}
+
+#[test]
+fn sequential_builder_full32_and_overflow_preserves_problem() {
+    var builder = match start_problem(32, 32) {
+        Result::Ok(value) => value,
+        _ => core::panic(),
+    }
+    var index: usize = 0
+    while index < 1024 {
+        let small: i64 = index.downcast().unwrap()
+        let value = if index % 3 == 0 { i64::min() }
+            else if index % 3 == 1 { i64::max() }
+            else { small - 513 }
+        match append_cost(mut builder, value) {
+            Result::Ok(_) => {},
+            _ => core::panic(),
+        }
+        index += 1
+    }
+    match append_cost(mut builder, 99) {
+        Result::Err(ModelError::CostCount) => {},
+        _ => core::panic(),
+    }
+    let problem = match finish_problem(builder) {
+        Result::Ok(value) => value,
+        _ => core::panic(),
+    }
+    index = 0
+    while index < 1024 {
+        let small: i64 = index.downcast().unwrap()
+        let expected = if index % 3 == 0 { i64::min() }
+            else if index % 3 == 1 { i64::max() }
+            else { small - 513 }
+        match cost(ref problem, (index / 32).downcast().unwrap(), (index % 32).downcast().unwrap()) {
+            Result::Ok(value) => assert!(value == expected),
+            _ => core::panic(),
+        }
+        index += 1
+    }
+}
+
+#[test]
+fn sequential_builder_rejects_bad_shape_and_incomplete_finish() {
+    match start_problem(0, 1) {
+        Result::Err(ModelError::Dimensions) => {},
+        _ => core::panic(),
+    }
+    match start_problem(2, 1) {
+        Result::Err(ModelError::Dimensions) => {},
+        _ => core::panic(),
+    }
+    match start_problem(1, 33) {
+        Result::Err(ModelError::Dimensions) => {},
+        _ => core::panic(),
+    }
+    var builder = match start_problem(1, 2) {
+        Result::Ok(value) => value,
+        _ => core::panic(),
+    }
+    match append_cost(mut builder, i64::min()) {
+        Result::Ok(_) => {},
+        _ => core::panic(),
+    }
+    match finish_problem(builder) {
+        Result::Err(ModelError::CostCount) => {},
+        _ => core::panic(),
+    }
 }
 
 /// A separate ingot must consume the public API without private-field access.

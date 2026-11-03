@@ -1,0 +1,6 @@
+[ingot]
+name = "builder_after_finish"
+version = "0.1.0"
+
+[dependencies]
+assignment = { path = "../../../ingots/assignment" }

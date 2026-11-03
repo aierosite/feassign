@@ -1,0 +1,139 @@
+use core::Result
+use std::abi::{DynArray, canonical_dyn_array}
+use std::evm::{encode_abi_payload, keccak256}
+use assignment::{Problem, start_problem, append_cost, finish_problem, new_certificate, selected_column, verify}
+
+// ABI-encoded uint256: ASCII FEASSIGN_PROBLEM followed by zero bytes.
+pub const PROBLEM_DOMAIN: u256 = 0x464541535349474e5f50524f424c454d00000000000000000000000000000000
+pub const FORMAT_VERSION: u32 = 1
+pub const MINIMUM_SUM: u32 = 1
+
+fn checked_count(_ r: u8, _ c: u8, _ costs: DynArray<i64>) -> usize {
+    assert!(r > 0 && r <= c && c <= 32, "invalid dimensions")
+    let count = (r as usize) * (c as usize)
+    assert!(costs.len() == count, "invalid cost length")
+    count
+}
+
+/// Keccak256(abi.encode(domain,version,objective,rows,columns,int64[] costs)).
+/// canonical_dyn_array reads and re-encodes every signed element after guards.
+pub fn problem_digest(_ r: u8, _ c: u8, _ costs: DynArray<i64>) -> u256 {
+    let _ = checked_count(r, c, costs)
+    let canonical = canonical_dyn_array(costs)
+    let encoded = encode_abi_payload((PROBLEM_DOMAIN, FORMAT_VERSION, MINIMUM_SUM, r, c, canonical))
+    keccak256(encoded.span())
+}
+
+fn problem_from_wire(_ r: u8, _ c: u8, _ costs: DynArray<i64>) -> Problem {
+    let count = checked_count(r, c, costs)
+    var builder = match start_problem(r, c) {
+        Result::Ok(value) => value,
+        Result::Err(_) => core::panic(),
+    }
+    var index: usize = 0
+    while index < count {
+        match append_cost(mut builder, costs.get(index)) {
+            Result::Ok(_) => {},
+            Result::Err(_) => core::panic(),
+        }
+        index += 1
+    }
+    match finish_problem(builder) {
+        Result::Ok(value) => value,
+        Result::Err(_) => core::panic(),
+    }
+}
+
+msg BoardMsg {
+    #[selector = sol("details()")]
+    Details -> (u8, u8, u256, bool),
+    #[selector = sol("totalCost()")]
+    TotalCost -> i128,
+    #[selector = sol("selectedColumn(uint8)")]
+    SelectedColumn { row: u8 } -> u8,
+    #[selector = sol("submit(int64[],uint8[],int128[],int128[])")]
+    Submit { costs: DynArray<i64>, selected: DynArray<u8>, u: DynArray<i128>, v: DynArray<i128> } -> i128,
+}
+
+/// One fixed problem, one verified result. No funds, owner, setter or Call.
+pub contract AssignmentBoard {
+    row_count: u8,
+    column_count: u8,
+    digest: u256,
+    mut solved: bool,
+    mut total: i128,
+    mut chosen: [u8; 32],
+
+    init(rows: u8, columns: u8, commitment: u256) uses (mut row_count, mut column_count, mut digest) {
+        assert!(rows > 0 && rows <= columns && columns <= 32, "invalid dimensions")
+        row_count = rows
+        column_count = columns
+        digest = commitment
+    }
+
+    recv BoardMsg {
+        Details -> (u8, u8, u256, bool) uses (row_count, column_count, digest, solved) {
+            (row_count, column_count, digest, solved)
+        }
+
+        TotalCost -> i128 uses (solved, total) {
+            assert!(solved, "no solution")
+            total
+        }
+
+        SelectedColumn { row } -> u8 uses (row_count, solved, chosen) {
+            assert!(solved, "no solution")
+            assert!(row < row_count, "invalid row")
+            chosen[row as usize]
+        }
+
+        Submit { costs, selected, u, v } -> i128
+            uses (row_count, column_count, digest, mut solved, mut total, mut chosen)
+        {
+            assert!(!solved, "already solved")
+            assert!(selected.len() == row_count as usize, "invalid assignment length")
+            assert!(u.len() == row_count as usize, "invalid row dual length")
+            assert!(v.len() == column_count as usize, "invalid column dual length")
+            let problem = problem_from_wire(row_count, column_count, costs)
+            var p_buffer: [u8; 32] = [0; 32]
+            var u_buffer: [i128; 32] = [0; 32]
+            var v_buffer: [i128; 32] = [0; 32]
+            var index: usize = 0
+            while index < row_count as usize {
+                p_buffer[index] = selected.get(index)
+                u_buffer[index] = u.get(index)
+                index += 1
+            }
+            index = 0
+            while index < column_count as usize {
+                v_buffer[index] = v.get(index)
+                index += 1
+            }
+            let certificate = match new_certificate(ref problem, row_count, row_count, column_count,
+                                                     p_buffer, u_buffer, v_buffer) {
+                Result::Ok(value) => value,
+                Result::Err(_) => core::panic(),
+            }
+            assert!(problem_digest(row_count, column_count, costs) == digest, "wrong problem")
+            let value = match verify(ref problem, ref certificate) {
+                Result::Ok(value) => value,
+                Result::Err(_) => {
+                    assert!(false, "invalid certificate")
+                    0
+                }
+            }
+            // All checks and the shared mathematical verification precede writes.
+            index = 0
+            while index < row_count as usize {
+                chosen[index] = match selected_column(ref certificate, index.downcast().unwrap()) {
+                    Result::Ok(value) => value,
+                    Result::Err(_) => core::panic(),
+                }
+                index += 1
+            }
+            total = value
+            solved = true
+            value
+        }
+    }
+}

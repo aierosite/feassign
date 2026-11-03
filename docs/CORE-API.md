@@ -1,7 +1,7 @@
 # Bounded model API
 
-The core uses two owned, private-field types and shared-reference scalar access.
-Neither type implements Copy or an ABI/deserialization trait. This is a Fe API,
+The core uses owned, private-field Problem, Certificate and ProblemBuilder types
+and shared-reference scalar access. None implements Copy or an ABI/deserialization trait. This is a Fe API,
 not a C ABI. There is no I/O, hashing, storage, allocation service or dependency
 on std in the assignment ingot.
 
@@ -13,6 +13,23 @@ copies values into owned private storage, retaining no input reference. The
 caller can reuse/change its input buffer after construction. `rows`, `columns`
 and checked `cost(ref problem, row, column)` expose values without returning or
 copying the entire matrix. Out-of-range access returns `ModelError::Index`.
+
+For streaming adapters, `start_problem(rows,columns)` checks shape and creates
+an opaque builder. `append_cost(mut builder,value)` appends one logical i64 in
+row-major order. An append beyond rows*columns returns CostCount without changing
+the builder; `finish_problem(builder)` consumes it and returns an owned Problem
+only after exactly that many appends. An incomplete finish returns CostCount.
+There is no raw packed-word constructor or exposed partially initialized Problem.
+The buffer convenience constructor delegates to this same packing path.
+
+This additional concept follows a measured deployment failure: the initial
+board staged 1024 i64 values before packing them, and its emitted runtime
+exceeded the ordinary EVM code limit. Sequential construction removed the
+staging array without an unsafe view, heap framework, host optimizer or model
+reduction. The public stream remains logical signed costs; packed storage is
+still private. Full32 append/read, overflow preservation, premature finish and
+shape guards ran on both backends. External code cannot forge builder fields or
+reuse one after finishing; the compiler-negative checker now has five cases.
 
 `new_certificate(ref problem, selected_count, row_potential_count,
 column_potential_count, selected, row_potentials, column_potentials)` consumes
@@ -76,5 +93,6 @@ type or dependency error.
 The initial six-test model checkpoint is historical evidence in
 [model-api.json](evidence/model-api.json). Current packed-model/verifier evidence
 is in [verifier.json](evidence/verifier.json) as a dated verifier checkpoint;
-[solver.json](evidence/solver.json) records the current optimizer/cost campaign.
-CLI and board implementation remain forthcoming.
+[solver.json](evidence/solver.json) records the earlier optimizer/cost campaign.
+[BOARD.md](BOARD.md) and [board.json](evidence/board.json) record the current
+sequential-construction, CLI regression and actual board transaction checkpoint.

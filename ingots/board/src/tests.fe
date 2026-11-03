@@ -1,0 +1,42 @@
+use std::abi::dyn_array_from
+use ingot::{AssignmentBoard, BoardMsg, problem_digest}
+
+#[test]
+fn rectangular_result_is_recorded_once() uses (evm: mut Evm) {
+    let costs = dyn_array_from([4 as i64, 1, 8, 2, 6, 3])
+    let commitment = problem_digest(2, 3, costs)
+    let board = evm.create2<AssignmentBoard>(value: Wei::zero(), args: (2, 3, commitment), salt: 0)
+    let (r, c, digest, solved): (u8, u8, u256, bool) = evm.call(
+        addr: board, gas: 200000, value: Wei::zero(), message: BoardMsg::Details {})
+    assert!(r == 2 && c == 3 && digest == commitment && !solved)
+    let before = evm.try_call(addr: board, gas: 200000, value: Wei::zero(), message: BoardMsg::TotalCost {})
+    assert!(!before.success())
+    let before_index = evm.try_call(addr: board, gas: 200000, value: Wei::zero(), message: BoardMsg::SelectedColumn { row: 0 })
+    assert!(!before_index.success())
+    let result: i128 = evm.call(addr: board, gas: 3000000, value: Wei::zero(), message: BoardMsg::Submit {
+        costs, selected: dyn_array_from([1 as u8, 0]),
+        u: dyn_array_from([1 as i128, 2]), v: dyn_array_from([0 as i128, 0, 0]),
+    })
+    assert!(result == 3)
+    let (r, c, digest, solved): (u8, u8, u256, bool) = evm.call(
+        addr: board, gas: 200000, value: Wei::zero(), message: BoardMsg::Details {})
+    assert!(r == 2 && c == 3 && digest == commitment && solved)
+    let total: i128 = evm.call(addr: board, gas: 200000, value: Wei::zero(), message: BoardMsg::TotalCost {})
+    assert!(total == 3)
+    let first: u8 = evm.call(addr: board, gas: 200000, value: Wei::zero(), message: BoardMsg::SelectedColumn { row: 0 })
+    let second: u8 = evm.call(addr: board, gas: 200000, value: Wei::zero(), message: BoardMsg::SelectedColumn { row: 1 })
+    assert!(first == 1 && second == 0)
+    let repeat = evm.try_call(addr: board, gas: 3000000, value: Wei::zero(), message: BoardMsg::Submit {
+        costs, selected: dyn_array_from([1 as u8, 0]),
+        u: dyn_array_from([1 as i128, 2]), v: dyn_array_from([0 as i128, 0, 0]),
+    })
+    assert!(!repeat.success())
+    let still_total: i128 = evm.call(addr: board, gas: 200000, value: Wei::zero(), message: BoardMsg::TotalCost {})
+    assert!(still_total == 3)
+}
+
+#[test]
+fn both_dimensions_are_bound() {
+    let costs = dyn_array_from([0 as i64, 0, 0, 0, 0, 0])
+    assert!(problem_digest(1, 6, costs) != problem_digest(2, 3, costs))
+}

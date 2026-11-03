@@ -1,0 +1,7 @@
+[ingot]
+name = "board"
+version = "0.1.0"
+arithmetic = "checked"
+
+[dependencies]
+assignment = true

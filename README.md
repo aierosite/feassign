@@ -26,8 +26,14 @@ their limits. The Linux [solve/verify CLI](docs/CLI.md) now exports real Fe
 certificates. Python independently checked all primal/dual conditions for 2,906
 exported results, with exact small-instance and controlled metamorphic checks;
 see [native and independent evidence](docs/NATIVE-CHECKPOINT.md).
-The EVM reference board, semantic ABI/commitment and transaction gates remain
-pending. This is an implemented core/CLI checkpoint, not the completed project.
+The [immutable EVM board](docs/BOARD.md) now binds a canonical semantic problem
+digest and records one verified result. Actual Osaka transactions passed for
+three full32 cases with ordinary code/init/transaction limits, including i64
+endpoints. Signed/dirty ABI, alternate wire encodings and failed-state controls
+also ran. Its measured code-size failure and sequential-construction repair are
+preserved. See [board evidence](docs/evidence/board.json) for current source
+hashes and limits. Final demo, fresh-source package, remaining stabilization and
+actual human review/freeze are still pending; the full build goal is active.
 
 The pure core owns the bounded model, Hungarian optimizer and separate
 dual-certificate verifier. It has no I/O, hashing, storage or network effects.
@@ -69,6 +75,18 @@ target/native/feassign verify < target/example.cert
 python3 tools/check-native.py --executable target/native/feassign --evidence target/check-native-01
 python3 tools/check-native-io.py --executable target/native/feassign --evidence target/check-io-01
 ```
+
+The EVM consumer is a separate ingot:
+
+```sh
+fe test . --ingot board --backend sonatina -O 1
+fe build . --ingot board --backend sonatina -O 1 --emit bytecode,runtime-bytecode,abi,metadata --out-dir target/board
+```
+
+The contract uses no Call/fund/admin capability. The currently recorded
+transaction campaign is workspace-local evidence; a portable end-to-end demo
+and fresh-source rehearsal are the next packaging work, not an already passed
+CI or published deployment.
 
 The checks require fresh evidence directories; use a new suffix for a new run.
 `--smoke` on check-native runs directed/negative/I/O checks without the larger

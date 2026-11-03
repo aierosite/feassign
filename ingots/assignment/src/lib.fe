@@ -20,6 +20,40 @@ pub struct Problem {
     packed_costs: [u256; 256],
 }
 
+/// Sequential construction avoids a second 1024-cell adapter staging array.
+/// Incomplete state is opaque and cannot be used as a Problem.
+pub struct ProblemBuilder {
+    problem: Problem,
+    count: u16,
+}
+
+pub fn start_problem(_ rows: u8, _ columns: u8) -> Result<ModelError, ProblemBuilder> {
+    if !valid_dimensions(rows, columns) { return Result::Err(ModelError::Dimensions) }
+    let packed_costs: [u256; 256] = [0; 256]
+    Result::Ok(ProblemBuilder { problem: Problem { rows, columns, packed_costs }, count: 0 })
+}
+
+/// Append one logical signed cost in row-major order; reject overflow unchanged.
+pub fn append_cost(_ builder: mut ProblemBuilder, _ value: i64) -> Result<ModelError, ()> {
+    let expected = (builder.problem.rows as usize) * (builder.problem.columns as usize)
+    let index = builder.count as usize
+    if index >= expected { return Result::Err(ModelError::CostCount) }
+    let signed = value as i256
+    let encoded = if signed < 0 { signed + 18446744073709551616 } else { signed }
+    let lane: u256 = encoded.downcast().unwrap()
+    let word = index / 4
+    let shift = ((index % 4) * 64) as u256
+    builder.problem.packed_costs[word] = builder.problem.packed_costs[word] | (lane << shift)
+    builder.count += 1
+    Result::Ok(())
+}
+
+pub fn finish_problem(_ builder: own ProblemBuilder) -> Result<ModelError, Problem> {
+    let expected = (builder.problem.rows as usize) * (builder.problem.columns as usize)
+    if builder.count as usize != expected { return Result::Err(ModelError::CostCount) }
+    Result::Ok(builder.problem)
+}
+
 /// Copy a bounded input buffer into owned packed storage after shape checks.
 /// Retain no reference to the supplied buffer and ignore unused capacity.
 pub fn new_problem(
@@ -35,18 +69,19 @@ pub fn new_problem(
     if (cost_count as usize) != expected {
         return Result::Err(ModelError::CostCount)
     }
-    var packed_costs: [u256; 256] = [0; 256]
+    var builder = match start_problem(rows, columns) {
+        Result::Ok(value) => value,
+        Result::Err(error) => return Result::Err(error),
+    }
     var index: usize = 0
     while index < expected {
-        let signed = costs[index] as i256
-        let encoded = if signed < 0 { signed + 18446744073709551616 } else { signed }
-        let lane: u256 = encoded.downcast().unwrap()
-        let word = index / 4
-        let shift = ((index % 4) * 64) as u256
-        packed_costs[word] = packed_costs[word] | (lane << shift)
+        match append_cost(mut builder, costs[index]) {
+            Result::Ok(_) => {},
+            Result::Err(error) => return Result::Err(error),
+        }
         index += 1
     }
-    Result::Ok(Problem { rows, columns, packed_costs })
+    finish_problem(builder)
 }
 
 // Callers prove index < rows*columns <=1024 before entering this private helper.

@@ -1,0 +1,6 @@
+use assignment::{Problem, ProblemBuilder}
+
+// Expected failure: external code cannot forge incomplete builder fields.
+pub fn forged(_ problem: own Problem) -> ProblemBuilder {
+    ProblemBuilder { problem, count: 0 }
+}

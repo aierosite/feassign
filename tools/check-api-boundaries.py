@@ -1,4 +1,4 @@
-"""Check the three intentional external-API compile failures with pinned Fe."""
+"""Check the five intentional external-API compile failures with pinned Fe."""
 from pathlib import Path
 import argparse
 import hashlib
@@ -21,6 +21,8 @@ def main():
                                  '`selected` is not visible', '`row_potentials` is not visible',
                                  '`column_potentials` is not visible'], 5),
         ('use_after_move', ['cannot use a value after it was moved'], 1),
+        ('private_builder', ['`problem` is not visible', '`count` is not visible'], 2),
+        ('builder_after_finish', ['cannot use a value after it was moved'], 1),
     ]
     records = []
     for name, expected, errors in cases:

@@ -73,3 +73,22 @@ It does not supply assignments to the product solver. The test-only C preload
 handler installs a handled SIGUSR1 without SA_RESTART to interrupt real reads;
 it does not replace libc I/O, Fe code or the product bridge. No copied assignment
 algorithm, third-party service, paid API or new research agent is used.
+
+The post-opening board checkpoint defines the semantic protocol constants and
+standard ABI tuple, implements immutable Fe storage/one-result recording and
+authors an independent host ABI encoder. A measured EIP-170 code-size failure
+prompted the opaque sequential ProblemBuilder and shared packing path. This is
+a new implementation response to actual evidence; the original matrix staging,
+ineffective runtime-fill experiment and diagnostics are preserved. No raw packed
+constructor, unsafe span, compiler patch or narrower model was substituted.
+Native/core/oracle/I/O checks were repeated after this core change.
+
+Actual localhost Anvil transactions then exercised full32 deployment/submit,
+canonical/signed ABI, immutable semantic headers, failure/repeat state and valid
+alternative proofs. The test driver initially assumed emitted runtime equalled
+deployed code and then assumed an ABI-shaped immutable tail; both harness
+failures and successful deployment receipts remain. The corrected driver checks
+real code size/prefix and getters, without changing the compiler's private tail
+layout. These are local technical tests with ephemeral test balances, not mainnet,
+public deployment, wallet authority, final submission or human acceptance.
+Current evidence and limitations are in BOARD.md and evidence/board.json.

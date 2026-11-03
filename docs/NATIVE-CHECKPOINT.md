@@ -1,5 +1,9 @@
 # Actual native consumer and independent certificate checkpoint
 
+This is the historical pre-board checkpoint. The later [board checkpoint](BOARD.md)
+changes bounded construction in response to measured code size and repeats the
+native certificate/I/O campaign; its JSON records the current source hashes.
+
 On November 3, 2026 after opening, the pinned Fe 26.5.1 Linux x86-64 release
 compiled the real CLI at native -O 1. The compiler itself invokes cc; a scoped
 child PATH wrapper adds our C bridge to the normal executable link. It resolves

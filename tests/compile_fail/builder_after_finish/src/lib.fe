@@ -1,0 +1,7 @@
+use assignment::{ProblemBuilder, finish_problem}
+
+// Expected failure: finalization consumes the builder, even on an error.
+pub fn twice(_ builder: own ProblemBuilder) {
+    let _ = finish_problem(builder)
+    let _ = finish_problem(builder)
+}

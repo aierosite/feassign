@@ -195,7 +195,7 @@ fn run(_ checking: bool) -> i32 {
         Result::Ok(value) => value,
         Result::Err(_) => return 6,
     }
-    let certificate = if checking {
+    if checking {
         var selected: [u8; 32] = [0; 32]
         var u: [i128; 32] = [0; 32]
         var v: [i128; 32] = [0; 32]
@@ -233,24 +233,22 @@ fn run(_ checking: bool) -> i32 {
             Result::Err(_) => return 4,
         }
         if actual as i256 != claimed { return 4 }
-        certificate
-    } else {
-        input.end()
-        if input.failure != 0 { return input.failure }
-        match solve(ref problem) {
-            Result::Ok(value) => value,
-            Result::Err(_) => return 6,
-        }
+        emit("VALID ", 0)
+        decimal(actual, 0)
+        emit("\n", 0)
+        return 0
+    }
+    input.end()
+    if input.failure != 0 { return input.failure }
+    let certificate = match solve(ref problem) {
+        Result::Ok(value) => value,
+        Result::Err(_) => return 6,
     }
     let total = match verify(ref problem, ref certificate) {
         Result::Ok(value) => value,
         Result::Err(_) => return 6,
     }
-    if checking {
-        emit("VALID ", 0)
-        decimal(total, 0)
-        emit("\n", 0)
-    } else { output(ref problem, ref certificate, total) }
+    output(ref problem, ref certificate, total)
     0
 }
 

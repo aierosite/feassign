@@ -214,7 +214,7 @@ def main():
         mutations = [
             ('positive-v-only', envelope(1, 2, [5, 3], [0], [3], [2, 0], 5), 4),
             ('unused-v-only', envelope(1, 2, [5, 3], [0], [5], [0, -2], 5), 4),
-            ('dual-inequality', envelope(1, 1, [0], [0], [1], [0], 0), 4),
+            ('infeasible', envelope(1, 2, [5, 3], [0], [5], [0]*2, 5), 4),
             ('not-tight', envelope(1, 1, [0], [0], [-1], [0], 0), 4),
             ('column-index', envelope(1, 1, [0], [255], [0], [0], 0), 4),
             ('duplicate', envelope(2, 2, [0]*4, [0, 0], [0, 0], [0, 0], 0), 4),

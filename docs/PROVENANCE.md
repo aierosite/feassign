@@ -27,17 +27,18 @@ FeAssign was selected at 00:02:49.840608Z. Research was completed only after the
 opening and a seven-criterion audit at 00:05:02Z. The full build goal became
 active at 00:06:19Z, before any product file was initialized.
 
-Codex authors and checks implementation under the owner's direction. The owner
-remains the responsible human contact. AI-produced code must be explained and
-tested; no safety, audit, originality or competition rank is guaranteed.
+Codex generated and revised the original Fe/C/Python code, tests, documentation
+and local execution tooling under the owner's direction, and ran the recorded
+checks. The owner remains the responsible human contact. AI-produced work must
+be explained and tested; no safety, audit, originality or rank is guaranteed.
 Human feedback remains pending. A complete review package is due
 2026-11-22T23:59Z, exactly 48 hours before the contest deadline; the final
 technical checkpoint is 2026-11-24T20:59Z.
 
 Detailed dated preparation snapshots and execution records are retained in the
 surrounding authorized task workspace, separately from product source history.
-Later self-contained product evidence will record exact commands, versions,
-failures, fixes and observed results without treating plans as passes.
+Product evidence records exact commands, versions, failures, fixes and observed
+results without treating plans as passes. Each record retains its source scope.
 
 After opening, Codex implemented the bounded model, shape-valid certificate,
 pure Fe mathematical verifier, directed tests and a separate API-consumer ingot.
@@ -45,10 +46,10 @@ Observed EVM aggregate-stack failures prompted borrowed-buffer construction
 and private four-i64-lane packed storage without reducing the complete model.
 Original failures and sources remain dated evidence; a smaller constructor
 experiment passed and is not presented as a universal compiler-bug reproducer.
-The initial directed verifier checkpoint, expected-value cross-checks and
-remaining optimizer/CLI/board work are described in VERIFIER.md. Python only
-enumerated tiny example minima at this checkpoint; the complete solver-oracle
-campaign remains future work. No human review or public submission is implied.
+VERIFIER.md describes that initial directed checkpoint, when optimizer/CLI/board
+work was still pending and Python only enumerated tiny example minima. The
+following solver/native/board checkpoints supersede that earlier scope; no
+human review or public submission is implied.
 
 The following optimizer checkpoint added the actual Fe Hungarian solver and an
 independent Python finite-space expected-cost generator. The corpus contains
@@ -113,6 +114,20 @@ existence is not a successful fresh-source run or remote CI claim.
 The first full fresh-source run passed core/native/I/O/demo/full32 checks but
 the following ABI campaign failed before node startup: a fixed-port probe met
 the previous stopped server's TCP reservation. That failed snapshot and logs
-remain. Demo/protocol tools now default to an OS-selected free loopback port,
-record it and still refuse to attach to an existing node. A later fresh-source
-run must establish the repaired workflow; the first failure is not overwritten.
+remain. That repair selected and recorded an OS-chosen free loopback port;
+subsequent exact-source fresh runs passed. The failed first run is retained.
+
+Later controlled startup tests showed that a live child and a released free
+port did not establish ownership of the contacted listener. Both old startup
+paths sent RPC to a second harness-owned listener while the child had no socket.
+The shared internal RPC now checks the loopback LISTEN inode against that
+child's fd links before every request and bypasses environment proxies. This
+requires readable Linux /proc; it is not an atomic guarantee against privileged
+host interference. No user node or external proxy was contacted in these tests.
+
+The first repair's full run at303dd32 caught one remaining old path-alias name
+before protocol node startup. Final05995ab corrected it and passed a fresh-source,
+fresh-output/cache11-stage run:110 Fe function executions,5 intended compiler
+rejections,2906 certificate/verify roundtrips,43 native negatives,8 I/O checks and
+60 receipted transactions with state checks. This document update changes no
+code; those results remain tied to05995ab. No human feedback has been received.

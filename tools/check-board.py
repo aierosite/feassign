@@ -298,10 +298,10 @@ def main():
                             ('dirty-negative-i128', offsets[3]+32, 2**127),
                         ]:
                             reject(label, address, selectors['submit']+replace_word(body, offset, value))
-                        reject('hostile-wide-sum', address, selectors['submit']+abi.submit_payload(costs, p, [inspector.MIN128], [inspector.MIN128]))
                     if name == 'rectangular-sign-controls':
                         reject('positive-column-only', address, selectors['submit']+abi.submit_payload(costs, [0], [3], [2, 0]))
                         reject('unused-column-only', address, selectors['submit']+abi.submit_payload(costs, [0], [5], [0, -2]))
+                        reject('i128-wrap', address, selectors['submit']+abi.submit_payload(costs, [0], [inspector.MIN128+5], [inspector.MIN128, 0]))
                     _, row = send(name+'-submit', data, address)
                     recorded = abi.signed_word(bytes.fromhex(call(address, selectors['total'])['result'][2:]))
                     assert recorded == total

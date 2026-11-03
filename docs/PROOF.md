@@ -34,6 +34,12 @@ an explicit initialized flag, not an arithmetic infinity. The dummy slot is
 private workspace33, excluded from public32 values. The solver checks its own
 result with the separately structured verifier before returning a certificate.
 
+At phase start, real columns are unreached and have no initialized slack.
+The first scan assigns every real predecessor before any augmentation reads
+one. Index0 is never read as a predecessor: augmentation stops at0. Clearing
+that array again in every phase is unnecessary; its initial fixed-array
+initialization remains.
+
 Intended work is O(r²c) solve and O(rc) verify, with O(r+c) solver workspace
 beyond the matrix. These are algorithmic bounds, not measured speed or gas ratios.
 All finite complete instances in the supported shape have an assignment.

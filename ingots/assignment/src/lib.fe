@@ -313,7 +313,6 @@ pub fn solve(_ problem: ref Problem) -> Result<SolveError, Certificate> {
         while column <= c {
             reached[column] = false
             has_slack[column] = false
-            predecessor[column] = 0
             column += 1
         }
         var current: usize = 0

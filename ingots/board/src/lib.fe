@@ -30,13 +30,11 @@ fn problem_from_wire(_ r: u8, _ c: u8, _ costs: DynArray<i64>) -> Problem {
         Result::Ok(value) => value,
         Result::Err(_) => core::panic(),
     }
-    var index: usize = 0
-    while index < count {
+    for index in 0..count {
         match append_cost(mut builder, costs.get(index)) {
             Result::Ok(_) => {},
             Result::Err(_) => core::panic(),
         }
-        index += 1
     }
     match finish_problem(builder) {
         Result::Ok(value) => value,
@@ -98,16 +96,12 @@ pub contract AssignmentBoard {
             var p_buffer: [u8; 32] = [0; 32]
             var u_buffer: [i128; 32] = [0; 32]
             var v_buffer: [i128; 32] = [0; 32]
-            var index: usize = 0
-            while index < row_count as usize {
+            for index in 0..(row_count as usize) {
                 p_buffer[index] = selected.get(index)
                 u_buffer[index] = u.get(index)
-                index += 1
             }
-            index = 0
-            while index < column_count as usize {
+            for index in 0..(column_count as usize) {
                 v_buffer[index] = v.get(index)
-                index += 1
             }
             let certificate = match new_certificate(ref problem, row_count, row_count, column_count,
                                                      p_buffer, u_buffer, v_buffer) {
@@ -123,13 +117,11 @@ pub contract AssignmentBoard {
                 }
             }
             // All checks and the shared mathematical verification precede writes.
-            index = 0
-            while index < row_count as usize {
+            for index in 0..(row_count as usize) {
                 chosen[index] = match selected_column(ref certificate, index.downcast().unwrap()) {
                     Result::Ok(value) => value,
                     Result::Err(_) => core::panic(),
                 }
-                index += 1
             }
             total = value
             solved = true

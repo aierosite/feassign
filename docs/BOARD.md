@@ -74,27 +74,31 @@ The initial O1 board emitted27,695 runtime bytes and exceeded EIP-170; O2 and
 size optimization still exceeded it. Initializing the1024 staging array from a
 runtime value worsened size to32,408bytes. Those artifacts remain evidence.
 The pure sequential builder removed the staging array while preserving all
-full-i64/full32 values. Current O1 emitted runtime is23,498bytes; actual deployed
-code is23,594bytes including96bytes of immutable data, below24,576. Creation
-code is23,985bytes; total initcode including96bytes of constructor ABI arguments
-is24,081, below49,152. Runtime has982bytes of current headroom, so later changes
+full-i64/full32 values. Four manual counter loops now use equivalent bounded
+ranges, removing 8 source lines and 188 bytes without changing validation or
+adding a helper. Current O1 emitted runtime is 23,481 bytes; actual deployed
+code is 23,577 bytes including 96 bytes of immutable data, below 24,576. Creation
+code is 23,968 bytes; total initcode including 96 bytes of constructor ABI arguments
+is 24,064, below 49,152. Runtime has 999 bytes of headroom, so later changes
 must recheck actual code size. A first test-harness assertion mistakenly equated
 emitted and deployed runtime, then assumed an ABI-shaped immutable tail. Those
 two harness failures are preserved; actual getters and emitted-prefix comparison
 now establish the constructor values without treating internal layout as ABI.
 
-Observed deployments used5,054,840gas. Three full32×32 submissions had36,100
+The four ordinary protocol deployments used 5,051,157 gas each. Three full32×32 submissions had36,100
 canonical calldata bytes each:
 
 | Actual case | Stored total | Receipt gasUsed |
 | --- | ---: | ---: |
-| zero-delta/augmentation chain |31|2,407,387|
-| all i64-min | -295147905179352825856 |2,737,558|
-| one min-cost column, other costs i64-max |276701161105643274209|2,503,728|
+| zero-delta/augmentation chain |31|2,406,818|
+| all i64-min | -295147905179352825856 |2,736,989|
+| one min-cost column, other costs i64-max |276701161105643274209|2,503,159|
 
-These are specific measurements, not a universal gas bound. The same three
-full32 payloads used84,791 less gas each than before the static-tail change;
-this comparison is limited to these inputs under the same pinned Osaka setup. All32 stored indices matched the actual Fe
+These are specific measurements, not a universal gas bound. The preceding
+static-tail revision saved 84,791 gas on each of these same full32 payloads.
+The bounded-loop cleanup saves another 569 gas per payload (and 89 on the
+small rectangle), comparing identical submitted bytes on the pinned Osaka setup.
+All32 stored indices matched the actual Fe
 CLI certificate. Repeat and malformed/invalid submissions preserved mutable
 slots0..33 (solved,total,chosen32), with relevant public-state checks. The ABI
 edge campaign observed40 transactions:28 expected failures and12 successes,
@@ -103,16 +107,22 @@ length/bounds errors, full-i128 gauge, hostile wide sum, two independent
 rectangular sign/unused-column counterexamples, alternate optimum, changed
 domain/version/objective/dimensions and invalid constructors.
 
-Current core/model/API checks are8+46 functions on each native/EVM backend,
-plus2 EVM board functions and5 intended external compiler rejections. The
+Unchanged core/model/API tests comprise8+46 functions per native/EVM backend;
+the retained complete run is c46b24a, including5 external compiler rejections. The
 2,906-result native independent certificate/I/O campaign passed again after
 the builder change. `docs/evidence/board.json` retains the original builder checkpoint and its old
 source/size/gas scope. The later static-tail revision has unchanged core/CLI
 sources and ABI,2 EVM board function passes,60 receipted demo/protocol checks,
 and a separate existing mixed-full-i64 case with3 receipts and32 getter checks.
-Its helper-isolation control rejects both dirty signed words independently of
-other Submit checks; omitting only the typed-read loop makes them return. These
-controls are temporary research copies, not added product APIs or test cases.
+The current bounded-loop revision passed the same2 EVM board functions,
+55 protocol plus5 demo receipts and3 mixed-full-i64 receipts with32 getter checks.
+The first mixed replay stopped after successful creation because its adapted
+harness retained the old size literal; the preserved corrected replay passed.
+No full core/native/oracle/I/O suite was repeated for this board-only change.
+The public problem_digest helper is byte-identical to the static-tail revision.
+Its earlier isolated controls reject dirty signed words independently of other
+Submit checks; omitting only its typed-read loop makes them return. Those
+controls retain their original artifact scope and add no product API or case.
 The current candidate manifest binds the revised source and evidence; earlier
 checkpoint JSON and whole-suite counts remain historical.
 

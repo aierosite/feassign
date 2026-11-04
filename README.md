@@ -26,8 +26,9 @@ board are implemented. Prior checkpoint evidence includes 2,906 actual exported
 certificates independently inspected in Python, native/EVM functions, I/O
 failures and three full32 Osaka transaction cases under ordinary limits.
 The last complete fresh-source/output/cache reproduction is commit c46b24a.
-The later board-only static-tail revision passed targeted board/protocol/demo
-checks and reproduced its bytecode from a fresh archive; core/CLI code is unchanged.
+The later board-only revisions have targeted board/protocol/demo checks;
+core/CLI runtime code is unchanged. The source and fresh-archive reproduction
+evidence retain their recorded scopes.
 [BOARD.md](docs/BOARD.md) and the candidate manifest distinguish those scopes.
 Evidence is specific to its recorded source and compiler, not an exhaustive
 full-domain proof or a remotely executed CI result. The main example was

@@ -7,6 +7,13 @@ Problem, Certificate and the opaque ProblemBuilder introduced for a measured
 code-size failure. Buffer construction delegates to the same packing path.
 There is no graph hierarchy, second optimizer or exposed packed-word API.
 
+The board uses four direct bounded ranges in place of manual counter setup,
+reset and increments. It preserves all typed reads, count/shape checks,
+semantic hashing and verification before storage writes. No helper or public
+concept was added. [BOARD.md](BOARD.md) records the smaller artifact and scoped
+revalidation; proposed removal of the repeated cost scan was rejected after
+its compiled artifact exceeded the ordinary code-size limit.
+
 All six ModelError cases have directed constructor/access witnesses: Dimensions,
 CostCount, AssignmentCount, RowPotentialCount, ColumnPotentialCount and Index.
 The seven VerifyError cases have separate witnesses, including Shape,

@@ -59,7 +59,7 @@ impl Input {
         }
     }
 
-    // Accumulate a nonnegative magnitude, guarding before multiply/add.
+    // Private callers bound magnitudes by 2^127; next fits i256.
     fn number(mut self, _ signed: bool, _ positive: i256, _ negative: i256) -> i256 {
         self.skip_space()
         var minus = false
@@ -71,11 +71,11 @@ impl Input {
         var value: i256 = 0
         var found = false
         while self.failure == 0 && self.current >= 48 && self.current <= 57 {
-            let digit = (self.current - 48) as i256
-            if value > (limit - digit) / 10 {
+            let next = value * 10 + (self.current - 48) as i256
+            if next > limit {
                 self.failure = 2
             } else {
-                value = value * 10 + digit
+                value = next
                 found = true
                 self.advance()
             }

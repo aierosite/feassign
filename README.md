@@ -3,6 +3,8 @@
 An exact minimum-total-cost assignment library in Fe, with an independently
 structured verifier for an optimality certificate.
 
+[The five-minute pitch](docs/PITCH.md) explains the result and its limits.
+
 The complete model assigns every task to a different resource for
 `1 <= rows <= columns <= 32`, with all pairs allowed and full-range finite
 `i64` costs. Extra resources can remain unused. The two consumers are a
@@ -118,5 +120,4 @@ are classical; no new mathematical algorithm or global-first claim is made.
 Original project source is MIT licensed. This repository is local; no public
 repository, submission or contest acceptance is claimed.
 
-[Third-party notices](THIRD-PARTY-NOTICES.md) retain tool/library attribution;
-the [five-minute pitch](docs/PITCH.md) explains the result and its limits.
+[Third-party notices](THIRD-PARTY-NOTICES.md) retain tool/library attribution.

@@ -102,16 +102,16 @@ fn emit<T: AsBytes>(_ text: T, _ stream: i32) {
 }
 
 fn decimal(_ value: i128, _ stream: i32) {
-    let wide = value as i256
-    var magnitude = if wide < 0 { -wide } else { wide }
+    // Never negate MIN.
+    var remaining = if value > 0 { -value } else { value }
     var digits: [u8; 40] = [0; 40]
     var length: usize = 0
-    while magnitude > 0 {
-        digits[length] = ((magnitude % 10) + 48).downcast().unwrap()
+    while remaining < 0 {
+        digits[length] = (48 - (remaining % 10)).downcast().unwrap()
         length += 1
-        magnitude /= 10
+        remaining /= 10
     }
-    if wide < 0 { emit("-", stream) }
+    if value < 0 { emit("-", stream) }
     if length == 0 { emit("0", stream) }
     while length > 0 {
         length -= 1

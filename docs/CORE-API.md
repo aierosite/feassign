@@ -2,8 +2,8 @@
 
 The core uses owned, private-field Problem, Certificate and ProblemBuilder types
 and shared-reference scalar access. None implements Copy or an ABI/deserialization trait. This is a Fe API,
-not a C ABI. There is no I/O, hashing, storage, allocation service or dependency
-on std in the assignment ingot.
+not a C ABI. Source imports only core::Result and calls no std APIs; Fe supplies
+implicit core/std dependencies. The source has no I/O, hash, storage or allocator API.
 
 `new_problem(rows, columns, cost_count, ref costs)` reads a `[i64;1024]` buffer.
 It requires `1 <= rows <= columns <= 32` and exactly

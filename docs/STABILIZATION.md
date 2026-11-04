@@ -1,8 +1,8 @@
 # Current API and adversarial review
 
 One bounded assignment model, one Fe optimizer and one separate verifier serve
-two adapters. The core imports core::Result only and has no std, I/O, hash,
-storage, external call, unsafe span or allocator service. Its owned concepts are
+two adapters. Core source imports only core::Result and calls no std APIs. It has
+no I/O, hash, storage, external call, unsafe span or allocator API. Its owned types are
 Problem, Certificate and the opaque ProblemBuilder introduced for a measured
 code-size failure. Buffer construction delegates to the same packing path.
 There is no graph hierarchy, second optimizer or exposed packed-word API.

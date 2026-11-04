@@ -206,7 +206,7 @@ def main():
             records.append(dict(name=name, actual=result.returncode, bytes=len(data)))
         for name, data in [
             ('missing-solve-version', b'1 1 0'),
-            ('wrong-solve-version', b'FEASSIGN 2\n1 1 0'),
+            ('wrong-solve-version', b'FEASSIGN 11 1 0'),
             ('noncanonical-solve-version', b'FEASSIGN 01\n1 1 0'),
             ('truncated-solve-header', b'FEASSIGN'),
         ]:

@@ -29,11 +29,9 @@ impl Input {
         let byte = fa_read_char()
         if byte == -2 {
             self.failure = 5
-            self.current = -1
         } else if byte >= 0 {
             if self.count == 131072 {
                 self.failure = 3
-                self.current = -1
             } else {
                 self.count += 1
                 self.current = byte

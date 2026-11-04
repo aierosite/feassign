@@ -24,7 +24,7 @@ The observed environment is Ubuntu 24.04 under WSL. No external service or API
 key is used. Run from this source root:
 
 ```sh
-python3 tools/demo.py --fe /absolute/path/to/fe --anvil /absolute/path/to/anvil --cast /absolute/path/to/cast --out target/demo-01
+python3 tools/demo.py --fe "/absolute/path/to/fe" --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --out target/demo-01
 ```
 
 Use a new output directory for each run. By default the OS selects a free

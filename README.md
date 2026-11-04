@@ -79,7 +79,7 @@ failure is retained; no all-profile claim is made.
 Build and check the native consumer on Linux with the pinned compiler:
 
 ```sh
-python3 tools/build-native.py --fe /absolute/path/to/fe-26.5.1
+python3 tools/build-native.py --fe "/absolute/path/to/fe-26.5.1"
 printf 'FEASSIGN 1\n2 3\n1 2 9\n1 100 3\n' | target/native/feassign solve > target/example.cert
 target/native/feassign verify < target/example.cert
 python3 tools/check-native.py --executable target/native/feassign --evidence target/check-native-01
@@ -97,8 +97,8 @@ The contract uses no Call/fund/admin capability. Run the full local demo or
 complete reproduction with pinned Linux tools:
 
 ```sh
-python3 tools/demo.py --fe /absolute/path/to/fe --anvil /absolute/path/to/anvil --cast /absolute/path/to/cast --out target/demo-01
-python3 tools/reproduce.py --fe /absolute/path/to/fe --anvil /absolute/path/to/anvil --cast /absolute/path/to/cast --out target/repro-01
+python3 tools/demo.py --fe "/absolute/path/to/fe" --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --out target/demo-01
+python3 tools/reproduce.py --fe "/absolute/path/to/fe" --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --out target/repro-01
 ```
 
 See [reproduction](docs/REPRODUCE.md) for fresh-source/output/cache scope and

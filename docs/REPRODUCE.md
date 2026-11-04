@@ -25,7 +25,7 @@ this tested environment do not establish compatibility with every Linux image.
 From a fresh extraction/check-out of this source:
 
 ```sh
-python3 tools/reproduce.py --fe /absolute/path/to/fe --anvil /absolute/path/to/anvil --cast /absolute/path/to/cast --out target/repro-01
+python3 tools/reproduce.py --fe "/absolute/path/to/fe" --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --out target/repro-01
 ```
 
 The output directory must be new. Inside the source tree, use target/; other
@@ -46,8 +46,8 @@ commands are in README.md. Advanced protocol checks can use that demo's actual
 artifacts without a second optimizer:
 
 ```sh
-python3 tools/check-board.py --build-dir target/demo-01/board --executable target/demo-01/native/feassign --anvil /absolute/path/to/anvil --cast /absolute/path/to/cast --evidence target/full32-01
-python3 tools/check-board.py --build-dir target/demo-01/board --executable target/demo-01/native/feassign --anvil /absolute/path/to/anvil --cast /absolute/path/to/cast --evidence target/abi-01 --abi-edges
+python3 tools/check-board.py --build-dir target/demo-01/board --executable target/demo-01/native/feassign --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --evidence target/full32-01
+python3 tools/check-board.py --build-dir target/demo-01/board --executable target/demo-01/native/feassign --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --evidence target/abi-01 --abi-edges
 ```
 
 The protocol checker matches compiler metadata source content to the current

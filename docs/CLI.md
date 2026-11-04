@@ -3,7 +3,7 @@
 Initial platform: Linux x86-64, including WSL. Run:
 
 ```sh
-python3 tools/build-native.py --fe /absolute/path/to/fe-26.5.1
+python3 tools/build-native.py --fe "/absolute/path/to/fe-26.5.1"
 ```
 
 The builder requires a new output directory and checks the pinned compiler hash.

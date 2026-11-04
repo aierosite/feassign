@@ -47,6 +47,9 @@ may still be represented. The separate mathematical verifier must check every
 condition rather than trust construction. No submitted objective is stored.
 
 The library owns construction results; solving and verification borrow them.
+On pinned Fe26.5.1, match public `Result`s explicitly: `new_problem(...).unwrap()`
+fails compilation because `ModelError` lacks Sol encoding. Matching that valid
+result compiles; numeric `Option.unwrap()` is separate.
 Actual independent-ingot compilation rejects external literals
 for every private field and rejects using a Problem after ownership moves.
 The positive consumer in `api_tests` accesses the full 32×32 representation and

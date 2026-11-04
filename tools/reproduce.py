@@ -1,4 +1,4 @@
-"""Run the meaningful core, native I/O, demo and full32/ABI checks with fresh outputs."""
+"""Build, test and demonstrate FeAssign with fresh outputs."""
 import argparse
 import datetime as dt
 import hashlib
@@ -41,7 +41,7 @@ def main():
             parser.error('Missing executable: '+name)
         binaries[name] = str(Path(path).resolve())
     out = args.out.resolve()
-    # Output under the source root must use ignored target/, keeping the source inventory stable.
+    # Keep generated files out of the source inventory.
     if out.is_relative_to(ROOT) and not out.is_relative_to(ROOT/'target'):
         parser.error('Use target/ under the source root, or an external fresh output directory')
     out.mkdir(parents=True,exist_ok=False)
@@ -68,17 +68,16 @@ def main():
         record = dict(label=label,command=command,started_utc=dt.datetime.now(dt.timezone.utc).isoformat())
         report['records'].append(record)
         save()
-        result = subprocess.run(command,cwd=ROOT,env=env,capture_output=True,timeout=300)
-        (out/(label+'.stdout')).write_bytes(result.stdout)
-        (out/(label+'.stderr')).write_bytes(result.stderr)
+        with (out/(label+'.stdout')).open('wb') as stdout, (out/(label+'.stderr')).open('wb') as stderr:
+            result = subprocess.run(command,cwd=ROOT,env=env,stdout=stdout,stderr=stderr,timeout=300)
         record.update(exit_code=result.returncode,ended_utc=dt.datetime.now(dt.timezone.utc).isoformat())
         if passed is not None:
-            match = re.search(rb'(\d+) passed; (\d+) failed',result.stdout+result.stderr)
+            match = re.search(rb'(\d+) passed; (\d+) failed',b''.join((out/(label+x)).read_bytes() for x in ('.stdout','.stderr')))
             record['expected_functions'] = passed
             assert match and (int(match[1]),int(match[2])) == (passed,0), record
         save()
         if result.returncode != 0:
-            raise RuntimeError(label+' failed; inspect preserved stdout/stderr')
+            raise RuntimeError(label+' failed; see logs')
         print(label+': passed',flush=True)
 
     try:

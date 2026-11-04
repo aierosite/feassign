@@ -1,7 +1,4 @@
-"""Build and run the complete local FeAssign example on Linux x86-64.
-
-Owns one ephemeral localhost Anvil; never connects a wallet or remote endpoint.
-"""
+"""Run the Linux x86-64 example on one owned localhost Anvil; no wallets or remote RPC."""
 import argparse
 import datetime as dt
 import hashlib
@@ -65,12 +62,12 @@ def main():
 
     def run(label, command, data=None):
         start = time.perf_counter_ns()
-        result = subprocess.run(command, input=data, capture_output=True, env=env, timeout=180)
+        with (out/(label+'.stdout')).open('wb') as stdout, (out/(label+'.stderr')).open('wb') as stderr:
+            result = subprocess.run(command,input=data,stdout=stdout,stderr=stderr,env=env,timeout=180)
         elapsed = time.perf_counter_ns()-start
-        (out / (label+'.stdout')).write_bytes(result.stdout)
-        (out / (label+'.stderr')).write_bytes(result.stderr)
+        result.stdout,result.stderr = ((out/(label+x)).read_bytes() for x in ('.stdout','.stderr'))
         if result.returncode:
-            raise RuntimeError(f'{label} failed with exit {result.returncode}; inspect preserved logs')
+            raise RuntimeError(f'{label}: exit {result.returncode}; see logs')
         return result, elapsed
 
     def rpc(method, params):

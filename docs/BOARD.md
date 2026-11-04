@@ -107,18 +107,19 @@ length/bounds errors, full-i128 gauge, hostile wide sum, two independent
 rectangular sign/unused-column counterexamples, alternate optimum, changed
 domain/version/objective/dimensions and invalid constructors.
 
-Unchanged core/model/API tests comprise8+46 functions per native/EVM backend;
-the retained complete run is c46b24a, including5 external compiler rejections. The
-2,906-result native independent certificate/I/O campaign passed again after
-the builder change. `docs/evidence/board.json` retains the original builder checkpoint and its old
+The latest complete fresh-source run is df5c858: 8+46 model/API functions per
+native/EVM backend, 2 EVM board functions, 5 external compiler rejections,
+2,906 certificate roundtrips, I/O checks and 60 receipted transactions. All current
+code matches it; later documentation revisions were not compiler-built as whole
+archives. `docs/evidence/board.json` retains the original builder checkpoint and its old
 source/size/gas scope. The later static-tail revision has unchanged core/CLI
 sources and ABI,2 EVM board function passes,60 receipted demo/protocol checks,
 and a separate existing mixed-full-i64 case with3 receipts and32 getter checks.
-The current bounded-loop revision passed the same2 EVM board functions,
+The earlier bounded-loop revision passed the same2 EVM board functions,
 55 protocol plus5 demo receipts and3 mixed-full-i64 receipts with32 getter checks.
 The first mixed replay stopped after successful creation because its adapted
 harness retained the old size literal; the preserved corrected replay passed.
-No full core/native/oracle/I/O suite was repeated for this board-only change.
+No full core/native/oracle/I/O suite was repeated at that board-only checkpoint.
 The public problem_digest helper is byte-identical to the static-tail revision.
 Its earlier isolated controls reject dirty signed words independently of other
 Submit checks; omitting only its typed-read loop makes them return. Those

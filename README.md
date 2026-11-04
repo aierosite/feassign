@@ -22,14 +22,13 @@ normal result and three sensitive rejected submissions.
 
 Product implementation began after November 3, 2026 at 00:00 UTC. The bounded
 model, actual Hungarian optimizer, separate verifier, native CLI and immutable
-board are implemented. Prior checkpoint evidence includes 2,906 actual exported
-certificates independently inspected in Python, native/EVM functions, I/O
-failures and three full32 Osaka transaction cases under ordinary limits.
-The last complete fresh-source/output/cache reproduction is commit c46b24a.
-The later board-only revisions have targeted board/protocol/demo checks;
-core/CLI runtime code is unchanged. The source and fresh-archive reproduction
-evidence retain their recorded scopes.
-[BOARD.md](docs/BOARD.md) and the candidate manifest distinguish those scopes.
+board are implemented. Retained evidence includes 2,906 exported certificates
+independently inspected in Python, native/EVM functions, I/O failures and full32
+Osaka transactions under ordinary limits. The latest complete fresh-source/
+output/cache run is commit df5c858. All current code files match it; later
+revisions change only command documents and evidence-scope prose. The whole
+current archive was not compiler-built. [BOARD.md](docs/BOARD.md) and the
+candidate manifest distinguish current source from earlier checkpoint evidence.
 Evidence is specific to its recorded source and compiler, not an exhaustive
 full-domain proof or a remotely executed CI result. The main example was
 revised to expose resource contention; the reproduction command below records

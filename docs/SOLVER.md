@@ -61,8 +61,11 @@ consumer. An internal malformed-shape test covers the defensive Shape error.
 
 ## Independent cost comparisons
 
-`python3 tools/generate-oracle.py` deterministically generates expected values
-and `ingots/api_tests/src/oracle.fe`. It does not implement Hungarian/JV.
+`python3 tools/generate-oracle.py` generates expected values without Hungarian/JV.
+It overwrites `ingots/api_tests/src/oracle.fe` and `docs/evidence/oracle-cases.json`,
+including the current generator hash. A docstring-only edit can change that hash
+without changing the generated Fe. Regenerate in a separate source copy;
+the standard [reproduction workflow](REPRODUCE.md) uses the committed corpus.
 
 The finite spaces contain 2,252 entries: all ternary 1×1 through 1×4, ternary 2×2
 and 2×3, binary 3×3, and i64-endpoint/zero 2×2 and 2×3 matrices. Python enumerates

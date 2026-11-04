@@ -1,8 +1,5 @@
-"""Execute Fe, inspect its exported certificates with Python integers, test I/O.
-
-No host assignment optimizer: tiny problems enumerate injections; larger ones
-check every primal/dual condition and justified metamorphic relations.
-"""
+"""Check Fe certificates and I/O with Python integers: tiny exact injections;
+large primal/dual and guarded metamorphic checks, without a host optimizer."""
 import argparse
 import datetime as dt
 import hashlib

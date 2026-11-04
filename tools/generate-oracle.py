@@ -1,8 +1,5 @@
-"""Generate finite-space Fe tests from independent exhaustive injections.
-
-This is test evidence only: no Hungarian/JV/search implementation is used here.
-Matrices are little-endian base-N digits in logical row-major cell order.
-"""
+"""Emit test-only Fe cases by exact injections, without Hungarian/JV/search.
+Matrices use little-endian base-N digits in row-major order."""
 from pathlib import Path
 import hashlib
 import itertools

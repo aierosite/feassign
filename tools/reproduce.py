@@ -1,4 +1,4 @@
-"""Build, test and demonstrate FeAssign with fresh outputs."""
+"""Reproduce FeAssign with fresh outputs."""
 import argparse
 import datetime as dt
 import hashlib
@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import signal
 import subprocess
 import sys
 
@@ -33,7 +34,7 @@ def main():
     parser.add_argument('--out',required=True,type=Path)
     args = parser.parse_args()
     if sys.platform != 'linux' or not __debug__:
-        parser.error('Linux and Python assertions enabled are required')
+        parser.error('Enable Python assertions on Linux')
     binaries = {}
     for name in ['fe','anvil','cast']:
         path = shutil.which(getattr(args,name))
@@ -41,10 +42,9 @@ def main():
             parser.error('Missing executable: '+name)
         binaries[name] = str(Path(path).resolve())
     out = args.out.resolve()
-    # Keep generated files out of the source inventory.
     if out.is_relative_to(ROOT) and not out.is_relative_to(ROOT/'target'):
-        parser.error('Use target/ under the source root, or an external fresh output directory')
-    out.mkdir(parents=True,exist_ok=False)
+        parser.error('Use target/ or a fresh directory outside the source root')
+    out.mkdir(parents=True)
     (out/'tmp').mkdir()
     (out/'cache').mkdir()
     initial_sources = dict(source_files())
@@ -69,7 +69,12 @@ def main():
         report['records'].append(record)
         save()
         with (out/(label+'.stdout')).open('wb') as stdout, (out/(label+'.stderr')).open('wb') as stderr:
-            result = subprocess.run(command,cwd=ROOT,env=env,stdout=stdout,stderr=stderr,timeout=300)
+            with subprocess.Popen(command,cwd=ROOT,env=env,stdout=stdout,stderr=stderr,start_new_session=True) as result:
+                try:
+                    result.wait(timeout=300)
+                finally:
+                    if result.returncode is None:
+                        os.killpg(result.pid,signal.SIGKILL)
         record.update(exit_code=result.returncode,ended_utc=dt.datetime.now(dt.timezone.utc).isoformat())
         if passed is not None:
             match = re.search(rb'(\d+) passed; (\d+) failed',b''.join((out/(label+x)).read_bytes() for x in ('.stdout','.stderr')))

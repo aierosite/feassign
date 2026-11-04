@@ -41,12 +41,12 @@ def main():
             parser.error('Missing executable: '+name)
         binaries[name] = str(Path(path).resolve())
     out = args.out.resolve()
-    out.mkdir(parents=True,exist_ok=False)
-    (out/'tmp').mkdir()
-    (out/'cache').mkdir()
     # Output under the source root must use ignored target/, keeping the source inventory stable.
     if out.is_relative_to(ROOT) and not out.is_relative_to(ROOT/'target'):
         parser.error('Use target/ under the source root, or an external fresh output directory')
+    out.mkdir(parents=True,exist_ok=False)
+    (out/'tmp').mkdir()
+    (out/'cache').mkdir()
     initial_sources = dict(source_files())
     env = os.environ.copy()
     env['TMPDIR'] = str(out/'tmp')

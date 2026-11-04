@@ -28,8 +28,9 @@ From a fresh extraction/check-out of this source:
 python3 tools/reproduce.py --fe /absolute/path/to/fe --anvil /absolute/path/to/anvil --cast /absolute/path/to/cast --out target/repro-01
 ```
 
-The output directory must be new. The script creates fresh outputs, temporary
-files and caches without deleting an older run. It checks the compiler bytes,
+The output directory must be new. Inside the source tree, use target/; other
+locations there are rejected before directory creation. The script creates fresh
+outputs, temporary files and caches without deleting an older run. It checks the compiler bytes,
 executes the8 model and46 API functions on each native/EVM backend,2 EVM board
 functions and5 intended compiler rejections. It builds/runs the complete demo,
 then2906 actual native certificate/verify roundtrips,43 classified negatives,

@@ -69,18 +69,18 @@ impl Input {
         }
         let limit = if minus { negative } else { positive }
         var value: i256 = 0
-        var digits: usize = 0
+        var found = false
         while self.failure == 0 && self.current >= 48 && self.current <= 57 {
             let digit = (self.current - 48) as i256
             if value > (limit - digit) / 10 {
                 self.failure = 2
             } else {
                 value = value * 10 + digit
-                digits += 1
+                found = true
                 self.advance()
             }
         }
-        if self.failure == 0 && (digits == 0 || (self.current != -1 && !whitespace(self.current))) {
+        if self.failure == 0 && (!found || (self.current != -1 && !whitespace(self.current))) {
             self.failure = 2
         }
         if minus { -value } else { value }

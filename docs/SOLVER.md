@@ -61,7 +61,7 @@ consumer. An internal malformed-shape test covers the defensive Shape error.
 
 ## Independent cost comparisons
 
-`python tools/generate-oracle.py` deterministically generates expected values
+`python3 tools/generate-oracle.py` deterministically generates expected values
 and `ingots/api_tests/src/oracle.fe`. It does not implement Hungarian/JV.
 
 The finite spaces contain 2,252 entries: all ternary 1×1 through 1×4, ternary 2×2
@@ -82,12 +82,12 @@ named backend, plus three intended external compiler rejections.
 Run with the pinned compiler from the repository root:
 
 ```sh
-python tools/generate-oracle.py
+python3 tools/generate-oracle.py
 fe test . --ingot assignment --backend native -O 1
 fe test . --ingot api_tests --backend native -O 1
 fe test . --ingot assignment --backend sonatina -O 1
 fe test . --ingot api_tests --backend sonatina -O 1
-python tools/check-api-boundaries.py --fe fe
+python3 tools/check-api-boundaries.py --fe fe
 ```
 
 A filtered submodule-only EVM run with optional `--emit ir,rmir` failed its IR

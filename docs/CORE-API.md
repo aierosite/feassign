@@ -79,7 +79,7 @@ fe test . --ingot assignment --backend sonatina -O 1
 fe test . --ingot api_tests --backend sonatina -O 1
 fe test . --ingot assignment --backend native -O 1
 fe test . --ingot api_tests --backend native -O 1
-python tools/check-api-boundaries.py --fe fe
+python3 tools/check-api-boundaries.py --fe fe
 ```
 
 Native commands require supported Linux and a system linker.

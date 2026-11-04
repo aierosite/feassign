@@ -54,6 +54,7 @@ invalid-certificate errors. Semantic wire variants, dirty narrow values,
 immutable header/matrix binding, state preservation and repeats have observed
 transactions. No hypothetical error path is relabelled as a passed test.
 Known compiler/profile/driver failures and faithful repairs remain in the
-dated evidence. O1 is the validated profile; old O0 failures are not erased.
+dated evidence. The native CLI uses Os; Fe tests and the board use O1.
+Old O0 failures are not erased.
 These checks support current acceptance, not an audit, formal verification,
 bug-free claim, human acceptance or final freeze.

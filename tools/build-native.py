@@ -54,7 +54,7 @@ def main():
     env['FE_CACHE_DIR'] = str(args.cache_dir.resolve())
     args.cache_dir.mkdir(parents=True, exist_ok=True)
     command = [fe, '--color', 'never', 'build', str(ROOT), '--ingot', 'cli',
-               '--backend', 'native', '--emit', 'executable', '-O', '1', '--out-dir', str(out)]
+               '--backend', 'native', '--emit', 'executable', '-O', 's', '--out-dir', str(out)]
     started = dt.datetime.now(dt.timezone.utc).isoformat()
     result = subprocess.run(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     (out / 'build.log').write_bytes(result.stdout)

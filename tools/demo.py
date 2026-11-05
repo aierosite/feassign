@@ -219,11 +219,11 @@ def main():
         row.update(recorded_total=total,recorded_selected=chosen,details_after=details_solved)
         print('Board receipt succeeded; stored columns [1,0] and total3 match Fe.',flush=True)
         rejected('repeat',data,'already solved')
-        report['success'] = True
         report['source_hashes'] = {str(p.relative_to(ROOT)):sha(p) for p in
             sorted([ROOT/'fe.toml',ROOT/'toolchain.json',ROOT/'examples/resource-batch.txt',ROOT/'native/io.c']
             + list((ROOT/'ingots').rglob('*.fe'))+list((ROOT/'ingots').glob('*/fe.toml'))
             + list((ROOT/'tools').glob('*.py')))}
+        report['success'] = True
     except Exception as error:
         report['error'] = repr(error)
         raise

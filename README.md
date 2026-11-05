@@ -26,11 +26,11 @@ Product implementation began after November 3, 2026 at 00:00 UTC. The bounded
 model, actual Hungarian optimizer, separate verifier, native CLI and immutable
 board are implemented. Retained evidence includes 2,906 exported certificates
 independently inspected in Python, native/EVM functions, I/O failures and full32
-Osaka transactions under ordinary limits. The latest complete fresh-source/
-output/cache run is commit 83dcc7e under Python 3.10.12. All current code files
-match it; later revisions change only documentation. A subsequent normal demo
-at f789726 built the native CLI/shared core and Board under Python 3.12.3 and
-passed five receipted transactions. It did not repeat the whole 11-stage workflow.
+Osaka transactions under ordinary limits. The fresh-source run at 83dcc7e
+used Python 3.10.12. The Fe and C sources still match that run. A subsequent
+normal demo at f789726 built the native CLI/shared core and Board under Python
+3.12.3 and passed five receipted transactions. It did not repeat the whole
+11-stage workflow. The demo now records success after collecting source hashes.
 [BOARD.md](docs/BOARD.md) and the
 candidate manifest distinguish current source from earlier checkpoint evidence.
 Evidence is specific to its recorded source and compiler, not an exhaustive

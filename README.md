@@ -27,9 +27,11 @@ model, actual Hungarian optimizer, separate verifier, native CLI and immutable
 board are implemented. Retained evidence includes 2,906 exported certificates
 independently inspected in Python, native/EVM functions, I/O failures and full32
 Osaka transactions under ordinary limits. The latest complete fresh-source/
-output/cache run is commit df5c858. All current code files match it; later
-revisions change only command documents and evidence-scope prose. The whole
-current archive was not compiler-built. [BOARD.md](docs/BOARD.md) and the
+output/cache run is commit 83dcc7e under Python 3.10.12. All current code files
+match it; later revisions change only documentation. A subsequent normal demo
+at f789726 built the native CLI/shared core and Board under Python 3.12.3 and
+passed five receipted transactions. It did not repeat the whole 11-stage workflow.
+[BOARD.md](docs/BOARD.md) and the
 candidate manifest distinguish current source from earlier checkpoint evidence.
 Evidence is specific to its recorded source and compiler, not an exhaustive
 full-domain proof or a remotely executed CI result. The main example was

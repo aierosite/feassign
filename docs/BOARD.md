@@ -107,12 +107,14 @@ length/bounds errors, full-i128 gauge, hostile wide sum, two independent
 rectangular sign/unused-column counterexamples, alternate optimum, changed
 domain/version/objective/dimensions and invalid constructors.
 
-The latest complete fresh-source run is df5c858: 8+46 model/API functions per
-native/EVM backend, 2 EVM board functions, 5 external compiler rejections,
+The latest complete fresh-source run is 83dcc7e under Python 3.10.12: 8+46
+model/API functions per native/EVM backend, 2 EVM board functions, 5 external compiler rejections,
 2,906 certificate roundtrips, I/O checks and 60 receipted transactions. All current
-code matches it; later documentation revisions were not compiler-built as whole
-archives. `docs/evidence/board.json` retains the original builder checkpoint and its old
-source/size/gas scope. The later static-tail revision has unchanged core/CLI
+code matches it. A subsequent normal demo at f789726 built the CLI/shared core
+and Board under Python 3.12.3 and passed five receipts; it did not repeat the
+whole 11-stage workflow. `docs/evidence/board.json` retains the original builder
+checkpoint and its old source/size/gas scope. The earlier static-tail checkpoint
+has unchanged core/CLI
 sources and ABI,2 EVM board function passes,60 receipted demo/protocol checks,
 and a separate existing mixed-full-i64 case with3 receipts and32 getter checks.
 The earlier bounded-loop revision passed the same2 EVM board functions,

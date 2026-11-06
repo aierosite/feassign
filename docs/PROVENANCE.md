@@ -51,6 +51,9 @@ An isolated Windows check found lost acknowledged writes when two workbenches
 shared a review file. The revised launcher serializes access to that file
 across processes. A later synthetic note exposed that Unicode paragraph
 separators broke reading. The launcher now reads physical JSONL records.
+In a browser test, a delayed solve replaced an edited certificate after the
+verifier accepted it. The Studio preserves the edit until the reviewer
+chooses to load the solver's certificate.
 Synthetic test notes remain separate from human feedback.
 
 After opening, Codex implemented the bounded model, shape-valid certificate,

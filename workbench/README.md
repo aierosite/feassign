@@ -30,6 +30,8 @@ To view the full set of reproduction metrics in Evidence, run the
 - **Proof desk** verifies the exact text envelope with the Fe CLI. It shows
   the dual bound, constraint counts and the slack of an inspected edge.
   The duplicate-column example lets the reviewer observe a rejected proof.
+  Solver results leave a manually changed editor intact. **Load solver
+  certificate** replaces the editor with the certificate for that result.
 - **Evidence** shows completed local Board receipts, including their hashes,
   and the normal demo or full reproduction record.
 - **Review** keeps notes on this device in `workbench-feedback.jsonl` next to

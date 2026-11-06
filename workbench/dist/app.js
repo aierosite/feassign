@@ -7,6 +7,7 @@ let meta;
 let cells = [];
 let matrixRevision = 0;
 let certificateRevision = 0;
+let automaticCertificateRevision = 0;
 let currentProof;
 
 function node(tag, text, className) {
@@ -240,8 +241,13 @@ function showResult(result) {
   message("live-verification", verification.output.trim(), false);
   drawMatching(proof.matrix.length, proof.matrix[0].length, proof);
   runStage(3);
-  setCertificate(result.output);
-  renderProof(proof, true);
+  const loadSolvedCertificate = () => {
+    setCertificate(result.output);
+    automaticCertificateRevision = certificateRevision;
+    renderProof(proof, true);
+  };
+  byId("open-certificate").onclick = loadSolvedCertificate;
+  if (certificateRevision === automaticCertificateRevision) loadSolvedCertificate();
 }
 
 async function solve(event) {
@@ -439,6 +445,7 @@ async function init() {
     byId("greedy").textContent = meta.greedy;
     renderMatrix(meta.sample.matrix);
     setCertificate(meta.certificate);
+    automaticCertificateRevision = certificateRevision;
     renderProof(meta.sample, false);
     renderEvidence();
     byId("packet-link").hidden = !meta.packageSha256;

@@ -197,7 +197,8 @@ class Review:
         with self.locked_feedback():
             if not self.feedback_path.exists():
                 return []
-            return [json.loads(line) for line in self.feedback_path.read_text(encoding="utf-8").splitlines()]
+            with self.feedback_path.open(encoding="utf-8") as file:
+                return [json.loads(line) for line in file]
 
     def save_note(self, topic, text):
         if not isinstance(topic, str) or topic not in NOTE_TOPICS or not isinstance(text, str) or not 1 <= len(text.strip()) <= 4000:

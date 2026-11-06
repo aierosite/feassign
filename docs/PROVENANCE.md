@@ -49,7 +49,9 @@ The next Studio revision added a launch path from the pinned normal demo and
 scoped the displayed counts to the available execution record.
 An isolated Windows check found lost acknowledged writes when two workbenches
 shared a review file. The revised launcher serializes access to that file
-across processes. Synthetic test notes remain separate from human feedback.
+across processes. A later synthetic note exposed that Unicode paragraph
+separators broke reading. The launcher now reads physical JSONL records.
+Synthetic test notes remain separate from human feedback.
 
 After opening, Codex implemented the bounded model, shape-valid certificate,
 pure Fe mathematical verifier, directed tests and a separate API-consumer ingot.

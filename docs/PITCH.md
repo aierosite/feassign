@@ -58,7 +58,8 @@ sizes, gas and honest process timings. See [the demo](DEMO.md) and
 [board limits](BOARD.md).
 [Proof Studio](../workbench/README.md) lets reviewers edit the matrix, replay
 the returned matching, inspect an edge's dual slack and try a duplicate-column
-certificate against the same Fe verifier.
+certificate against the same Fe verifier. It launches from the normal demo's
+output and labels the scope of the recorded evidence.
 The board does not authenticate resources, make costs truthful, prove delivered
 work or hold funds. It is not a general scheduler, makespan/fairness optimizer,
 capacity/forbidden-edge model, routing tool or zero-knowledge proof system.

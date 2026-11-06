@@ -16,7 +16,7 @@
         <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
         <span>FeAssign<small>PROOF STUDIO</small></span>
       </a>
-      <span class="local"><i></i> Local session</span>
+      <div class="top-actions"><span class="local"><i></i> Local session</span><button class="motion-control" type="button" id="motion" aria-pressed="false">Pause motion</button></div>
     </div>
   </header>
   <main id="main" class="shell">
@@ -28,7 +28,7 @@
       </div>
       <div class="candidate">
         <div class="signal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
-        <div><strong>Reproduced build</strong><small><span id="commit">Loading</span> <span class="dot">·</span> <span id="compiler">Fe</span></small></div>
+        <div><strong id="run-mode">Loading evidence</strong><small><span id="commit">Loading</span> <span class="dot">·</span> <span id="compiler">Fe</span></small></div>
       </div>
     </section>
     <nav class="nav" aria-label="Review workspace sections">
@@ -103,7 +103,8 @@
         <article class="card result-card">
           <p class="eyebrow">READ THE PROOF</p><h2>Why the bound is tight</h2>
           <div class="proof-number"><strong id="bound">3</strong><span id="bound-label">Recorded lower bound · 2 + 2 − 1</span></div>
-          <p class="muted">The certificate gives every job and resource a potential. Together they bound the cost of any assignment from below. The selected assignment reaches that bound.</p>
+          <p class="muted">Every pair obeys <code>u + v ≤ cost</code>. Resource potentials are nonpositive, and unused resources have zero potential. Equality on each selected edge makes the assignment attain the lower bound.</p>
+          <div id="proof-checks" class="proof-checks" aria-label="Displayed certificate checks"></div>
           <div class="edge-controls"><label>Inspect job <select id="proof-job"></select></label><label>Inspect resource <select id="proof-resource"></select></label></div>
           <p id="edge-slack" class="verification" aria-live="polite"></p>
           <div id="proof-edges" class="proof-edges" aria-label="Selected edge equality checks"></div>
@@ -117,14 +118,14 @@
       <div class="metric-grid" id="metrics"></div>
       <article class="card">
         <div class="card-head"><div><p class="eyebrow">RECORDED DEMO / LOCAL ANVIL</p><h2 id="evidence-title">AssignmentBoard receipts</h2></div><span class="tag">RECORDED</span></div>
-        <p class="muted">Five transactions from the validated run. Each rejection preserved all 34 observed storage slots.</p>
+        <p class="muted" id="evidence-scope">Five transactions from the validated run. Each rejection preserved all 34 observed storage slots.</p>
         <div class="table-scroll"><table class="receipt-table"><thead><tr><th>Action</th><th>Receipt</th><th>Gas</th><th>State</th></tr></thead><tbody id="receipts"></tbody></table></div>
       </article>
       <article class="card evidence-links">
         <p class="eyebrow">SOURCE &amp; REPRODUCTION</p><h2>Review artifacts</h2>
         <div class="link-list">
           <a href="/evidence/guide" target="_blank" rel="noopener">Five-minute guide <span>↗</span></a><a href="/evidence/demo" target="_blank" rel="noopener">Demo result <span>↗</span></a>
-          <a href="/evidence/run" target="_blank" rel="noopener">Full reproduction record <span>↗</span></a><a href="/evidence/provenance" target="_blank" rel="noopener">Provenance and disclosures <span>↗</span></a>
+          <a href="/evidence/run" target="_blank" rel="noopener"><b id="run-record-label">Run record</b><span>↗</span></a><a href="/evidence/provenance" target="_blank" rel="noopener">Provenance and disclosures <span>↗</span></a>
           <a href="/evidence/pitch" target="_blank" rel="noopener">Project pitch <span>↗</span></a><a id="packet-link" href="/evidence/package" hidden>Download review package <span>↓</span></a>
         </div>
       </article>

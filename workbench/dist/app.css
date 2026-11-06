@@ -224,6 +224,19 @@ button:active:not(:disabled), .button-link:active { transform: translateY(1px); 
 .proof-edges { max-height: 260px; overflow: auto; margin: 4px 0 13px; }
 .edge-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .edge-controls select { margin-bottom: 0; }
+.top-actions { display: flex; align-items: center; gap: 10px; }
+.motion-control { background: var(--inset); border-color: var(--line); color: var(--sub); min-height: 30px; padding: 5px 8px; font-size: 11px; }
+.motion-control:hover { color: var(--text); }
+.proof-number strong, .proof-number span { overflow-wrap: anywhere; }
+.proof-checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 10px 0; }
+.proof-checks div { padding: 7px 6px; border: 1px solid var(--line); border-radius: 7px; background: var(--inset); }
+.proof-checks strong, .proof-checks span { display: block; }
+.proof-checks strong { color: var(--accent); font: 700 14px var(--mono); }
+.proof-checks span { color: var(--sub); font-size: 10px; }
+.receipt-action { min-height: 28px; padding: 2px 5px; color: var(--text); background: transparent; }
+.receipt-action:hover { color: var(--accent); }
+.receipt-detail td { background: var(--inset); white-space: normal; }
+.receipt-detail code { display: block; overflow-wrap: anywhere; color: var(--cyan); }
 .edge-proof { display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line); color: var(--sub); font-size: 12px; }
 .edge-proof code { color: var(--accent); text-align: right; overflow-wrap: anywhere; }
 .metric { background: linear-gradient(145deg, #202944, #151c2d); animation: lift .4s ease-out both; }
@@ -252,3 +265,7 @@ button:active:not(:disabled), .button-link:active { transform: translateY(1px); 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+[data-motion-paused] *, [data-motion-paused] *::before, [data-motion-paused] *::after {
+  animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important;
+}
+@media (max-width: 420px) { .top-actions .local { display: none; } }

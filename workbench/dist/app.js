@@ -93,10 +93,26 @@ function updateSlack() {
 
 function renderProof(proof, isLive) {
   currentProof = proof;
-  const bound = [...proof.u, ...proof.v].reduce((sum, value) => sum + BigInt(value), 0n);
+  const u = proof.u.map(BigInt);
+  const v = proof.v.map(BigInt);
+  const selected = new Set(proof.selected);
+  const bound = [...u, ...v].reduce((sum, value) => sum + value, 0n);
+  const allEdges = proof.u.length * proof.v.length;
+  const feasible = proof.matrix.reduce((count, row, r) => count + row.filter((cost, c) => u[r] + v[c] <= BigInt(cost)).length, 0);
+  const tight = proof.selected.filter((c, r) => u[r] + v[c] === BigInt(proof.matrix[r][c])).length;
+  const nonpositive = v.filter((value) => value <= 0n).length;
+  const unused = v.length - selected.size;
+  const zeroUnused = v.filter((value, c) => !selected.has(c) && value === 0n).length;
   byId("bound").textContent = bound.toString();
   byId("bound-label").textContent = `Dual lower bound · selected cost ${proof.total}`;
   byId("proof-source").textContent = isLive ? "Certificate accepted by the Fe verifier." : "Recorded example. Run Verify to inspect a different certificate.";
+  const checks = [[`${feasible}/${allEdges}`, "Feasible edges"], [`${tight}/${u.length}`, "Tight selected edges"],
+    [`${nonpositive}/${v.length}`, "Nonpositive columns"], [`${zeroUnused}/${unused}`, "Unused columns at zero"]];
+  byId("proof-checks").replaceChildren(...checks.map(([score, text]) => {
+    const item = node("div");
+    item.append(node("strong", score), node("span", text));
+    return item;
+  }));
   byId("proof-job").replaceChildren(...proof.u.map((_, i) => node("option", String(i))));
   byId("proof-resource").replaceChildren(...proof.v.map((_, i) => node("option", String(i))));
   byId("proof-resource").value = String(proof.selected[0]);
@@ -286,20 +302,43 @@ const receiptNames = { deploy: "Deploy board", "invalid-certificate": "Duplicate
 
 function renderEvidence() {
   const s = meta.summary;
-  const values = [[meta.stages, "Reproduction stages"], [2 * s.common_fe_functions_per_backend + s.evm_board_functions, "Fe function passes"],
-    [s.roundtrips, "Certificate roundtrips"], [s.demo_transactions + s.full32_campaign_transactions + s.abi_campaign_transactions, "Local receipts"]];
+  const full = meta.runMode === "full";
+  const failures = meta.receipts.filter((receipt) => receipt.stateUnchanged).length;
+  const values = full ? [[meta.stages, "Reproduction stages"], [2 * s.common_fe_functions_per_backend + s.evm_board_functions, "Fe function passes"],
+    [s.roundtrips, "Certificate roundtrips"], [s.demo_transactions + s.full32_campaign_transactions + s.abi_campaign_transactions, "Local receipts"]] :
+    [[meta.receipts.length, "Demo receipts"], [failures, "State-preserving rejections"], [Number(meta.sample.total), "Certified example cost"], [meta.greedy, "Row-order greedy cost"]];
+  byId("run-mode").textContent = full ? "Complete reproduction" : "Verified normal demo";
+  byId("run-record-label").textContent = full ? "Full reproduction record" : "Normal demo record";
+  byId("evidence-scope").textContent = full ? "Normal demo receipts from the complete reproduction. Each rejection preserved all 34 observed storage slots." :
+    "These receipts come from the normal demo. Each rejection preserved all 34 observed storage slots. The reproduction guide covers the broader checks.";
   byId("metrics").replaceChildren(...values.map(([value, text]) => {
     const card = node("div", undefined, "metric");
     card.append(node("strong", money.format(value)), node("span", text));
     return card;
   }));
-  byId("receipts").replaceChildren(...meta.receipts.map((receipt) => {
+  byId("receipts").replaceChildren(...meta.receipts.flatMap((receipt, index) => {
     const tr = node("tr");
-    tr.title = receipt.hash;
-    tr.append(node("td", receiptNames[receipt.label] || receipt.label),
+    const action = node("td");
+    const button = node("button", `${receiptNames[receipt.label] || receipt.label} ▾`, "receipt-action");
+    button.type = "button";
+    button.setAttribute("aria-expanded", "false");
+    const details = node("tr", undefined, "receipt-detail");
+    details.id = `receipt-detail-${index}`;
+    details.hidden = true;
+    button.setAttribute("aria-controls", details.id);
+    const cell = node("td");
+    cell.colSpan = 4;
+    cell.append(node("strong", "Local transaction hash"), node("code", receipt.hash));
+    details.append(cell);
+    button.addEventListener("click", () => {
+      details.hidden = !details.hidden;
+      button.setAttribute("aria-expanded", String(!details.hidden));
+    });
+    action.append(button);
+    tr.append(action,
       node("td", receipt.status ? "Accepted" : "Reverted", receipt.status ? "accepted" : "reverted"),
       node("td", money.format(receipt.gas)), node("td", receipt.stateUnchanged ? "34 slots unchanged" : "—"));
-    return tr;
+    return [tr, details];
   }));
 }
 
@@ -363,6 +402,12 @@ async function init() {
   renderMatrix([["1", "2", "9"], ["1", "100", "3"]]);
   showPanel();
   window.addEventListener("hashchange", showPanel);
+  const motion = byId("motion");
+  motion.addEventListener("click", () => {
+    const paused = document.documentElement.toggleAttribute("data-motion-paused");
+    motion.setAttribute("aria-pressed", String(paused));
+    motion.textContent = paused ? "Resume motion" : "Pause motion";
+  });
   byId("matrix").addEventListener("input", () => {
     document.querySelectorAll(".preset").forEach((button) => button.setAttribute("aria-pressed", "false"));
     clearResult();

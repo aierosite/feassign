@@ -5,13 +5,14 @@ import hashlib
 import json
 import os
 import re
+import socket
 import subprocess
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Lock
 from uuid import uuid4
-from zipfile import ZipFile
+from zipfile import BadZipFile, ZipFile
 
 
 HERE = Path(__file__).resolve().parent
@@ -54,20 +55,42 @@ def certificate_fields(text):
 class Review:
     def __init__(self, run, package, feedback_path, distro):
         full_file = run / "reproduce.json"
-        full = load(full_file)
-        self.commit = full.get("source_commit") or subprocess.check_output(
-            ["git", "-C", str(SOURCE), "rev-parse", "HEAD"], text=True
-        ).strip()
+        full = load(full_file) if full_file.is_file() else None
+        demo_dir = run / "demo" if full is not None else run
+        demo_file = demo_dir / "demo.json"
+        demo = load(demo_file)
+        marker = SOURCE / "SOURCE_COMMIT"
+        if marker.is_file():
+            self.commit = marker.read_text(encoding="ascii").strip()
+        elif full and full.get("source_commit"):
+            self.commit = full["source_commit"]
+        else:
+            try:
+                self.commit = subprocess.check_output(["git", "-C", str(SOURCE), "rev-parse", "HEAD"],
+                                                      text=True, stderr=subprocess.DEVNULL).strip()
+            except (FileNotFoundError, subprocess.CalledProcessError) as error:
+                raise ValueError("Use the packet's source directory or a checkout with Git available") from error
+        if not re.fullmatch(r"[0-9a-f]{40}", self.commit):
+            raise ValueError("Expected the full source commit SHA")
         self.package = package
-        demo = load(run / "demo/demo.json")
-        binary = run / "demo/native/feassign"
+        binary = demo_dir / "native/feassign"
         binary_sha = sha(binary)
-        if not (full["success"] and len(full["records"]) == 11
-                and all(row["exit_code"] == 0 for row in full["records"]) and demo["success"]
-                and demo["node_stopped"] and binary_sha == demo["native_executable_sha256"]):
-            raise ValueError("Run the complete FeAssign reproduction before starting the workbench")
+        pins = load(SOURCE / "toolchain.json")
+        expected_tools = {"fe": pins["linux_amd64_asset_sha256"], "anvil": pins["anvil_linux_amd64_asset_sha256"],
+                          "cast": pins["cast_linux_amd64_asset_sha256"]}
+        receipts = [{"label": row["label"], "status": int(row["receipt"]["status"], 16),
+                     "gas": row["gas_used"], "stateUnchanged": row.get("state_unchanged"),
+                     "hash": row["receipt"]["transactionHash"]} for row in demo["transactions"]]
+        if not (demo["success"] and demo["node_stopped"] and binary_sha == demo["native_executable_sha256"]
+                and demo["binary_sha256"] == expected_tools and [row["status"] for row in receipts] == [1, 0, 0, 1, 0]
+                and all(row["stateUnchanged"] for row in receipts if row["status"] == 0)):
+            raise ValueError("Run the pinned FeAssign demo successfully before starting the workbench")
+        if full is not None and not (full["success"] and len(full["records"]) == 11
+                and full.get("source_commit", self.commit) == self.commit
+                and all(row["exit_code"] == 0 for row in full["records"])):
+            raise ValueError("The complete reproduction record failed or belongs to another commit")
         for name, digest in demo["source_hashes"].items():
-            if full["source_hashes"].get(name) != digest or sha(SOURCE / name) != digest:
+            if sha(SOURCE / name) != digest or (full is not None and full["source_hashes"].get(name) != digest):
                 raise ValueError(f"Reproduction does not match the checked-out runtime input {name}")
         if os.name == "nt":
             if not distro:
@@ -84,7 +107,7 @@ class Review:
             "provenance": "PROVENANCE.md",
         }.items()}
         self.files["guide"] = (HERE / "README.md").read_bytes()
-        self.files["run"] = full_file.read_bytes()
+        self.files["run"] = (full_file if full is not None else demo_file).read_bytes()
         if package:
             with ZipFile(package) as archive:
                 roots = [name for name in archive.namelist() if name.count("/") == 1 and name.endswith("/MANIFEST.json")]
@@ -92,22 +115,26 @@ class Review:
                     raise ValueError("Expected a single candidate manifest in the ZIP")
                 manifest = json.loads(archive.read(roots[0]))
                 prefix = roots[0].removesuffix("MANIFEST.json")
-                if manifest["source_commit"] != self.commit or manifest["source_hashes"] != full["source_hashes"]:
+                packaged_hashes = manifest["source_hashes"]
+                run_hashes = full["source_hashes"] if full is not None else demo["source_hashes"]
+                if manifest["source_commit"] != self.commit or any(packaged_hashes.get(n) != d for n, d in run_hashes.items()):
                     raise ValueError("Candidate package and reproduction do not match")
-                for key, member in {"guide": "HANDOFF.md", "demo": "evidence/current-run/DEMO-RESULT.md"}.items():
+                members = {"guide": "HANDOFF.md"}
+                if full is not None:
+                    members["demo"] = "evidence/current-run/DEMO-RESULT.md"
+                for key, member in members.items():
                     data = archive.read(prefix + member)
                     if hashlib.sha256(data).hexdigest() != manifest["files"][member]:
                         raise ValueError(f"Evidence hash mismatch for {key}")
                     self.files[key] = data
-        text = (run / "demo/solution.cert").read_text(encoding="ascii")
+        text = (demo_dir / "solution.cert").read_text(encoding="ascii")
         self.meta = {"commit": self.commit, "packageSha256": sha(package) if package else None,
-                     "binarySha256": binary_sha,
-                     "compiler": full["fe_version"], "stages": len(full["records"]),
-                     "summary": full["observed_summary"], "certificate": text,
+                     "binarySha256": binary_sha, "compiler": demo["versions"]["fe"],
+                     "runMode": "full" if full is not None else "demo",
+                     "stages": len(full["records"]) if full is not None else None,
+                     "summary": full["observed_summary"] if full is not None else None, "certificate": text,
                      "sample": certificate_fields(text), "greedy": demo["comparison"]["row_order_greedy_total"],
-                     "receipts": [{"label": row["label"], "status": int(row["receipt"]["status"], 16),
-                                   "gas": row["gas_used"], "stateUnchanged": row.get("state_unchanged"),
-                                   "hash": row["receipt"]["transactionHash"]} for row in demo["transactions"]]}
+                     "receipts": receipts}
         self.feedback_path = feedback_path
         self.lock = Lock()
 
@@ -162,6 +189,16 @@ class Review:
             with self.feedback_path.open("a", encoding="utf-8") as file:
                 file.write(json.dumps(note, ensure_ascii=False) + "\n")
         return note
+
+
+class LoopbackServer(ThreadingHTTPServer):
+    allow_reuse_address = os.name != "nt"
+    allow_reuse_port = False
+
+    def server_bind(self):
+        if os.name == "nt":
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -237,15 +274,25 @@ class Handler(BaseHTTPRequestHandler):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--port", type=int, default=8765)
-    parser.add_argument("--run-dir", type=Path, default=SOURCE / "target/repro-01")
+    parser.add_argument("--run-dir", type=Path, default=SOURCE / "target/repro-01",
+                        help="Output of tools/demo.py or tools/reproduce.py")
     parser.add_argument("--packet", type=Path)
     parser.add_argument("--feedback-file", type=Path)
     parser.add_argument("--wsl-distro")
     args = parser.parse_args()
+    if not 0 <= args.port <= 65535:
+        parser.error("Choose a port from 0 to 65535")
     run = args.run_dir.resolve()
     feedback = args.feedback_file or run.parent / "workbench-feedback.jsonl"
-    review = Review(run, args.packet, feedback, args.wsl_distro)
-    with ThreadingHTTPServer(("127.0.0.1", args.port), Handler) as server:
+    try:
+        review = Review(run, args.packet, feedback, args.wsl_distro)
+    except (OSError, ValueError, KeyError, BadZipFile, subprocess.CalledProcessError) as error:
+        parser.error(f"Could not load a completed demo or reproduction: {error}")
+    try:
+        server = LoopbackServer(("127.0.0.1", args.port), Handler)
+    except OSError as error:
+        parser.error(f"Could not listen on 127.0.0.1:{args.port}. Choose a free --port. {error}")
+    with server:
         server.review = review
         print(f"FeAssign review workspace: http://127.0.0.1:{server.server_port}/", flush=True)
         server.serve_forever()

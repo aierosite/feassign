@@ -7,12 +7,18 @@ import os
 import re
 import socket
 import subprocess
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Lock
 from uuid import uuid4
 from zipfile import BadZipFile, ZipFile
+
+if os.name == "nt":
+    import msvcrt
+else:
+    import fcntl
 
 
 HERE = Path(__file__).resolve().parent
@@ -135,7 +141,8 @@ class Review:
                      "summary": full["observed_summary"] if full is not None else None, "certificate": text,
                      "sample": certificate_fields(text), "greedy": demo["comparison"]["row_order_greedy_total"],
                      "receipts": receipts}
-        self.feedback_path = feedback_path
+        self.feedback_path = feedback_path.resolve()
+        self.feedback_lock_path = self.feedback_path.with_name(self.feedback_path.name + ".lock")
         self.lock = Lock()
 
     def cli(self, operation, text):
@@ -174,8 +181,20 @@ class Review:
             result["proof"] = certificate_fields(text)
         return result
 
+    @contextmanager
+    def locked_feedback(self):
+        # The lock is separate from the append-only data, so readers and writers
+        # in different workbench processes agree on a single lock byte or inode.
+        with self.lock, self.feedback_lock_path.open("a+b") as file:
+            if os.name == "nt":
+                file.seek(0)
+                msvcrt.locking(file.fileno(), msvcrt.LK_LOCK, 1)
+            else:
+                fcntl.flock(file.fileno(), fcntl.LOCK_EX)
+            yield
+
     def notes(self):
-        with self.lock:
+        with self.locked_feedback():
             if not self.feedback_path.exists():
                 return []
             return [json.loads(line) for line in self.feedback_path.read_text(encoding="utf-8").splitlines()]
@@ -185,7 +204,7 @@ class Review:
             raise ValueError("Choose a topic and write a note of 1–4000 characters")
         note = {"id": uuid4().hex, "recordedUtc": datetime.now(timezone.utc).isoformat(),
                 "sourceCommit": self.commit, "topic": topic, "text": text.strip()}
-        with self.lock:
+        with self.locked_feedback():
             with self.feedback_path.open("a", encoding="utf-8") as file:
                 file.write(json.dumps(note, ensure_ascii=False) + "\n")
         return note
@@ -234,7 +253,12 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/api/meta":
             return self.json(200, review.meta)
         if self.path == "/api/feedback":
-            return self.json(200, {"notes": review.notes()})
+            try:
+                notes = review.notes()
+            except (OSError, ValueError) as error:
+                self.log_error("Review notes could not be read: %s", error)
+                return self.json(500, {"error": "Review notes could not be read. See the server log."})
+            return self.json(200, {"notes": notes})
         if self.path == "/evidence/package" and review.package:
             return self.response(200, review.package.read_bytes(), "application/zip", f'attachment; filename="{review.package.name}"')
         if self.path.startswith("/evidence/"):

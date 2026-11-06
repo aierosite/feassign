@@ -34,6 +34,7 @@ To view the full set of reproduction metrics in Evidence, run the
   and the normal demo or full reproduction record.
 - **Review** keeps notes on this device in `workbench-feedback.jsonl` next to
   the reproduction directory. The optional `--feedback-file` sets its path.
+  Keep the adjacent lock file while any workbench using that note file is open.
 
 The graph animates the selected edges after Fe returns them. The browser uses
 exact integer arithmetic to display the returned proof. Fe solves and accepts

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101315">
+  <title>FeAssign · Proof Studio</title>
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <div class="shell top-inner">
+      <a href="#solve" class="brand" aria-label="FeAssign workbench">
+        <span class="brand-icon" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span>FeAssign<small>PROOF STUDIO</small></span>
+      </a>
+      <span class="local"><i></i> Local session</span>
+    </div>
+  </header>
+  <main id="main" class="shell">
+    <section class="intro" aria-labelledby="title">
+      <div>
+        <p class="eyebrow"><span></span> FE BUILDERS CHALLENGE <b> / </b> C08</p>
+        <h1 id="title">Every assignment.<br> <span>Proven.</span></h1>
+        <p class="lead">Solve a cost matrix in Fe. Follow the matching and inspect the certificate that proves its minimum.</p>
+      </div>
+      <div class="candidate">
+        <div class="signal" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <div><strong>Reproduced build</strong><small><span id="commit">Loading</span> <span class="dot">·</span> <span id="compiler">Fe</span></small></div>
+      </div>
+    </section>
+    <nav class="nav" aria-label="Review workspace sections">
+      <a href="#solve" aria-current="page"><span>01</span> Studio</a>
+      <a href="#verify"><span>02</span> Proof desk</a>
+      <a href="#evidence"><span>03</span> Evidence</a>
+      <a href="#review"><span>04</span> Review</a>
+    </nav>
+    <p class="alert" id="load-error" role="alert" hidden></p>
+
+    <section class="view" id="view-solve" aria-labelledby="solve-title">
+      <div class="workspace-grid">
+        <article class="card matrix-card">
+          <div class="card-head"><div><p class="eyebrow">01 / MODEL</p><h2 id="solve-title">Cost matrix</h2></div><span class="shape" id="shape" aria-live="polite">2 × 3</span></div>
+          <p class="muted">Each job must take one distinct resource. Edit the cells to try your own costs.</p>
+          <div class="presets" aria-label="Example matrices">
+            <button class="preset" id="sample" type="button" aria-pressed="true"><i></i> Contended</button>
+            <button class="preset" id="rectangular" type="button" aria-pressed="false">Rectangular</button>
+            <button class="preset" id="signed" type="button" aria-pressed="false">Signed extremes</button>
+          </div>
+          <form id="solve-form">
+            <div class="matrix-tools">
+              <label>Jobs <input id="rows" type="number" min="1" max="32" value="2" required></label>
+              <label>Resources <input id="cols" type="number" min="1" max="32" value="3" required></label>
+              <button id="resize" class="secondary" type="button">Resize</button>
+            </div>
+            <div class="table-scroll"><table class="matrix" id="matrix"><caption class="sr-only">Cost to assign each job to each resource</caption></table></div>
+            <details class="paste">
+              <summary>Paste a matrix</summary>
+              <label class="sr-only" for="matrix-text">Space- or comma-separated matrix</label>
+              <textarea id="matrix-text" rows="3" placeholder="1 2 9&#10;1 100 3" spellcheck="false"></textarea>
+              <button type="button" id="apply-paste" class="secondary">Use pasted values</button>
+            </details>
+            <div class="action-row"><button type="submit" class="primary" id="run" disabled>Run Fe solver <span aria-hidden="true">↗</span></button><span class="muted compact">Signed i64 · up to 32 × 32</span></div>
+            <p id="solve-error" class="alert" role="alert" hidden></p>
+          </form>
+        </article>
+
+        <article class="card result-card graph-card">
+          <div class="card-head"><div><p class="eyebrow">02 / MATCHING</p><h2>Assignment map</h2></div><span id="result-label" class="tag">RECORDED SAMPLE</span></div>
+          <div id="graph-wrap" class="graph-wrap"><svg id="route-graph" role="img" aria-label="Assignment map"></svg></div>
+          <div class="run-steps" id="run-steps" aria-label="Live solver progress">
+            <span data-step="0"><i></i> Input</span><span data-step="1"><i></i> Solve</span><span data-step="2"><i></i> Verify</span>
+          </div>
+          <div id="sample-result">
+            <div class="sample-strip"><div><span>Greedy · row order</span><strong id="greedy">4</strong></div><span class="strip-arrow" aria-hidden="true">→</span><div><span>Recorded optimum</span><strong id="sample-total">3</strong></div></div>
+            <p class="hint">Both jobs prefer resource 0. Run the solver to see the live assignment.</p>
+          </div>
+          <p id="empty-result" class="hint" hidden>Run Fe to find the selected edges for this matrix.</p>
+          <div id="live-result" hidden>
+            <div class="cost"><strong id="total"></strong><span>minimum cost</span></div>
+            <div id="assignment" class="assignment"></div>
+            <p id="live-verification" class="verification"></p>
+            <a class="secondary button-link" href="#verify" id="open-certificate">Inspect certificate <span aria-hidden="true">→</span></a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-verify" aria-labelledby="verify-title" hidden>
+      <div class="workspace-grid">
+        <article class="card">
+          <div class="card-head"><div><p class="eyebrow">CERTIFICATE / LIVE FE</p><h2 id="verify-title">Verify a certificate</h2></div></div>
+          <p class="muted">Use the solver output or paste a version 1 certificate. The CLI recomputes the total.</p>
+          <form id="verify-form">
+            <label class="sr-only" for="certificate">FeAssign certificate</label>
+            <textarea id="certificate" class="certificate" rows="10" maxlength="131072" spellcheck="false" required></textarea>
+            <div class="action-row"><button id="verify-button" type="submit" class="primary" disabled>Verify with Fe <span aria-hidden="true">↗</span></button><button type="button" id="load-certificate" class="secondary">Use example</button><button type="button" id="break-certificate" class="secondary">Try duplicate column</button><button type="button" id="copy" class="secondary">Copy</button></div>
+            <p id="verify-status" class="verification" role="status" hidden></p>
+          </form>
+        </article>
+        <article class="card result-card">
+          <p class="eyebrow">READ THE PROOF</p><h2>Why the bound is tight</h2>
+          <div class="proof-number"><strong id="bound">3</strong><span id="bound-label">Recorded lower bound · 2 + 2 − 1</span></div>
+          <p class="muted">The certificate gives every job and resource a potential. Together they bound the cost of any assignment from below. The selected assignment reaches that bound.</p>
+          <div class="edge-controls"><label>Inspect job <select id="proof-job"></select></label><label>Inspect resource <select id="proof-resource"></select></label></div>
+          <p id="edge-slack" class="verification" aria-live="polite"></p>
+          <div id="proof-edges" class="proof-edges" aria-label="Selected edge equality checks"></div>
+          <p id="proof-source" class="compact muted">Recorded example. Run Verify to inspect a different certificate.</p>
+          <a class="text-link" href="/evidence/proof" target="_blank" rel="noopener">Read the proof notes ↗</a>
+        </article>
+      </div>
+    </section>
+
+    <section class="view" id="view-evidence" aria-labelledby="evidence-title" hidden>
+      <div class="metric-grid" id="metrics"></div>
+      <article class="card">
+        <div class="card-head"><div><p class="eyebrow">RECORDED DEMO / LOCAL ANVIL</p><h2 id="evidence-title">AssignmentBoard receipts</h2></div><span class="tag">RECORDED</span></div>
+        <p class="muted">Five transactions from the validated run. Each rejection preserved all 34 observed storage slots.</p>
+        <div class="table-scroll"><table class="receipt-table"><thead><tr><th>Action</th><th>Receipt</th><th>Gas</th><th>State</th></tr></thead><tbody id="receipts"></tbody></table></div>
+      </article>
+      <article class="card evidence-links">
+        <p class="eyebrow">SOURCE &amp; REPRODUCTION</p><h2>Review artifacts</h2>
+        <div class="link-list">
+          <a href="/evidence/guide" target="_blank" rel="noopener">Five-minute guide <span>↗</span></a><a href="/evidence/demo" target="_blank" rel="noopener">Demo result <span>↗</span></a>
+          <a href="/evidence/run" target="_blank" rel="noopener">Full reproduction record <span>↗</span></a><a href="/evidence/provenance" target="_blank" rel="noopener">Provenance and disclosures <span>↗</span></a>
+          <a href="/evidence/pitch" target="_blank" rel="noopener">Project pitch <span>↗</span></a><a id="packet-link" href="/evidence/package" hidden>Download review package <span>↓</span></a>
+        </div>
+      </article>
+    </section>
+
+    <section class="view" id="view-review" aria-labelledby="review-title" hidden>
+      <div class="workspace-grid">
+        <article class="card">
+          <p class="eyebrow">HUMAN REVIEW</p><h2 id="review-title">Record a finding</h2>
+          <p class="muted">Point to a step, claim or result. Add what you expected and what you observed. Notes stay on this device and are tied to the candidate commit.</p>
+          <form id="feedback-form">
+            <label for="topic">Topic</label>
+            <select id="topic"><option>Clarity</option><option>Correctness</option><option>Reproduction</option><option>Board evidence</option><option>Other</option></select>
+            <label for="feedback">Your finding</label>
+            <textarea id="feedback" rows="5" maxlength="4000" dir="auto" placeholder="What was unclear or did not work as expected?" required></textarea>
+            <div class="action-row"><button class="primary" id="save-note" type="submit" disabled>Save review note <span aria-hidden="true">↗</span></button></div>
+            <p class="verification" role="status" id="note-status" hidden></p>
+          </form>
+        </article>
+        <article class="card result-card">
+          <p class="eyebrow">REVIEW LOG</p><h2>Saved findings</h2>
+          <div id="notes"><p class="muted">No review notes yet.</p></div>
+        </article>
+      </div>
+    </section>
+    <footer><span>FeAssign · Local review workspace</span><span>Live Fe CLI <b>·</b> Recorded EVM evidence</span></footer>
+  </main>
+</body>
+</html>

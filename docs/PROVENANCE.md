@@ -40,6 +40,12 @@ surrounding authorized task workspace, separately from product source history.
 Product evidence records exact commands, versions, failures, fixes and observed
 results without treating plans as passes. Each record retains its source scope.
 
+After opening, Codex authored a local browser review prototype on the owner's
+request, then reused that project code for Proof Studio in November 2026.
+Its Python launcher calls the validated Fe executable. JavaScript renders
+returned assignments and certificate arithmetic. Board evidence comes from
+recorded local receipts, and review notes are stored on the reviewer's device.
+
 After opening, Codex implemented the bounded model, shape-valid certificate,
 pure Fe mathematical verifier, directed tests and a separate API-consumer ingot.
 Observed EVM aggregate-stack failures prompted borrowed-buffer construction

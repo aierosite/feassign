@@ -4,6 +4,8 @@ An exact minimum-total-cost assignment library in Fe, with an independently
 structured verifier for an optimality certificate.
 
 [The five-minute pitch](docs/PITCH.md) explains the result and its limits.
+[Proof Studio](workbench/README.md) opens the same solver and verifier in a
+local browser, with an animated assignment map and an interactive proof desk.
 
 The complete model assigns every task to a different resource for
 `1 <= rows <= columns <= 32`, with all pairs allowed and full-range finite

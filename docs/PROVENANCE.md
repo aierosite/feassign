@@ -54,6 +54,7 @@ separators broke reading. The launcher now reads physical JSONL records.
 In a browser test, a delayed solve replaced an edited certificate after the
 verifier accepted it. The Studio preserves the edit until the reviewer
 chooses to load the solver's certificate.
+The same preservation applies to edits made while the initial metadata loads.
 Synthetic test notes remain separate from human feedback.
 
 After opening, Codex implemented the bounded model, shape-valid certificate,

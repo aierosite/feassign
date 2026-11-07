@@ -406,6 +406,7 @@ function loadPreset(id, matrix) {
 
 async function init() {
   renderMatrix([["1", "2", "9"], ["1", "100", "3"]]);
+  const initialMatrixRevision = matrixRevision;
   showPanel();
   window.addEventListener("hashchange", showPanel);
   const motion = byId("motion");
@@ -443,9 +444,11 @@ async function init() {
     byId("compiler").textContent = meta.compiler;
     byId("sample-total").textContent = meta.sample.total;
     byId("greedy").textContent = meta.greedy;
-    renderMatrix(meta.sample.matrix);
-    setCertificate(meta.certificate);
-    automaticCertificateRevision = certificateRevision;
+    if (matrixRevision === initialMatrixRevision) renderMatrix(meta.sample.matrix);
+    if (certificateRevision === 0 && !byId("certificate").value) {
+      setCertificate(meta.certificate);
+      automaticCertificateRevision = certificateRevision;
+    }
     renderProof(meta.sample, false);
     renderEvidence();
     byId("packet-link").hidden = !meta.packageSha256;

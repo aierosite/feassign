@@ -292,7 +292,8 @@ class Handler(BaseHTTPRequestHandler):
             self.json(400, {"error": str(error)})
         except subprocess.TimeoutExpired:
             self.json(504, {"error": "Fe did not finish within 15 seconds"})
-        except OSError:
+        except OSError as error:
+            self.log_error("Local execution or storage failed: %s", error)
             self.json(500, {"error": "Local execution or storage failed. See the server log."})
 
 

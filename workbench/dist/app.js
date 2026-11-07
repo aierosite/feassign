@@ -7,7 +7,7 @@ let meta;
 let cells = [];
 let matrixRevision = 0;
 let certificateRevision = 0;
-let automaticCertificateRevision = 0;
+let automaticCertificateRevision = -1;
 let currentProof;
 
 function node(tag, text, className) {

@@ -77,6 +77,10 @@ textarea { width: 100%; resize: vertical; }
 select { margin: 5px 0 12px; width: 100%; }
 #feedback { margin-top: 5px; }
 .table-scroll { overflow: auto; border-radius: 8px; border: 1px solid var(--line); }
+#solve-form .table-scroll { max-height: 28rem; scroll-padding: 3rem 0 0 7rem; }
+.matrix thead th { position: sticky; top: 0; z-index: 2; background: var(--inset); }
+.matrix tbody th { position: sticky; left: 0; z-index: 1; background: var(--inset); }
+.matrix thead th:first-child { left: 0; z-index: 3; }
 table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: 8px 9px; border-bottom: 1px solid var(--line); }
 thead { background: #232c2e; }

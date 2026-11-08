@@ -211,6 +211,7 @@ function pasteMatrix() {
     return message("solve-error", "Use one row per line, with the same number of signed i64 costs in every row.");
   }
   loadPreset(null, values);
+  byId("apply-paste").scrollIntoView({ block: "nearest" });
 }
 
 function certificateChanged() {

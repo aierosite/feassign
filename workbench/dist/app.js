@@ -136,6 +136,7 @@ function clearResult() {
   byId("result-label").classList.remove("live");
   cells.flat().forEach((input) => input.classList.remove("selected"));
   message("solve-error", "");
+  byId("solve-status").textContent = "";
   runStage(0);
   drawMatching(values.length, values[0].length, recorded ? meta.sample : null);
 }
@@ -239,6 +240,7 @@ function showResult(result) {
   byId("result-label").textContent = "LIVE FE RESULT";
   byId("result-label").classList.add("live");
   message("live-verification", verification.output.trim(), false);
+  byId("solve-status").textContent = `Minimum cost ${proof.total}. Fe certificate verified. Load solver certificate to inspect the proof.`;
   drawMatching(proof.matrix.length, proof.matrix[0].length, proof);
   runStage(3);
   const loadSolvedCertificate = () => {
@@ -252,6 +254,8 @@ function showResult(result) {
 
 async function solve(event) {
   event.preventDefault();
+  const button = byId("run");
+  if (button.disabled || button.getAttribute("aria-disabled") === "true") return;
   const matrix = matrixValues();
   if (Number(byId("rows").value) !== matrix.length || Number(byId("cols").value) !== matrix[0].length) {
     return message("solve-error", "Apply the new dimensions with Resize before running.");
@@ -261,10 +265,10 @@ async function solve(event) {
   }
   clearResult();
   const revision = matrixRevision;
-  const button = byId("run");
-  button.disabled = true;
+  button.setAttribute("aria-disabled", "true");
   const label = button.textContent;
   button.textContent = "Running Fe…";
+  byId("solve-status").textContent = "Running Fe solver.";
   byId("result-label").textContent = "RUNNING FE";
   runStage(1);
   try {
@@ -281,15 +285,16 @@ async function solve(event) {
     }
   } finally {
     button.textContent = label;
-    button.disabled = false;
+    button.removeAttribute("aria-disabled");
   }
 }
 
 async function verify(event) {
   event.preventDefault();
-  const revision = certificateRevision;
   const button = byId("verify-button");
-  button.disabled = true;
+  if (button.disabled || button.getAttribute("aria-disabled") === "true") return;
+  const revision = certificateRevision;
+  button.setAttribute("aria-disabled", "true");
   message("verify-status", "Checking with Fe…");
   try {
     const result = await api("/api/verify", { certificate: byId("certificate").value });
@@ -300,7 +305,7 @@ async function verify(event) {
   } catch (error) {
     if (revision === certificateRevision) message("verify-status", error.message, true);
   } finally {
-    button.disabled = false;
+    button.removeAttribute("aria-disabled");
   }
 }
 
@@ -368,10 +373,11 @@ async function refreshNotes() {
 
 async function saveNote(event) {
   event.preventDefault();
+  const button = byId("save-note");
+  if (button.disabled || button.getAttribute("aria-disabled") === "true") return;
   const text = byId("feedback").value.trim();
   if (!text) return message("note-status", "Write a review finding first.", true);
-  const button = byId("save-note");
-  button.disabled = true;
+  button.setAttribute("aria-disabled", "true");
   message("note-status", "Saving locally…");
   try {
     await api("/api/feedback", { topic: byId("topic").value, text });
@@ -381,7 +387,7 @@ async function saveNote(event) {
   } catch (error) {
     message("note-status", error.message, true);
   } finally {
-    button.disabled = false;
+    button.removeAttribute("aria-disabled");
   }
 }
 

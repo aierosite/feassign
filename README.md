@@ -6,6 +6,38 @@ structured verifier for an optimality certificate.
 [Contest entry overview](CONTEST.md) collects the pitch, Fe-specific contribution,
 reproducible demo, disclosure and submission boundaries.
 
+**Judges: start with [JUDGING.md](JUDGING.md).** It separates a native first look
+from the complete EVM/native check and maps each claim to its evidence.
+
+## Quick review
+
+Use Linux x86-64 with glibc 2.39 or later (Ubuntu 24.04 works), Python 3.10+
+and a C compiler named `cc`. On Windows, run inside your WSL Linux distribution.
+From this checkout:
+
+```sh
+python3 tools/review.py native --download
+```
+
+This explicitly permits a download of the official, SHA-256-pinned Fe release
+into this checkout's `.cache/`; it installs no system packages and needs no
+Foundry, wallet or API key. It builds the actual Fe CLI, solves the example,
+prints `VALID 3`, rejects a duplicated assignment, checks the retained exact
+wide-integer witness and runs the existing directed native checks. Every run
+keeps its own output directory and `review.json`.
+
+For an offline run, supply `--fe /absolute/path/to/fe` or reuse the verified
+cache and omit `--download`. The helper verifies tool bytes before execution.
+For all 11 native/EVM stages, including actual local transaction receipts:
+
+```sh
+python3 tools/review.py full --download
+```
+
+Only the full path also obtains pinned Anvil/cast. See [setup and troubleshooting](docs/REPRODUCE.md)
+and the optional [Proof Studio](workbench/README.md). The native first look is
+a subset of the complete checks; neither workflow contacts a real-fund network.
+
 [The five-minute pitch](docs/PITCH.md) explains the result and its limits.
 [Proof Studio](workbench/README.md) opens the same solver and verifier in a
 local browser, with an animated assignment map and an interactive proof desk.
@@ -60,7 +92,8 @@ Start with [the bounded API](docs/CORE-API.md), [the CLI](docs/CLI.md) and
 checkpoint scopes, compiler/profile failures and their repairs. Those dated
 records are historical evidence; the run's source hashes establish its scope.
 The owner reported completing human review with no issues on November 8, 2026.
-The scheduled final freeze and contest submission are separate, unperformed steps.
+That qualitative approval predates the reviewer-startup improvements; it is not
+a controlled first-use benchmark. The scheduled final freeze is a separate checkpoint.
 
 The pure core owns the bounded model, Hungarian optimizer and separate
 dual-certificate verifier. It has no I/O, hashing, storage or network effects.
@@ -133,7 +166,11 @@ Read [the provenance record](docs/PROVENANCE.md) for pre-window design,
 preparatory experiments and AI assistance. Hungarian algorithms and duality
 are classical; no new mathematical algorithm or global-first claim is made.
 
-Original project source is MIT licensed. This repository is local; no public
-repository, submission or contest acceptance is claimed.
+Original project source is MIT licensed. The public repository is
+[aierosite/feassign](https://github.com/aierosite/feassign). The previous entry at
+`7665af113dc6bb1b64037fd2e366729e83b91fef` received confirmation on November 8
+that registration and deadline checks passed. Technical eligibility and judging
+remain separate. The exact commit supplied in the latest valid contest form
+identifies the version to judge; this README does not claim a judging result.
 
 [Third-party notices](THIRD-PARTY-NOTICES.md) retain tool/library attribution.

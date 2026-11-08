@@ -16,21 +16,23 @@ and [the five-minute explanation](docs/PITCH.md).
 
 ## Reproduce the entry
 
-Use Linux x86-64, Python 3.10+, a C compiler and the exact Fe 26.5.1 and
-Foundry Anvil/cast 1.8.7 assets pinned in [toolchain.json](toolchain.json).
-[Setup and complete checks](docs/REPRODUCE.md) explain asset hashes, dependencies,
-ordinary Osaka limits and fresh output directories. After setup, run:
+Start with the [judge handoff](JUDGING.md). Use Linux x86-64 with glibc 2.39+,
+Python 3.10+ and a C compiler named `cc`. These commands opt into official,
+SHA-256-pinned tool downloads into a local cache:
 
 ```sh
-python3 tools/demo.py --fe "/absolute/path/to/fe" --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --out target/demo-01
-python3 tools/reproduce.py --fe "/absolute/path/to/fe" --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --out target/repro-01
+python3 tools/review.py native --download
+python3 tools/review.py full --download
 ```
 
-The first command demonstrates optimal cost 3 versus row-order greedy cost 4,
-then rejects an invalid proof, another matrix and a repeat. The second runs
-all 11 stages and records actual source hashes, commands, outputs and receipts.
-`target/demo-01` and `target/repro-01` must not already exist. Optional
-[Proof Studio](workbench/README.md) uses these actual Fe results for its local UI.
+The first needs only Fe: it demonstrates optimal cost 3, rejects a duplicate
+assignment and checks retained external witnesses. The second also uses pinned
+Foundry 1.8.7 and runs all 11 stages, including the EVM demo's success,
+invalid-proof, different-matrix and repeat receipts. Both preserve fresh output
+directories. Explicit tool paths work offline without `--download`.
+[Setup and complete checks](docs/REPRODUCE.md) explain the exact dependencies and
+ordinary Osaka limits. Optional [Proof Studio](workbench/README.md) uses those
+actual Fe results for its local UI.
 
 ## Scope and disclosure
 
@@ -54,7 +56,9 @@ used in separate disclosed comparison experiments; they do not implement the
 product solver. [Provenance](docs/PROVENANCE.md), [attribution](THIRD-PARTY-NOTICES.md)
 and the [MIT license](LICENSE) give the scope and reuse details.
 
-This local entry still requires a public GitHub repository at the exact submitted
-commit and the owner's final submission. No publication, submission or contest
-acceptance is claimed. A later scheduled freeze is distinct from this prepared
-entry; if code changes before the deadline, reproduce and submit the intended commit.
+The source is public at [aierosite/feassign](https://github.com/aierosite/feassign).
+The previous entry at `7665af113dc6bb1b64037fd2e366729e83b91fef` was received
+on November 8, 2026 and passed the organizer's registration/deadline checks.
+That email did not decide technical eligibility or a prize. The latest valid
+submission's full commit SHA identifies the replacement version for judging.
+The scheduled final freeze remains distinct from the earlier owner review.

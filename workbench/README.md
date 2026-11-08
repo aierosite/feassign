@@ -4,15 +4,20 @@ Proof Studio is a local browser interface for the existing Fe solver and
 verifier. It needs Python 3.10 or later and the same Linux x86-64 environment
 and pinned tools as the [reproduction guide](../docs/REPRODUCE.md).
 
-From the source root, run the normal demo into a new directory and start the
-workbench from its verified output:
+From the source root, use the [judge handoff](../JUDGING.md) to complete the
+full review into an unused directory, then start the workbench from that output:
 
 ```sh
-python3 tools/demo.py --fe "/absolute/path/to/fe" --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --out target/demo-01
-python3 workbench/server.py --run-dir target/demo-01 --port 8765
+python3 tools/review.py full --download --out target/studio-review-01
+python3 workbench/server.py --run-dir target/studio-review-01/full-run --port 8765
 ```
 
-Open `http://127.0.0.1:8765/`. On Windows, run these commands inside WSL, or
+Keep the server terminal running and open `http://127.0.0.1:8765/`. The full
+review installs no system packages; `--download` permits verified official
+tool downloads. It is unnecessary when supplying the pinned local tool paths.
+You can also use the existing smaller [demo](../docs/DEMO.md) and pass its
+output to `--run-dir`, or reuse a completed full run without rebuilding.
+On Windows, run these commands inside WSL, or
 use `--wsl-distro <distribution>` with the Windows Python launcher and point
 `--run-dir` at the accessible WSL output. The server checks the pinned tool
 digests, native executable and runtime input hashes before serving. The optional
@@ -45,3 +50,20 @@ The graph animates the selected edges after Fe returns them. The browser uses
 exact integer arithmetic to display the returned proof. Fe solves and accepts
 or rejects certificates. The interface runs on loopback with Python's standard
 library and static browser assets.
+
+## Connection troubleshooting
+
+An open tab does not keep its server alive. If the terminal closes, the machine
+restarts or the process stops, the page can remain visible while requests fail.
+`Local Fe service unavailable` describes that connection failure; it is not a
+rejected certificate. Restart the same server command and retry the action in
+the existing tab. The request error preserves the editor input; do not reload
+or replace a draft just to reconnect. If using a new port, open the printed URL
+and transfer any draft you want to keep explicitly. Use `--port 0` when 8765 is busy.
+If the initial candidate never loaded and buttons remain disabled, preserve any
+draft separately, then reload after the server is running. A previously loaded
+page can retry its action without reloading.
+
+For an HTTP execution/storage error, inspect the server terminal. For a native
+verification rejection, the status contains the Fe CLI diagnostic. The server
+does not depend on a public deployment, hosted API, wallet or external RPC.

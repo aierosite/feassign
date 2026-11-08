@@ -45,6 +45,9 @@ Line breaks are for readability. The redundant total is checked against the
 shared verifier's recomputation from matrix values; it is never trusted by the
 kernel. Any valid optimum is accepted, not just this solver's tie choice.
 Successful verification prints `VALID <recomputed total>` and a newline.
+The result refers to the matrix embedded in that certificate. Compare it with
+the intended matrix, or use the Board's input commitment, before applying the
+result to another task. A valid proof for one matrix does not establish another.
 
 Only ASCII space, tab, LF, vertical tab, form feed and CR separate tokens.
 Leading/trailing whitespace is accepted. Numeric tokens are decimal digits,
@@ -56,9 +59,17 @@ Input accepts at most 131072 bytes including whitespace. At the boundary one
 additional read may establish EOF or reject an oversized stream; no whole-input
 buffer is retained. This is a size bound, not an input deadline.
 
-Exit statuses: 0 success, 2 syntax/type/dimension error, 3 input size limit,
-4 mathematically invalid certificate or inconsistent total, 5 I/O failure,
-6 internal invariant failure, 64 usage error. Diagnostics use fixed stderr text
+| Exit | Meaning |
+|---:|---|
+| 0 | Success; `verify` prints the recomputed total |
+| 2 | Syntax, type or dimension error |
+| 3 | Input size limit |
+| 4 | Mathematically invalid certificate or inconsistent total |
+| 5 | Input/output failure |
+| 6 | Internal invariant failure |
+| 64 | Command usage error |
+
+Diagnostics use fixed stderr text
 without reproducing hostile input. A valid prefix followed by bad input produces
 no success output. A late write failure may leave partial output and no diagnostic;
 its exit status is 5. Treat the exit status as authoritative.

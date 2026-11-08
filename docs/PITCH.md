@@ -78,4 +78,6 @@ tool experiments predate the window and remain disclosed; product code/tests
 were authored after opening. No competition rank, audit or security guarantee
 is implied. The owner reported completing human review with no issues on
 November 8, 2026. The scheduled final freeze remains a separate later checkpoint;
-local execution is distinct from public repository publication and contest submission.
+the public source and the previous registration/deadline acceptance are described
+in [CONTEST.md](../CONTEST.md). The exact latest submitted commit identifies the
+entry; technical eligibility and judging are separate from that initial acceptance.

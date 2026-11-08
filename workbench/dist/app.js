@@ -21,7 +21,12 @@ async function api(path, body) {
   const options = body === undefined ? undefined : {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
   };
-  const response = await fetch(path, options);
+  let response;
+  try {
+    response = await fetch(path, options);
+  } catch {
+    throw new Error("Local Fe service unavailable. Start the Proof Studio server and retry; see workbench/README.md. Your input is unchanged.");
+  }
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || `Request failed (${response.status})`);
   return result;
@@ -303,6 +308,7 @@ async function verify(event) {
   const revision = certificateRevision;
   button.setAttribute("aria-disabled", "true");
   message("verify-status", "Checking with Fe…");
+  if (currentProof) byId("proof-source").textContent = "The diagram shows the last displayed valid proof. The current request result appears above.";
   try {
     const result = await api("/api/verify", { certificate: byId("certificate").value });
     if (revision !== certificateRevision) return;

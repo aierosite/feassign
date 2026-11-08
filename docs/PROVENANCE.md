@@ -57,6 +57,18 @@ chooses to load the solver's certificate.
 The same preservation applies to edits made while the initial metadata loads.
 Synthetic test notes remain separate from human feedback.
 
+Post-opening competitive research also ran OR-Tools, HiGHS and NetworkX outside
+the product. The external-certificate examples retain numeric data from a
+HiGHS 1.15.1 research run. A research adapter rounded returned row duals as
+candidates and restored exact integer row offsets where explicitly stated.
+Python, the unchanged native Fe verifier and local EVM receipts checked the
+original costs. No optimizer implementation or binary was copied into the
+product, and the default solve path remains the Fe Hungarian implementation.
+The first external-EVM harness repeated an incorrect assumption that compiler
+immutable storage had constructor ABI layout. Its deployment succeeded; the
+test stopped before submission. That failed attempt and the corrected checks
+using actual runtime prefix and public getters are retained separately.
+
 After opening, Codex implemented the bounded model, shape-valid certificate,
 pure Fe mathematical verifier, directed tests and a separate API-consumer ingot.
 Observed EVM aggregate-stack failures prompted borrowed-buffer construction

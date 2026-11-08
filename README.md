@@ -22,6 +22,11 @@ The reference board checks that certificate against the committed input without
 rerunning the optimizer. [Run the example](docs/DEMO.md) after tool setup for the
 normal result and three sensitive rejected submissions.
 
+The verifier can also check a certificate produced outside FeAssign. The
+[external-optimizer example](docs/INTEROPERABILITY.md) includes a HiGHS-derived
+certificate and a rejected candidate whose floating-point input lost a unit
+difference. Both use the existing format and the original integer matrix.
+
 ## Implementation and evidence
 
 Product implementation began after November 3, 2026 at 00:00 UTC. The bounded

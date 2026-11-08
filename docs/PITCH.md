@@ -37,6 +37,15 @@ submission path. See [the core](../ingots/assignment/src/lib.fe) and
 [the board](../ingots/board/src/lib.fe). This is a reusable library and a
 reference consumer; neither requires a production service or a funded protocol.
 
+The verifier also checks witnesses from other optimizers. In a separate local
+HiGHS experiment, five restored integer certificates passed both native Fe and
+the existing board, including full32 costs at both i64 endpoints. A candidate
+whose binary64 model lost a unit difference was rejected against the original
+integers. [Try the small example](INTEROPERABILITY.md) without installing that
+optimizer. Exact checking is useful even when search happens elsewhere; this
+does not make FeAssign a general LP verifier or establish exclusive numeric
+correctness or a solver speed ranking.
+
 The core uses fixed capacities and wide arithmetic, with no I/O, hash, storage
 or network. An opaque sequential constructor replaced a redundant 1024-cell
 adapter buffer after an EVM code-limit failure. It preserves the full model

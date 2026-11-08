@@ -30,7 +30,9 @@ def main():
     parser.add_argument('--cast', default='cast')
     parser.add_argument('--evidence', required=True, type=Path)
     parser.add_argument('--port', default=0, type=int)
-    parser.add_argument('--abi-edges', action='store_true')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--abi-edges', action='store_true')
+    mode.add_argument('--certificate', type=Path, help='Verify and record this envelope instead of solving the built-in scenarios')
     args = parser.parse_args()
     if sys.platform != 'linux' or not __debug__:
         parser.error('Linux and Python assertions enabled are required')
@@ -70,7 +72,9 @@ def main():
                   runtime_bytes=len(runtime), initcode_with_arguments_bytes=len(creation)+96,
                   normal_code_init_limits=True, tx_gas_limit=16777216, cases=[],
                   classification='Actual FeAssign product on isolated localhost; no real funds',
-                  abi_edges=args.abi_edges, runner_sha256=sha(Path(__file__).read_bytes()), success=False)
+                  abi_edges=args.abi_edges, runner_sha256=sha(Path(__file__).read_bytes()),
+                  proof_source='external_certificate' if args.certificate else 'native_solve',
+                  node_started=False, success=False)
     process = None
     transaction_index = 0
 
@@ -129,9 +133,34 @@ def main():
     native = str(args.executable.resolve())
     report['native_executable'] = native
     report['native_binary_sha256'] = sha(Path(native).read_bytes())
+    external = None
+    if args.certificate:
+        try:
+            raw = args.certificate.read_bytes()
+            (logs / 'external-input.cert').write_bytes(raw)
+            checked = subprocess.run([native, 'verify'], input=raw, capture_output=True, timeout=30)
+            report['external_input'] = dict(path=str(args.certificate.resolve()), sha256=sha(raw),
+                verify_command=[native, 'verify'], exit_code=checked.returncode,
+                stdout=checked.stdout.decode('ascii', errors='backslashreplace'),
+                stderr=checked.stderr.decode('ascii', errors='backslashreplace'))
+            assert checked.returncode == 0 and not checked.stderr, 'Native Fe rejected the external certificate'
+            # Native accepts leading zeros; shorten spellings before Python's int digit limit.
+            tokens = [('-' if token.startswith('-') else '') + (token.lstrip('-').lstrip('0') or '0')
+                      if token[-1:].isdigit() else token for token in raw.decode('ascii').split()]
+            r, c = map(int, tokens[2:4])
+            assert 1 <= r <= c <= 32
+            costs = list(map(int, tokens[4:4+r*c]))
+            proof = inspector.inspect_certificate(' '.join(tokens).encode('ascii'), r, c, costs)
+            assert checked.stdout == f'VALID {proof["total"]}\n'.encode('ascii')
+            external = r, c, costs, raw, proof
+        except (OSError, subprocess.TimeoutExpired, ValueError, AssertionError) as error:
+            report.update(error=str(error), ended_utc=dt.datetime.now(dt.timezone.utc).isoformat())
+            save()
+            parser.error('External certificate preflight failed; inspect results.json. No node was started.')
     with (logs / 'node.stdout.log').open('wb') as stdout, (logs / 'node.stderr.log').open('wb') as stderr:
         process = subprocess.Popen(command, stdout=stdout, stderr=stderr)
         report['pid'] = process.pid
+        report['node_started'] = True
         try:
             deadline = time.monotonic()+15
             while True:
@@ -186,12 +215,19 @@ def main():
                                                           for i in range(32) for j in range(32)])]
             if args.abi_edges:
                 scenarios = scenarios[:1]
+            if external is not None:
+                scenarios = [('external-certificate', *external[:3])]
             for name, r, c, costs in scenarios:
-                solved = subprocess.run([native, 'solve'],
-                    input=inspector.solve_input(r, c, costs), capture_output=True, timeout=30)
-                assert solved.returncode == 0 and not solved.stderr
-                proof = inspector.inspect_certificate(solved.stdout, r, c, costs)
-                (logs / (name+'.cert')).write_bytes(solved.stdout)
+                if external is None:
+                    solved = subprocess.run([native, 'solve'],
+                        input=inspector.solve_input(r, c, costs), capture_output=True, timeout=30)
+                    assert solved.returncode == 0 and not solved.stderr
+                    raw = solved.stdout
+                    proof = inspector.inspect_certificate(raw, r, c, costs)
+                else:
+                    raw = external[3]
+                    proof = external[4]
+                (logs / (name+'.cert')).write_bytes(raw)
                 payload = abi.problem_payload(r, c, costs)
                 (logs / (name+'-problem-abi.hex')).write_text('0x'+payload.hex()+'\n', encoding='ascii')
                 digest = abi.keccak(payload, cast)

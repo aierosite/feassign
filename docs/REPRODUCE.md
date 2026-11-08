@@ -45,6 +45,10 @@ For a smaller first look, run only the command in DEMO.md. Individual test/build
 commands are in README.md. Advanced protocol checks can use that demo's actual
 artifacts without a second optimizer:
 
+The [external-certificate replay](INTEROPERABILITY.md) uses the same checker
+with `--certificate`, validating a supplied witness before starting its node.
+The default and `--abi-edges` commands below retain their original scenarios.
+
 ```sh
 python3 tools/check-board.py --build-dir target/demo-01/board --executable target/demo-01/native/feassign --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --evidence target/full32-01
 python3 tools/check-board.py --build-dir target/demo-01/board --executable target/demo-01/native/feassign --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --evidence target/abi-01 --abi-edges

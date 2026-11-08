@@ -69,6 +69,14 @@ immutable storage had constructor ABI layout. Its deployment succeeded; the
 test stopped before submission. That failed attempt and the corrected checks
 using actual runtime prefix and public getters are retained separately.
 
+The later portable replay adds an optional certificate input to the existing
+Board checker. Native Fe validates that file before node startup; Python
+independently inspects its exact fields, and the original commitment/transaction
+helpers replay it without invoking an optimizer. No research path or HiGHS
+runtime is required. Legacy built-in and adversarial ABI campaigns remain
+separate modes. This support tooling change does not change Fe mathematics,
+the wire format, core ownership or contract behavior.
+
 After opening, Codex implemented the bounded model, shape-valid certificate,
 pure Fe mathematical verifier, directed tests and a separate API-consumer ingot.
 Observed EVM aggregate-stack failures prompted borrowed-buffer construction

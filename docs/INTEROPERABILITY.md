@@ -47,12 +47,40 @@ even when the optimizer found an optimum; acceptance requires every exact
 certificate condition. No HiGHS installation is needed to check these files,
 and the product's solve command continues to run the Fe Hungarian optimizer.
 
-## Existing local EVM boundary
+## Replay the same file on a local Board
+
+After the [normal demo](DEMO.md) has built the pinned native and Board
+artifacts, run this command from the source root with a new evidence directory:
+
+```sh
+python3 tools/check-board.py --build-dir target/demo-01/board --executable target/demo-01/native/feassign --anvil "/absolute/path/to/anvil" --cast "/absolute/path/to/cast" --certificate examples/external-unit-gap-valid.cert --evidence target/external-proof-01
+```
+
+This mode invokes native Fe `verify`, independently inspects the accepted
+envelope with Python integers, and submits its original matrix, selection and
+potentials to an owned localhost Board. It does not invoke `solve` or replace
+the witness. Three receipts demonstrate deployment, accepted submission and
+rejected repeat. Getters must return the supplied selection `[1,0]` and exact
+total `18014398509481984`; the repeat must preserve all 34 mutable slots.
+The node uses the pinned Osaka limits and stops on completion or failure.
+No wallet, external optimizer or public deployment is needed.
+
+Use `examples/external-unit-gap-converted.cert` instead, with another new
+evidence directory, to exercise rejection before node startup. The checker
+exits 2 and retains native Fe's rejection exit 4 in `results.json`; it does
+not create a deployment or silently fall back to search. Malformed or
+unreadable inputs also fail preflight. `--certificate` and `--abi-edges`
+are mutually exclusive. Omitting both preserves the original full32 campaign.
+Native-accepted whitespace, leading zeros and signed negative zero retain the
+same values. The original file bytes are saved; Python shortens decimal
+spellings only for its independent arithmetic inspection.
+
+## Retained local EVM observations
 
 On November 8, 2026 UTC, the unchanged Board built with Fe 26.5.1 accepted five
 HiGHS-derived witnesses through its existing `submit` ABI. Original source
 commit was `923bf4e71291f519298f1cc744f4db659a7c76fc`. Original core, CLI,
-Board and workbench bytes are unchanged by this documentation/example revision.
+Board and workbench bytes are unchanged by the portable checker revision.
 The observed stored results were:
 
 | Input | Preprocessing | Stored total | Submit receipt gasUsed |
@@ -80,9 +108,9 @@ transaction had a receipt/status and relevant code/getter/state readback, and
 the owned node stopped. These are local configuration-specific observations,
 not a public deployment or universal gas bound. Full receipts, calldata,
 source bindings and the preserved harness calibration accompany the review
-packet's external-proof evidence. Native checking is reproduced by the two
-commands above; the standard [Board demo](DEMO.md) separately reproduces the
-Fe-generated proof path.
+packet's external-proof evidence. The portable checker command above now
+replays supplied witnesses; it does not depend on the original research paths.
+The standard [Board demo](DEMO.md) separately reproduces the Fe-generated path.
 
 The commitment and [Board ABI](BOARD.md) bind the original dimensions and costs.
 The Board recomputes the total; no claimed objective is submitted. This witness

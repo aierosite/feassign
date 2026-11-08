@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from threading import Lock
+from urllib.parse import quote
 from uuid import uuid4
 from zipfile import BadZipFile, ZipFile
 
@@ -261,7 +262,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self.json(500, {"error": "Review notes could not be read. See the server log."})
             return self.json(200, {"notes": notes})
         if self.path == "/evidence/package" and review.package:
-            return self.response(200, review.package.read_bytes(), "application/zip", f'attachment; filename="{review.package.name}"')
+            name = review.package.name
+            disposition = (f'attachment; filename="{name}"' if re.fullmatch(r"[A-Za-z0-9._-]+", name) else
+                           "attachment; filename=\"feassign.zip\"; filename*=UTF-8''" + quote(name, safe=""))
+            return self.response(200, review.package.read_bytes(), "application/zip", disposition)
         if self.path.startswith("/evidence/"):
             data = review.files.get(self.path.removeprefix("/evidence/"))
             if data:

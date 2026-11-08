@@ -3,6 +3,9 @@
 An exact minimum-total-cost assignment library in Fe, with an independently
 structured verifier for an optimality certificate.
 
+[Contest entry overview](CONTEST.md) collects the pitch, Fe-specific contribution,
+reproducible demo, disclosure and submission boundaries.
+
 [The five-minute pitch](docs/PITCH.md) explains the result and its limits.
 [Proof Studio](workbench/README.md) opens the same solver and verifier in a
 local browser, with an animated assignment map and an interactive proof desk.
@@ -33,11 +36,14 @@ Product implementation began after November 3, 2026 at 00:00 UTC. The bounded
 model, actual Hungarian optimizer, separate verifier, native CLI and immutable
 board are implemented. Retained evidence includes 2,906 exported certificates
 independently inspected in Python, native/EVM functions, I/O failures and full32
-Osaka transactions under ordinary limits. The fresh-source run at 83dcc7e
-used Python 3.10.12. The Fe and C sources still match that run. A subsequent
-normal demo at f789726 built the native CLI/shared core and Board under Python
-3.12.3 and passed five receipted transactions. It did not repeat the whole
-11-stage workflow. The demo now records success after collecting source hashes.
+Osaka transactions under ordinary limits. The retained full-source run at
+63a90377759934cd3f8834f3e890027bb643b538 used Python 3.10.12 and passed
+all 11 stages: 110 Fe test executions, 2,906 native certificate roundtrips,
+43 directed CLI negatives, 8 descriptor/I/O cases and 60 receipted local EVM
+transactions in separate demo/full32/ABI campaigns. Thirty-four failed calls
+preserved all 34 checked mutable slots; four failed creations retained empty
+code readbacks. The source/run manifest distinguishes this dated result from
+any subsequent fresh reproduction.
 [BOARD.md](docs/BOARD.md) and the
 candidate manifest distinguish current source from earlier checkpoint evidence.
 Evidence is specific to its recorded source and compiler, not an exhaustive
@@ -53,7 +59,8 @@ Start with [the bounded API](docs/CORE-API.md), [the CLI](docs/CLI.md) and
 [the representation gate](docs/REPRESENTATION-GATE.md) preserve earlier
 checkpoint scopes, compiler/profile failures and their repairs. Those dated
 records are historical evidence; the run's source hashes establish its scope.
-Actual human review and final freeze remain pending.
+The owner reported completing human review with no issues on November 8, 2026.
+The scheduled final freeze and contest submission are separate, unperformed steps.
 
 The pure core owns the bounded model, Hungarian optimizer and separate
 dual-certificate verifier. It has no I/O, hashing, storage or network effects.
@@ -113,7 +120,7 @@ python3 tools/reproduce.py --fe "/absolute/path/to/fe" --anvil "/absolute/path/t
 
 See [reproduction](docs/REPRODUCE.md) for fresh-source/output/cache scope and
 standalone full32/ABI checks. Local records are not a remotely passed CI result
-or published deployment. The human review and final freeze are still pending.
+or published deployment. See CONTEST.md for current disclosure and limitations.
 
 The build and checks require new output/evidence directories for each run.
 `--smoke` on check-native runs directed/negative/I/O checks without the larger

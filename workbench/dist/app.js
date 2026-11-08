@@ -248,7 +248,13 @@ function showResult(result) {
     automaticCertificateRevision = certificateRevision;
     renderProof(proof, true);
   };
-  byId("open-certificate").onclick = loadSolvedCertificate;
+  byId("open-certificate").onclick = (event) => {
+    event.preventDefault();
+    loadSolvedCertificate();
+    location.hash = "verify";
+    showPanel();
+    byId("certificate").focus();
+  };
   if (certificateRevision === automaticCertificateRevision) loadSolvedCertificate();
 }
 

@@ -301,7 +301,9 @@ def main():
                 # Constructor shape rejection is a real failed creation receipt.
                 for r, c in [(0, 1), (2, 1), (1, 33), (33, 33)]:
                     receipt, row = send(f'invalid-constructor-{r}-{c}', creation+abi.word(r)+abi.word(c)+bytes(32), expected=0)
-                    assert receipt['contractAddress'] is None or rpc('eth_getCode', [receipt['contractAddress'], 'latest'])['result'] == '0x'
+                    address = receipt['contractAddress']
+                    row['code_after_failed_creation'] = None if address is None else rpc('eth_getCode', [address, 'latest'])['result']
+                    assert address is None or row['code_after_failed_creation'] == '0x'
                 for name, r, c, costs, p, u, v in [
                     ('valid-full-i128-gauge', 1, 1, [-1], [0], [inspector.MAX128], [inspector.MIN128]),
                     ('alternative-zero-optimum', 2, 2, [0]*4, [1, 0], [0, 0], [0, 0]),

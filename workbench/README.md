@@ -27,7 +27,8 @@ To view the full set of reproduction metrics in Evidence, run the
 
 - **Studio** edits or pastes a bounded signed i64 matrix, runs Fe and draws the
   selected edges returned by the solver.
-- **Proof desk** verifies the exact text envelope with the Fe CLI. It shows
+- **Proof desk** verifies the matrix and witness inside the text envelope with
+  the Fe CLI. Its result refers to that embedded matrix. It shows
   the dual bound, constraint counts and the slack of an inspected edge.
   The duplicate-column example lets the reviewer observe a rejected proof.
   Solver results leave a manually changed editor intact. **Load solver

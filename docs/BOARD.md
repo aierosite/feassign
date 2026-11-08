@@ -69,6 +69,9 @@ transaction. The above-cap control was rejected. Every claimed deployment,
 successful submit and failed-state check has a receipt/status plus readback.
 Rejection transactions used less than the declared limit; they are not labelled
 mathematical rejection on the strength of an out-of-gas result.
+Failed constructor records also retain a code readback for any returned
+creation address. A reverted creation can still have a predicted address in
+the local receipt; the retained empty-code result establishes code absence.
 
 The initial O1 board emitted27,695 runtime bytes and exceeded EIP-170; O2 and
 size optimization still exceeded it. Initializing the1024 staging array from a
